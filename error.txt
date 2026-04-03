@@ -1,0 +1,42 @@
+﻿
+  Dropping all tables  211.41ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table  23.48ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  117.56ms DONE
+  0001_01_01_000001_create_cache_table  74.54ms DONE
+  0001_01_01_000002_create_jobs_table  89.60ms DONE
+  2026_03_31_230038_create_categories_table  35.19ms DONE
+  2026_03_31_230038_create_vouchers_table  83.93ms DONE
+  2026_03_31_230038_z_create_products_table  116.92ms DONE
+  2026_03_31_230039_create_carts_table  63.10ms DONE
+  2026_03_31_230039_create_favorites_table  119.55ms DONE
+  2026_03_31_230040_create_cart_items_table  109.46ms DONE
+  2026_03_31_230040_create_orders_table  144.96ms DONE
+  2026_03_31_230041_create_chat_messages_table  19.07ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[HY000]: General error: 1824 Failed to open the referenced table 'chats' (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: Telcopedia_laravel_baru, SQL: alter table `chat_messages` add constraint `chat_messages_chat_id_foreign` foreign key (`chat_id`) references `chats` (`id`) on delete cascade)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:841
+    837Γûò             $exceptionType = ($isUniqueConstraintError = $this->isUniqueConstraintError($e))
+    838Γûò                 ? UniqueConstraintViolationException::class
+    839Γûò                 : QueryException::class;
+    840Γûò 
+  Γ₧£ 841Γûò             $exception = new $exceptionType(
+    842Γûò                 $this->getNameWithReadWriteType(),
+    843Γûò                 $query,
+    844Γûò                 $this->prepareBindings($bindings),
+    845Γûò                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:587
+      PDOException::("SQLSTATE[HY000]: General error: 1824 Failed to open the referenced table 'chats'")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:587
+      PDOStatement::execute()
+
