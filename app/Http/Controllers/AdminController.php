@@ -19,38 +19,46 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $stats = [
+            'total_users' => User::count(),
+            'total_products' => Product::count(),
+            'pending_products' => Product::where('status', 'pending')->count(),
+            'pending_payments' => Order::where('status', 'paid_verifying')->count(),
+            'total_completed_orders' => Order::where('status', 'completed')->count(),
+            'total_revenue' => Order::where('status', 'completed')->get()->sum(function($order) {
+                // Admin fee is 5% of subtotal
+                $subtotal = $order->items->sum(fn($i) => $i->price * $i->quantity);
+                return $subtotal * 0.05;
+            }),
+            'pending_withdrawals' => \App\Models\Withdrawal::where('status', 'pending')->count(),
+        ];
+        return view('admin.dashboard', compact('stats'));
+    }
+
+    public function approveProduct($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->status = 'approved';
+        $product->save();
+        return back()->with('success', 'Produk berhasil disetujui untuk tayang.');
+    }
+
+    public function rejectProduct($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->status = 'rejected';
+        $product->save();
+        return back()->with('success', 'Produk telah ditolak.');
     }
 
     /**
-     * Kelola Pembayaran (Verifikasi Bukti Bayar)
+     * Monitoring Pembayaran (Admin hanya monitoring)
      */
     public function payments()
     {
-        $orders = Order::with('user')->where('status', 'paid_verifying')->latest()->get();
+        // Admin memantau semua order yang masuk untuk melihat perputaran uang dan biaya admin
+        $orders = Order::with('user')->latest()->get();
         return view('admin.payments', compact('orders'));
-    }
-
-    /**
-     * Setujui Pembayaran
-     */
-    public function approvePayment(Request $request, $id)
-    {
-        $order = Order::findOrFail($id);
-        $order->update(['status' => 'processing']);
-
-        return back()->with('success', 'Pembayaran Berhasil Diverifikasi! Status pesanan berubah menjadi Diproses.');
-    }
-
-    /**
-     * Tolak Pembayaran
-     */
-    public function rejectPayment(Request $request, $id)
-    {
-        $order = Order::findOrFail($id);
-        $order->update(['status' => 'pending_payment']); // Kembalikan agar user upload ulang bukti yang benar
-
-        return back()->with('error', 'Pembayaran Ditolak. Harap pembeli mengunggah bukti yang valid.');
     }
 
     public function products()

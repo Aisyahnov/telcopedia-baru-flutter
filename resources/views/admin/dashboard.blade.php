@@ -1,89 +1,120 @@
 @extends('layouts.app')
 @section('title', 'Admin Dashboard - Telcopedia')
 
+@push('styles')
+<style>
+    .admin-header { background: #1a1a1a; color: white; padding: 40px 0; border-bottom: 5px solid #9F1521; }
+    .stat-card { transition: 0.3s; border: none; overflow: hidden; border-radius: 15px; }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .btn-maroon { background: #9F1521; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; }
+    .btn-maroon:hover { background: #7c111b; color: white; }
+    .action-quick { background: #fdfdfd; border: 1px dashed #ddd; border-radius: 15px; padding: 30px; text-align: center; }
+</style>
+@endpush
+
 @section('content')
-<div class="bg-dark text-white border-bottom shadow-sm">
-    <div class="container py-5">
-        <div class="d-flex align-items-center">
-            <div class="bg-danger rounded-circle p-3 me-4 shadow" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
-                <i class="fa fa-shield-halved fa-2x text-white"></i>
-            </div>
-            <div>
-                <h2 class="fw-bold mb-0">🛡️ Dashboard Super Admin</h2>
-                <p class="text-white-50 mb-0">Pusat kontrol dan moderasi ekosistem Telcopedia.</p>
+@section('hero_title', 'Dashboard Admin Telcopedia')
+@section('hero_subtitle', 'Pusat kontrol ekosistem Telcopedia.')
+@section('hero_emoji', '')
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-dark border-3 hover-translate-y transition-all">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-3 me-3 text-secondary shadow-sm" style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-users fa-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0 x-small fw-bold" style="font-size: 0.6rem; letter-spacing: 1px;">TOTAL USER</p>
+                            <h4 class="fw-900 mb-0">{{ number_format($stats['total_users']) }}</h4>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="container my-5">
-    <div class="row g-4">
-        <!-- SIDENAV PINTASAN ADMIN -->
-        <div class="col-md-3">
-            @include('layouts.partials.admin_sidebar')
-        </div>
-
-        <!-- STATS & INFO -->
-        <div class="col-md-9">
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-bottom border-dark border-3">
-                        <div class="card-body d-flex align-items-center p-4">
-                            <div class="bg-light rounded-circle p-3 me-3 text-secondary shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa fa-user-check fa-lg"></i>
-                            </div>
-                            <div>
-                                <p class="text-muted mb-0 small fw-bold">PENGGUNA</p>
-                                <h4 class="fw-bold mb-0">Aktif</h4>
-                            </div>
+        <div class="col-md-4">
+            <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-maroon border-3 hover-translate-y transition-all">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-maroon-soft rounded-circle p-3 me-3 text-maroon shadow-sm" style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-coins fa-lg"></i>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-bottom border-danger border-3">
-                        <div class="card-body d-flex align-items-center p-4">
-                            <div class="bg-light rounded-circle p-3 me-3 text-danger shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa fa-money-bill-transfer fa-lg"></i>
-                            </div>
-                            <div>
-                                <p class="text-muted mb-0 small fw-bold">PENDING</p>
-                                <h4 class="fw-bold mb-0">{{ \App\Models\Order::where('status', 'paid_verifying')->count() }} Bayar</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-white border-bottom border-success border-3">
-                        <div class="card-body d-flex align-items-center p-4">
-                            <div class="bg-light rounded-circle p-3 me-3 text-success shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa fa-boxes fa-lg"></i>
-                            </div>
-                            <div>
-                                <p class="text-muted mb-0 small fw-bold">MODERASI</p>
-                                <h4 class="fw-bold mb-0">{{ \App\Models\Product::count() }} Barang</h4>
-                            </div>
+                        <div>
+                            <p class="text-muted mb-0 x-small fw-bold" style="font-size: 0.6rem; letter-spacing: 1px;">REVENUE ADMIN</p>
+                            <h4 class="fw-900 mb-0">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</h4>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Pesanan Terbaru Tinjauan Cepat -->
-            <div class="card border-0 shadow-sm rounded-4 bg-white">
-                <div class="card-body p-5 text-center">
-                    <div class="mb-4">
-                        <i class="fa fa-server fa-5x text-dark opacity-10"></i>
-                    </div>
-                    <h4 class="fw-bold">Seluruh Sistem Berjalan Normal</h4>
-                    <p class="text-muted mx-auto" style="max-width: 600px;">
-                        Gunakan tab navigasi di sebelah kiri untuk mengawasi akun mahasiswa, meninjau pergerakan produk lapak, atau memverifikasi bukti pembayaran yang masuk.
-                    </p>
-                    <div class="mt-4 gap-2 d-flex justify-content-center">
-                        <a href="{{ route('admin.payments') }}" class="btn btn-danger rounded-pill px-4 fw-bold">Cek Pembayaran</a>
-                        <a href="{{ route('admin.users') }}" class="btn btn-outline-dark rounded-pill px-4 fw-bold">Database User</a>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-success border-3 hover-translate-y transition-all">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success-subtle rounded-circle p-3 me-3 text-success shadow-sm" style="width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-box-open fa-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted mb-0 x-small fw-bold" style="font-size: 0.6rem; letter-spacing: 1px;">TOTAL PRODUK</p>
+                            <h4 class="fw-900 mb-0">{{ number_format($stats['total_products']) }}</h4>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- ANALYTICS CHART -->
+    <div class="card card-management shadow-sm border-0 bg-white mb-5">
+        <div class="card-header bg-white border-0 p-4 pb-0 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0 text-dark">Grafik Pertumbuhan Transaksi</h6>
+            <div class="dropdown">
+                <button class="btn btn-light btn-sm rounded-pill px-3 border" type="button">
+                    30 Hari Terakhir <i class="fa fa-chevron-down ms-1 small"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div style="height: 350px; width: 100%;">
+                <canvas id="adminChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctxAdmin = document.getElementById('adminChart').getContext('2d');
+        new Chart(ctxAdmin, {
+            type: 'bar',
+            data: {
+                labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'],
+                datasets: [{
+                    label: 'Volume Transaksi',
+                    data: [45, 82, 60, 110],
+                    backgroundColor: '#9F1521',
+                    borderRadius: 10,
+                    barThickness: 40,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { drawBorder: false, color: '#f0f0f0' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+    @endpush
 @endsection

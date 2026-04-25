@@ -151,7 +151,7 @@
             </div>
             <div class="brand-divider"></div>
             <div class="brand-desc">
-                Sistem pendaftaran kilat. Bergabung bersama kami dan nikmati ekosistem jual beli kampus.
+                Bergabung bersama kami dan nikmati ekosistem jual beli kampus.
             </div>
         </div>
 
@@ -170,7 +170,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('register') }}" method="POST">
+            <form action="{{ route('register') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-grid">
                     <div class="form-group-custom">
@@ -197,8 +197,8 @@
                         <label class="label-custom">Role</label>
                         <select name="role" class="input-custom" required>
                             <option value="" disabled selected>Select Role</option>
-                            <option value="buyer">Buyer (Beli)</option>
-                            <option value="seller">Seller (Jual)</option>
+                            <option value="buyer">Pembeli</option>
+                            <option value="seller">Penjual</option>
                         </select>
                     </div>
                 </div>

@@ -22,8 +22,8 @@
                 <div class="row g-0">
                     {{-- LEFT: INSTRUCTIONS --}}
                     <div class="col-md-6 border-end p-5 bg-light bg-opacity-50">
-                        <div class="mb-4">
-                            <span class="badge bg-danger mb-2">Langkah 1: Pembayaran</span>
+                        <div class="mb-4 text-center">
+                            <span class="badge bg-maroon mb-2">Langkah 1: Pembayaran</span>
                             <h4 class="fw-bold">Metode Pembayaran Manual</h4>
                             <p class="text-muted small">Silakan pilih salah satu rekening di bawah ini untuk menyelesaikan pesanan <strong>#ORD-{{ $order->id }}</strong>.</p>
                         </div>
@@ -38,15 +38,15 @@
                         </div>
 
                         <div class="mb-4 bank-item p-3 d-flex align-items-center">
-                            <img src="https://upload.wikimedia.org/wikipedia/id/5/55/BNI_logo.svg" width="60" class="me-3">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" width="60" class="me-3">
                             <div>
-                                <small class="text-muted d-block">Bank BNI</small>
-                                <span class="fw-bold fs-5">0234-567-890</span>
+                                <small class="text-muted d-block">E-Wallet DANA</small>
+                                <span class="fw-bold fs-5">0812-3456-7890</span>
                                 <small class="d-block text-muted">a/n Telcopedia Mahasiswa</small>
                             </div>
                         </div>
 
-                        <div class="alert alert-info border-0 shadow-none rounded-3 py-3 px-4">
+                        <div class="bg-maroon-subtle border-0 rounded-3 py-3 px-4">
                             <div class="d-flex align-items-center mb-1">
                                 <i class="fa fa-info-circle me-2"></i>
                                 <span class="fw-bold">Nominal yang ditransfer:</span>
@@ -58,7 +58,7 @@
                     {{-- RIGHT: UPLOAD FORM --}}
                     <div class="col-md-6 p-5 bg-white">
                         <div class="mb-5 text-center">
-                            <span class="badge bg-warning text-dark mb-2">Langkah 2: Konfirmasi</span>
+                            <span class="badge bg-maroon mb-2">Langkah 2: Konfirmasi</span>
                             <h4 class="fw-bold text-center">Upload Bukti Transfer</h4>
                             <p class="text-muted small">Lampirkan struk atau screenshot bukti bayar Anda.</p>
                         </div>

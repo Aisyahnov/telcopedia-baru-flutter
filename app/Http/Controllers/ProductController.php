@@ -23,28 +23,52 @@ class ProductController extends Controller
 
     public function create()
     {
+        if (auth()->user()->is_banned_from_posting) {
+            return redirect()->route('seller.products.index')->withErrors(['error' => 'Akses ditolak. Anda telah menerima 3 teguran retur.']);
+        }
         $categories = Category::all();
         return view('seller.products.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        if ($request->user()->is_banned_from_posting) {
+            return redirect()->route('seller.products.index')->withErrors(['error' => 'Akses ditolak. Anda telah menerima 3 teguran retur.']);
+        }
+
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string',
             'description' => 'required|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'image' => 'nullable|string' // Idealnya diganti jadi |image|max:2048 lalu pake store()
+            'condition' => 'required|string',
+            'image' => 'required|image|max:10240',
+            'gallery.*' => 'nullable|image|max:10240'
         ]);
 
-        $this->productService->createProduct($request->user()->id, $validated);
-        return redirect()->route('seller.products.index')->with('success', 'Produk ditambahkan');
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product = $this->productService->createProduct($request->user()->id, $validated);
+
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $path = $file->store('products/gallery', 'public');
+                \App\Models\ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url' => $path
+                ]);
+            }
+        }
+
+        return redirect()->route('seller.products.index')->with('success', 'Produk berhasil ditambahkan dan sedang menunggu persetujuan admin.');
     }
 
     public function edit(Request $request, $id)
     {
-        $product = \App\Models\Product::where('id', $id)->where('seller_id', $request->user()->id)->firstOrFail();
+        $product = \App\Models\Product::with('images')->where('id', $id)->where('seller_id', $request->user()->id)->firstOrFail();
         $categories = Category::all();
         return view('seller.products.edit', compact('product', 'categories'));
     }
@@ -57,10 +81,29 @@ class ProductController extends Controller
             'description' => 'sometimes|string',
             'price' => 'sometimes|numeric',
             'stock' => 'sometimes|integer',
-            'image' => 'nullable|string'
+            'condition' => 'sometimes|string',
+            'image' => 'nullable|image|max:10240',
+            'gallery.*' => 'nullable|image|max:10240'
         ]);
 
-        $this->productService->updateProduct($id, $request->user()->id, $validated);
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        } else {
+            unset($validated['image']);
+        }
+
+        $product = $this->productService->updateProduct($id, $request->user()->id, $validated);
+
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $path = $file->store('products/gallery', 'public');
+                \App\Models\ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_url' => $path
+                ]);
+            }
+        }
+
         return redirect()->route('seller.products.index')->with('success', 'Produk diupdate');
     }
 

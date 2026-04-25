@@ -1,204 +1,273 @@
 @extends('layouts.app')
-@section('title', 'Telcopedia - Home')
+@section('title', 'Telcopedia - Platform Jual Beli Mahasiswa Telkom')
 
 @push('styles')
 <style>
-    .hero-card { border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); }
-    .product-card { border-radius: 10px; transition: transform .15s; border: 1px solid #eee !important; }
-    .product-card:hover { transform: translateY(-6px); box-shadow:0 10px 20px rgba(0,0,0,0.08); }
-    .category-btn { border-radius: 20px; padding: 6px 20px; font-weight: 500; font-size: 14px; }
-    .category-btn.active { background-color: #9F1521; color: #fff; border-color: #9F1521; }
-    .testimonial { background:#fff; border-radius:10px; padding:20px; box-shadow:0 6px 18px rgba(0,0,0,0.04); height: 100%; }
-    .usp-icon { font-size: 2rem; color: #9F1521; margin-bottom: 15px; }
-    .step-number { width: 40px; height: 40px; border-radius: 50%; background: #9F1521; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 15px; }
-    .seller-cta { background: linear-gradient(135deg, #9F1521 0%, #4a0910 100%); border-radius: 15px; color: white; padding: 40px; }
+    /* PREMIUM HOME STYLES */
+    body { background-color: #fcfcfc; }
+
+    /* Hero Section - Compact & Integrated */
+    .hero-section { position: relative; padding: 20px 0 10px; }
+    .hero-card-custom {
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+    }
+    .hero-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: var(--telco-maroon-soft);
+        color: var(--telco-maroon);
+        border-radius: 100px;
+        font-weight: 800;
+        font-size: 0.6rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+    }
+
+    /* USP Style - Plain & Clean (Matching User Image) */
+    .usp-icon {
+        color: var(--telco-maroon);
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+        display: block;
+    }
+    .usp-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+    }
+    .usp-desc {
+        font-size: 0.85rem;
+        color: #888;
+        line-height: 1.6;
+        margin-bottom: 0;
+    }
+
+    /* Product Card Improvements */
+    .product-card-premium {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #f0f0f0;
+        overflow: hidden;
+        transition: 0.3s all;
+        height: 100%;
+        position: relative; /* Penting untuk stretched-link */
+    }
+    .product-card-premium:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+    .pc-img-wrapper { position: relative; height: 200px; background: #f8f8f8; overflow: hidden; }
+    .pc-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .pc-badge {
+        position: absolute; top: 12px; right: 12px;
+        background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
+        padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 0.6rem; color: var(--telco-maroon);
+    }
+    .pc-body { padding: 15px; }
+    .pc-title { font-size: 0.9rem; font-weight: 700; color: #222; margin-bottom: 6px; height: 2.6em; overflow: hidden; }
+    .pc-price { font-size: 1.1rem; font-weight: 800; color: var(--telco-maroon); margin-bottom: 12px; }
+    
+    /* Testimonials Premium */
+    .testimonial-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px 30px 30px;
+        border: 1px solid #f0f0f0;
+        transition: 0.3s all;
+        height: 100%;
+        margin-top: 40px;
+    }
+    .testimonial-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); border-color: var(--telco-maroon-soft); }
+    .testi-img {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        object-fit: cover;
+    }
+
+    /* Animations */
+    .fade-up { animation: fadeUp 0.6s ease backwards; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    #heroCarousel .carousel-control-prev, #heroCarousel .carousel-control-next {
+        width: 40px; height: 40px; background: white; border-radius: 50%; top: 50%; transform: translateY(-50%);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); opacity: 0; transition: 0.3s all; border: none;
+    }
+    #heroCarousel:hover .carousel-control-prev { opacity: 1; left: 10px; }
+    #heroCarousel:hover .carousel-control-next { opacity: 1; right: 10px; }
 </style>
 @endpush
 
 @section('content')
 
-<!-- HERO / CAROUSEL -->
-<div class="container my-4">
-  <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <div class="row align-items-center">
-          <div class="col-lg-7">
-            <div class="p-4">
-              <h1 class="display-6 text-danger fw-bold">Find Quality Used Items at Affordable Prices!</h1>
-              <p class="lead text-muted">Look for high-quality used goods at pocket-friendly prices. Start shopping now!</p>
-              <a href="#products" class="btn btn-danger btn-lg rounded-pill px-4">Start Shopping</a>
+<!-- HERO SECTION -->
+<div class="hero-section">
+    <div class="container">
+        <div id="heroCarousel" class="carousel slide hero-card-custom bg-white" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="row align-items-center g-0">
+                        <div class="col-lg-6 p-4 ps-lg-5">
+                            <div class="fade-up">
+                                <span class="hero-badge">Telkom Marketplace</span>
+                                <h2 class="fw-900 text-dark mb-2">Cari Barang Bekas <br><span class="text-maroon">Harga Teman.</span></h2>
+                                <p class="text-muted small mb-4">Belanja aman dari kawan sendiri di ekosistem Telkom University.</p>
+                                <div class="d-flex gap-2">
+                                    <a href="#products" class="btn btn-maroon btn-sm px-4 shadow">Belanja</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <img src="{{ asset('images/hero1.jpg') }}" class="w-100 object-fit-cover" style="height: 280px;" alt="Hero">
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="bg-secondary rounded hero-card" style="height:350px;"></div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
-<!-- USP Section -->
-<div class="container mb-5">
-  <div class="row text-center g-4">
-    <div class="col-md-4">
-      <div class="usp-icon"><i class="fa-solid fa-shield-halved"></i></div>
-      <h6 class="fw-bold">Aman & Terpercaya</h6>
-      <p class="text-muted small">Seluruh user terverifikasi dengan NIM Mahasiswa Telkom University.</p>
+<!-- USP SECTION (Exact Match from Image) -->
+<div class="container py-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <i class="fa-solid fa-shield-halved usp-icon"></i>
+            <h6 class="usp-title">Aman & Terpercaya</h6>
+            <p class="usp-desc">Seluruh user terverifikasi dengan NIM Mahasiswa Telkom University.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="fa-solid fa-tag usp-icon"></i>
+            <h6 class="usp-title">Harga Mahasiswa</h6>
+            <p class="usp-desc">Cari barang preloved berkualitas dengan harga yang ramah di kantong.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="fa-solid fa-handshake usp-icon"></i>
+            <h6 class="usp-title">Mudah & Cepat</h6>
+            <p class="usp-desc">Transaksi bisa langsung COD di area kampus atau sekitaran Dayeuhkolot.</p>
+        </div>
     </div>
-    <div class="col-md-4">
-      <div class="usp-icon"><i class="fa-solid fa-tags"></i></div>
-      <h6 class="fw-bold">Harga Mahasiswa</h6>
-      <p class="text-muted small">Cari barang preloved berkualitas dengan harga yang ramah di kantong.</p>
-    </div>
-    <div class="col-md-4">
-      <div class="usp-icon"><i class="fa-solid fa-handshake-simple"></i></div>
-      <h6 class="fw-bold">Mudah & Cepat</h6>
-      <p class="text-muted small">Transaksi bisa langsung COD di area kampus atau sekitaran Dayeuhkolot.</p>
-    </div>
-  </div>
 </div>
 
-<!-- CATEGORIES -->
-<div class="container mb-4">
-  <h5 class="mb-3">Featured Category</h5>
-  <div class="d-flex flex-row gap-2 overflow-auto pb-2">
-    <a href="{{ route('home') }}" class="btn btn-outline-secondary category-btn {{ !request('category_id') ? 'active' : '' }}">Semua</a>
-    @foreach(\App\Models\Category::all() as $cat)
-      <a href="{{ route('category.show', $cat->slug) }}" 
-         class="btn btn-outline-secondary category-btn {{ (isset($category) && $category->id == $cat->id) ? 'active' : '' }}">
-         {{ $cat->name }}
-      </a>
-    @endforeach
-  </div>
-</div>
-
-<!-- PRODUCTS -->
-<div id="products" class="container mb-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h5 class="fw-bold mb-1">
-        @if(request('keyword'))
-          Hasil Pencarian: "{{ request('keyword') }}"
-        @elseif(request('category_id'))
-          Kategori: {{ \App\Models\Category::find(request('category_id'))->name ?? 'Semua' }}
-        @else
-          Produk Terbaru!
-        @endif
-      </h5>
-      <p class="text-muted small mb-0">Menampilkan {{ $products->count() }} produk terbaik untukmu.</p>
+<!-- MAIN CONTAINER -->
+<div class="container py-4">
+    <!-- PRODUCTS GRID -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h5 class="fw-800 text-dark mb-0">
+                @if(request('keyword')) Hasil: <span class="text-maroon">"{{ request('keyword') }}"</span> @else Produk <span class="text-maroon">Terbaru</span> @endif
+            </h5>
+        </div>
     </div>
-    @if(request('keyword') || request('category_id'))
-      <a href="{{ route('home') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">Hapus Filter</a>
+
+    <div class="row g-3">
+        @forelse($products as $p)
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="product-card-premium">
+                    <div class="pc-img-wrapper">
+                        <img src="{{ $p->image_url }}" alt="{{ $p->name }}">
+                        <span class="pc-badge">{{ optional($p->category)->name }}</span>
+                    </div>
+                    <div class="pc-body">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted" style="font-size: 0.6rem;">{{ strtoupper($p->condition) }}</span>
+                            @if($p->reviews->count() > 0)
+                                <div class="text-warning" style="font-size: 0.7rem;"><i class="fa fa-star me-1"></i>{{ number_format($p->reviews->avg('rating'), 1) }}</div>
+                            @endif
+                        </div>
+                        <h6 class="pc-title">
+                            <a href="{{ route('product.show', $p->id) }}" class="text-decoration-none text-dark stretched-link">{{ $p->name }}</a>
+                        </h6>
+                        <div class="pc-price">Rp {{ number_format($p->price, 0, ',', '.') }}</div>
+                        
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(optional($p->seller)->name ?? 'S') }}&background=F8F9FA&color=9F1521" class="rounded-circle me-1" width="20" height="20">
+                                <span class="text-dark fw-bold" style="font-size: 0.7rem;">{{ explode(' ', optional($p->seller)->name ?? 'Seller')[0] }}</span>
+                            </div>
+                            <div class="d-flex gap-1" style="position: relative; z-index: 2;">
+                                <a href="{{ route('product.show', $p->id) }}" class="btn btn-light btn-sm rounded-circle border p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa fa-eye" style="font-size: 0.6rem;"></i>
+                                </a>
+                                <form action="{{ route('cart.add') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $p->id }}">
+                                    <button class="btn btn-maroon btn-sm rounded-circle p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa fa-cart-plus" style="font-size: 0.6rem;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">Produk tidak ditemukan.</p>
+            </div>
+        @endforelse
+    </div>
+
+    @if($products->hasPages())
+    <div class="d-flex justify-content-center mt-4">
+        {{ $products->links() }}
+    </div>
     @endif
-  </div>
-
-  <div class="row g-3" id="productsContainer">
-    @forelse($products as $p)
-      <div class="col-12 col-md-4 col-lg-3 product-item">
-        <div class="card product-card h-100 border-0 shadow-sm overflow-hidden">
-          {{-- Product Image Placeholder --}}
-          <div class="bg-light w-100 position-relative" style="height:190px;">
-            <img src="https://ui-avatars.com/api/?name={{ urlencode($p->name) }}&background=f8f9fa&color=9F1521&size=200" class="w-100 h-100 object-fit-cover">
-            <span class="position-absolute top-0 end-0 m-2 badge bg-white text-danger shadow-sm">{{ optional($p->category)->name }}</span>
-          </div>
-          <div class="card-body p-3">
-            <h6 class="card-title fw-bold text-truncate mb-1">{{ $p->name }}</h6>
-            <p class="fw-bold text-danger mb-3">Rp {{ number_format($p->price,0,',','.') }}</p>
-            <div class="d-flex gap-2">
-              <form action="{{ route('cart.add') }}" method="POST" class="flex-grow-1">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $p->id }}">
-                    <button class="btn btn-sm btn-danger w-100 rounded-8 py-2">Tambah</button>
-                </form>
-              <a href="{{ route('product.show', $p->id) }}" class="btn btn-sm btn-outline-secondary px-3 rounded-8 py-2">
-                <i class="fa fa-eye"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    @empty
-      <div class="col-12 text-center py-5">
-        <div class="mb-3">
-            <i class="fa-solid fa-magnifying-glass fa-4x text-muted opacity-25"></i>
-        </div>
-        <h5 class="fw-bold">Oops! Produk tidak ditemukan</h5>
-        <p class="text-muted">Coba gunakan kata kunci lain atau telusuri kategori yang berbeda.</p>
-        <a href="{{ route('home') }}" class="btn btn-danger rounded-pill px-4 mt-2">Lihat Semua Produk</a>
-      </div>
-    @endforelse
-  </div>
-
-  {{-- Pagination --}}
-  <div class="d-flex justify-content-center mt-5">
-    {{ $products->appends(request()->query())->links() }}
-  </div>
 </div>
 
-<!-- HOW IT WORKS Section -->
-<div class="bg-white py-5 mb-5">
-  <div class="container">
+<!-- TESTIMONIALS -->
+<div class="container py-5">
     <div class="text-center mb-5">
-      <h4 class="fw-bold">Bagaimana Cara Belanja?</h4>
-      <p class="text-muted">Cuma 3 langkah mudah untuk mendapatkan barang impianmu.</p>
+        <h4 class="fw-800 text-dark mb-1">Apa Kata <span class="text-maroon">Mereka?</span></h4>
+        <p class="text-muted small">Cerita sukses transaksi di Telcopedia.</p>
     </div>
-    <div class="row text-center g-4">
-      <div class="col-md-4">
-        <div class="step-number">1</div>
-        <h6 class="fw-bold">Cari Produk</h6>
-        <p class="text-muted small px-lg-5">Temukan barang yang kamu butuhkan dari galeri produk kami.</p>
-      </div>
-      <div class="col-md-4">
-        <div class="step-number">2</div>
-        <h6 class="fw-bold">Hubungi Penjual</h6>
-        <p class="text-muted small px-lg-5">Gunakan fitur Chat untuk bertanya detail atau nego harga.</p>
-      </div>
-      <div class="col-md-4">
-        <div class="step-number">3</div>
-        <h6 class="fw-bold">Transaksi & COD</h6>
-        <p class="text-muted small px-lg-5">Atur janji ketemuan dan lakukan transaksi dengan aman.</p>
-      </div>
+    <div class="row g-5">
+        <div class="col-md-4">
+            <div class="testimonial-card text-center position-relative">
+                <img src="{{ asset('images/testi1.jpg') }}" class="testi-img" alt="User">
+                <p class="text-muted fst-italic mb-4 mt-2">"Awalnya ragu beli barang bekas online, tapi di Telcopedia aman banget karena semua sellernya satu kampus. Barangnya juga masih mulus!"</p>
+                <h6 class="fw-800 mb-1">Aisyah Noviani</h6>
+                <span class="text-maroon x-small fw-bold">Mahasiswa FIK</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="testimonial-card text-center position-relative">
+                <img src="{{ asset('images/testi3.jpg') }}" class="testi-img" alt="User">
+                <p class="text-muted fst-italic mb-4 mt-2">"Cari buku referensi kuliah jadi lebih gampang dan murah. Fitur chatnya juga responsif buat janjian COD di GKU."</p>
+                <h6 class="fw-800 mb-1">Siti Amany</h6>
+                <span class="text-maroon x-small fw-bold">Mahasiswa FRI</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="testimonial-card text-center position-relative">
+                <img src="{{ asset('images/testi2.jpg') }}" class="testi-img" alt="User">
+                <p class="text-muted fst-italic mb-4 mt-2">"Jual meja lipat bekas kosan cuma butuh 2 hari langsung laku. Gak perlu ribet packing karena bisa langsung ketemuan."</p>
+                <h6 class="fw-800 mb-1">Andi Bayu</h6>
+                <span class="text-maroon x-small fw-bold">Mahasiswa FIF</span>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<!-- TESTIMONIAL -->
-<div class="container mb-5">
-  <h5 class="mb-3">Testimonial</h5>
-  <div class="row g-3">
-    <div class="col-md-4">
-      <div class="testimonial">
-        <p>"I was skeptical about buying second-hand items online, but this platform exceeded my expectations!"</p>
-        <div class="fw-bold fs-6 mt-3">Aisyah Noviani</div>
-        <small class="text-danger">Student</small>
-      </div>
+<!-- SELLER CTA -->
+<div class="container py-4">
+    <div class="p-4 rounded-4 shadow-sm position-relative overflow-hidden" style="background: #1a1a1a;">
+        <div class="row align-items-center position-relative">
+            <div class="col-lg-9 text-center text-lg-start">
+                <h5 class="fw-800 text-white mb-1">Punya barang yang tidak terpakai?</h5>
+                <p class="text-white opacity-50 small mb-0">Ubah barang lama kamu menjadi uang tambahan sekarang!</p>
+            </div>
+            <div class="col-lg-3 text-center text-lg-end mt-3 mt-lg-0">
+                <a href="{{ route('register.form') }}" class="btn btn-maroon btn-sm px-4 rounded-pill py-2">Jual Sekarang</a>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-      <div class="testimonial">
-        <p>"I love how easy it is to find gently used items at affordable prices."</p>
-        <div class="fw-bold fs-6 mt-3">Siti Amany</div>
-        <small class="text-danger">Student</small>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="testimonial">
-        <p>"The selection is amazing! I found exactly what I needed."</p>
-        <div class="fw-bold fs-6 mt-3">Andi Bayu</div>
-        <small class="text-danger">Student</small>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- SELLER CTA Section -->
-<div class="container mb-5">
-  <div class="seller-cta text-center shadow">
-    <h3 class="fw-bold mb-3">Mau Jual Barang Tak Terpakai?</h3>
-    <p class="mb-4">Mulai hasilkan uang dari barang-barangmu di Telcopedia. Proses cepat dan tanpa ribet.</p>
-    <a href="{{ route('register.form') }}" class="btn btn-light btn-lg px-4 fw-bold rounded-pill" style="color: #9F1521;">Buka Toko Sekarang</a>
-  </div>
 </div>
 
 @endsection

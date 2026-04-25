@@ -3,46 +3,246 @@
 
 @push('styles')
 <style>
-    .category-explorer-card { border-radius: 18px; border: none; transition: 0.3s; background: #fff; overflow: hidden; }
-    .category-explorer-card:hover { transform: translateY(-7px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-    .category-icon-box { width: 80px; height: 80px; border-radius: 20px; background: #fef2f2; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; transition: 0.3s; }
-    .category-explorer-card:hover .category-icon-box { background: #9F1521; color: #fff; }
-    .category-icon-box i { font-size: 2.2rem; color: #9F1521; transition: 0.3s; }
-    .category-explorer-card:hover .category-icon-box i { color: #fff; }
-    .count-badge { background: #f8f9fa; color: #6c757d; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 20px; border: 1px solid #eee; }
+    .cat-nav-wrapper {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px 0;
+        gap: 12px;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .cat-nav-wrapper::-webkit-scrollbar { display: none; }
+    
+    .cat-btn {
+        white-space: nowrap;
+        padding: 12px 24px;
+        border-radius: 100px;
+        background: #fff;
+        border: 1px solid #eee;
+        color: #555;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: 0.3s;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .cat-btn i { color: #9F1521; transition: 0.3s; }
+    .cat-btn:hover { border-color: #9F1521; color: #9F1521; transform: translateY(-2px); }
+    .cat-btn.active { background: #9F1521; color: #fff; border-color: #9F1521; box-shadow: 0 8px 20px rgba(159, 21, 33, 0.2); }
+    .cat-btn.active i { color: #fff; }
+
+    /* Product Card Improvements */
+    .product-card-premium {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #f0f0f0;
+        overflow: hidden;
+        transition: 0.3s all;
+        height: 100%;
+        animation: fadeIn 0.5s ease backwards;
+        position: relative; /* Penting untuk stretched-link */
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .product-card-premium:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+    .pc-img-wrapper { position: relative; height: 180px; background: #f8f8f8; overflow: hidden; }
+    .pc-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .pc-badge {
+        position: absolute; top: 12px; right: 12px;
+        background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
+        padding: 4px 10px; border-radius: 100px; font-weight: 800; font-size: 0.6rem; color: #9F1521;
+    }
+    .pc-body { padding: 15px; }
+    .pc-title { font-size: 0.85rem; font-weight: 700; color: #222; margin-bottom: 6px; height: 2.6em; overflow: hidden; }
+    .pc-price { font-size: 1.05rem; font-weight: 800; color: #9F1521; margin-bottom: 12px; }
+
+    .loading-overlay {
+        display: none;
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.7);
+        z-index: 10;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+    }
 </style>
 @endpush
 
 @section('content')
 <div class="container my-5">
     <div class="text-center mb-5">
-        <h2 class="fw-bold">Telusuri Kategori</h2>
-        <p class="text-muted">Temukan berbagai barang preloved berkualitas berdasarkan hobimu.</p>
+        <h2 class="fw-900">Eksplorasi <span class="text-maroon">Kategori</span></h2>
+        <p class="text-muted">Pilih kategori untuk melihat produk terbaik.</p>
     </div>
 
-    <div class="row g-4 justify-content-center">
-        @foreach($categories as $cat)
-            <div class="col-6 col-md-4 col-lg-3">
-                <a href="{{ route('category.show', $cat->slug) }}" class="text-decoration-none">
-                    <div class="card category-explorer-card h-100 p-4 text-center shadow-sm">
-                        <div class="category-icon-box shadow-sm">
-                            <i class="fa-solid {{ $cat->icon }}"></i>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-2">{{ $cat->name }}</h6>
-                        <div>
-                            <span class="count-badge">{{ $cat->products_count }} Barang</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
+    <!-- Category Nav -->
+    <div class="cat-nav-wrapper mb-5 pb-2">
+        @foreach($categories as $index => $cat)
+            <button class="cat-btn {{ $firstCategory && $firstCategory->id == $cat->id ? 'active' : '' }}" 
+                    onclick="loadCategory({{ $cat->id }}, this)">
+                <i class="fa-solid {{ $cat->icon }}"></i>
+                {{ $cat->name }}
+            </button>
         @endforeach
     </div>
 
-    {{-- Banner CTA --}}
-    <div class="mt-5 p-5 bg-danger bg-opacity-10 rounded-4 text-center border border-danger-subtle">
-        <h4 class="fw-bold">Tidak menemukan kategori yang dicari?</h4>
-        <p class="text-muted mb-4 px-lg-5">Kategori kami akan terus bertambah seiring banyaknya mahasiswa yang berjualan di Telcopedia.</p>
-        <a href="{{ route('home') }}" class="btn btn-danger px-4 rounded-pill fw-bold shadow-sm">Lihat Semua Produk</a>
+    <!-- Product Grid Section -->
+    <div class="position-relative">
+        <div id="loading" class="loading-overlay">
+            <div class="spinner-border text-maroon" role="status"></div>
+        </div>
+        
+        <div class="row g-4" id="product-grid">
+            @forelse($products as $p)
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="product-card-premium">
+                        <div class="pc-img-wrapper">
+                            <img src="{{ $p->image_url }}" alt="{{ $p->name }}">
+                            <span class="pc-badge shadow-sm">{{ optional($p->category)->name }}</span>
+                        </div>
+                        <div class="pc-body">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-light text-muted" style="font-size: 0.6rem;">{{ strtoupper($p->condition) }}</span>
+                                @if(optional($p->reviews)->count() > 0)
+                                    <div class="text-warning" style="font-size: 0.7rem;"><i class="fa fa-star me-1"></i>{{ number_format($p->reviews->avg('rating'), 1) }}</div>
+                                @endif
+                            </div>
+                            <h6 class="pc-title">
+                                <a href="{{ route('product.show', $p->id) }}" class="text-decoration-none text-dark stretched-link">{{ $p->name }}</a>
+                            </h6>
+                            <div class="pc-price">Rp {{ number_format($p->price, 0, ',', '.') }}</div>
+                            
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <div class="d-flex align-items-center overflow-hidden" style="max-width: 60%;">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(optional($p->seller)->name ?? 'S') }}&background=F8F9FA&color=9F1521" class="rounded-circle me-1" width="20" height="20">
+                                    <span class="text-dark fw-bold text-truncate" style="font-size: 0.7rem;">{{ explode(' ', optional($p->seller)->name ?? 'Seller')[0] }}</span>
+                                </div>
+                                <div class="d-flex gap-1" style="position: relative; z-index: 2;">
+                                    <a href="{{ route('product.show', $p->id) }}" class="btn btn-light btn-sm rounded-circle border p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa fa-eye" style="font-size: 0.6rem;"></i>
+                                    </a>
+                                    <form action="{{ route('cart.add') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $p->id }}">
+                                        <button class="btn btn-maroon btn-sm rounded-circle p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa fa-cart-plus" style="font-size: 0.6rem;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Belum ada produk di kategori ini.</p>
+                </div>
+            @endforelse
+        </div>
+        
+        <!-- Show More Button -->
+        <div class="text-center mt-5 {{ $products->count() < 12 ? 'd-none' : '' }}" id="more-container">
+            <a href="{{ $firstCategory ? route('category.show', $firstCategory->slug) : '#' }}" id="btn-show-more" class="btn btn-outline-maroon px-5 rounded-pill fw-bold">
+                Tampilkan Produk Lebih Banyak <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+        </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    async function loadCategory(catId, btn) {
+        // Toggle active class
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const grid = document.getElementById('product-grid');
+        const loading = document.getElementById('loading');
+        const moreContainer = document.getElementById('more-container');
+        const btnMore = document.getElementById('btn-show-more');
+
+        loading.style.display = 'flex';
+        
+        try {
+            const response = await fetch(`/categories/products/${catId}`);
+            const data = await response.json();
+            
+            grid.innerHTML = '';
+            
+            if (data.products.length === 0) {
+                grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Belum ada produk di kategori ini.</p></div>';
+                moreContainer.classList.add('d-none');
+            } else {
+                data.products.forEach(p => {
+                    const card = createProductCard(p);
+                    grid.appendChild(card);
+                });
+
+                if (data.has_more) {
+                    moreContainer.classList.remove('d-none');
+                    btnMore.href = `/categories/${data.category_slug}`;
+                } else {
+                    moreContainer.classList.add('d-none');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading category:', error);
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    function createProductCard(p) {
+        const col = document.createElement('div');
+        col.className = 'col-6 col-md-4 col-lg-3';
+        
+        const price = new Intl.NumberFormat('id-ID').format(p.price);
+        const sellerName = p.seller ? p.seller.name.split(' ')[0] : 'Seller';
+        const ratingHtml = p.reviews && p.reviews.length > 0 
+            ? `<div class="text-warning" style="font-size: 0.7rem;"><i class="fa fa-star me-1"></i>5.0</div>` 
+            : '';
+
+        col.innerHTML = `
+            <div class="product-card-premium">
+                <div class="pc-img-wrapper">
+                    <img src="${p.image_url}" alt="${p.name}">
+                    <span class="pc-badge shadow-sm">${p.category ? p.category.name : 'Umum'}</span>
+                </div>
+                <div class="pc-body">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="badge bg-light text-muted" style="font-size: 0.6rem;">${p.condition.toUpperCase()}</span>
+                        ${ratingHtml}
+                    </div>
+                    <h6 class="pc-title">
+                        <a href="/product/${p.id}" class="text-decoration-none text-dark stretched-link">${p.name}</a>
+                    </h6>
+                    <div class="pc-price">Rp ${price}</div>
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                        <div class="d-flex align-items-center overflow-hidden" style="max-width: 60%;">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(sellerName)}&background=F8F9FA&color=9F1521" class="rounded-circle me-1" width="20" height="20">
+                            <span class="text-dark fw-bold text-truncate" style="font-size: 0.7rem;">${sellerName}</span>
+                        </div>
+                        <div class="d-flex gap-1" style="position: relative; z-index: 2;">
+                            <a href="/product/${p.id}" class="btn btn-light btn-sm rounded-circle border p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa fa-eye" style="font-size: 0.6rem;"></i>
+                            </a>
+                            <form action="{{ route('cart.add') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="${p.id}">
+                                <button class="btn btn-maroon btn-sm rounded-circle p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa fa-cart-plus" style="font-size: 0.6rem;"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        return col;
+    }
+</script>
+@endpush
 @endsection

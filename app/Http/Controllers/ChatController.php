@@ -43,6 +43,37 @@ class ChatController extends Controller
     }
 
     /**
+     * Inisiasi chat dari halaman profil seller (tanpa produk spesifik).
+     */
+    public function startChatWithSeller(Request $request, $sellerId)
+    {
+        if ($sellerId == $request->user()->id) {
+            return back()->with('error', 'Anda tidak bisa chat diri sendiri.');
+        }
+
+        // Cari apakah sudah ada chat antara mereka (apapun produknya)
+        $existingChat = Chat::where(function($q) use($request, $sellerId) {
+            $q->where('user1_id', $request->user()->id)->where('user2_id', $sellerId);
+        })->orWhere(function($q) use($request, $sellerId) {
+            $q->where('user1_id', $sellerId)->where('user2_id', $request->user()->id);
+        })->latest('updated_at')->first();
+
+        if ($existingChat) {
+            return redirect()->route('chat.room', $existingChat->id);
+        }
+
+        // Jika belum ada, cari produk terbaru seller untuk inisiasi
+        $product = Product::where('seller_id', $sellerId)->where('status', 'approved')->latest()->first();
+
+        if (!$product) {
+            return back()->with('error', 'Penjual ini belum memiliki produk untuk dikonsultasikan.');
+        }
+
+        $chat = $this->chatService->getOrCreateRoom($request->user()->id, $sellerId, $product->id);
+        return redirect()->route('chat.room', $chat->id);
+    }
+
+    /**
      * Tampilkan detail chat tertentu.
      */
     public function room(Request $request, Chat $chat)

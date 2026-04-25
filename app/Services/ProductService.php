@@ -8,7 +8,13 @@ class ProductService
 {
     public function searchProducts($keyword = null, $categoryId = null)
     {
-        $query = Product::query()->with('category', 'seller');
+        $bannedSellerIds = \App\Models\User::where('role', 'seller')->get()
+            ->filter(function($user) { return $user->is_banned_from_posting; })
+            ->pluck('id');
+
+        $query = Product::query()->where('status', 'approved')
+            ->whereNotIn('seller_id', $bannedSellerIds)
+            ->with('category', 'seller');
 
         if ($keyword) {
             $query->where(function($q) use ($keyword) {
@@ -21,7 +27,7 @@ class ProductService
             $query->where('category_id', $categoryId);
         }
 
-        return $query->latest()->paginate(12);
+        return $query->latest()->paginate(8);
     }
 
     public function getSellerProducts($sellerId)

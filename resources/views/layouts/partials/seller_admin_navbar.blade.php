@@ -1,11 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top py-2" style="background: #1a1a1a !important;">
   <div class="container">
-    
-    <!-- BRAND (SELLER CENTER LOGO) -->
-    <a class="navbar-brand d-flex align-items-center" href="{{ route('seller.dashboard') }}">
-      <strong class="text-white fw-bold me-2" style="font-size: 1.5rem;">Telcopedia</strong>
+    <!-- BRAND TEXT -->
+    <a class="navbar-brand fw-900 tracking-tight" href="{{ Auth::user()->role == 'admin' ? route('admin.dashboard') : route('seller.dashboard') }}">
+      <span class="text-white">TELCO</span><span class="text-maroon">PEDIA</span>
+      <span class="badge bg-maroon-soft text-maroon ms-2 x-small border border-danger border-opacity-25">{{ strtoupper(Auth::user()->role) }}</span>
     </a>
-    
+
     <!-- MOBILE TOGGLE -->
     <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#sellerNav">
       <span class="navbar-toggler-icon"></span>
@@ -19,7 +19,6 @@
           <a class="nav-link p-0 d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
             <div class="pe-2 text-end d-none d-lg-block">
                 <div class="text-white fw-bold small lh-1">{{ Auth::user()->name }}</div>
-                <small class="text-white-50 x-small" style="font-size: 0.65rem;">Lapak Aktif</small>
             </div>
             <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=9F1521&color=fff&bold=true' }}" 
                  class="rounded-circle border border-secondary shadow-sm object-fit-cover" 
@@ -50,6 +49,10 @@
 </nav>
 
 <style>
+.fw-900 { font-weight: 900; }
+.tracking-tight { letter-spacing: -1px; }
+.text-maroon { color: #9F1521 !important; }
+.bg-maroon-soft { background: rgba(159, 21, 33, 0.1); }
 .hover-white:hover { color: white !important; }
 .x-small { font-size: 0.7rem; }
 .dropdown-item:active { background-color: #9F1521; }

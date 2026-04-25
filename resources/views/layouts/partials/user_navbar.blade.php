@@ -6,7 +6,7 @@
     
     <!-- BRAND (LOGO) -->
     <a class="navbar-brand me-4" href="{{ route('home') }}">
-      <strong class="text-danger fw-bold" style="font-size: 1.8rem; letter-spacing: -0.5px;">Telcopedia</strong>
+      <img src="{{ asset('images/logo.png') }}" alt="Telcopedia Logo" style="height: 40px; object-fit: contain;">
     </a>
     
     <!-- MOBILE TOGGLE BUTTON -->
@@ -23,18 +23,18 @@
           </a>
           <ul class="dropdown-menu shadow-sm border-0">
             @foreach(\App\Models\Category::all() as $cat)
-              <li><a class="dropdown-item" href="{{ route('category.show', $cat->slug) }}">{{ $cat->name }}</a></li>
+              <li><a class="dropdown-item py-2" href="{{ route('category.show', $cat->slug) }}">{{ $cat->name }}</a></li>
             @endforeach
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item fw-bold text-danger" href="{{ route('category.index') }}">Semua Kategori <i class="fa fa-arrow-right ms-1 small"></i></a></li>
+            <li><a class="dropdown-item fw-bold text-maroon" href="{{ route('category.index') }}">Semua Kategori <i class="fa fa-arrow-right ms-1 small"></i></a></li>
           </ul>
       </div>
 
       <!-- SEARCH BAR WIDESCREEN -->
       <form action="{{ route('home') }}" method="GET" class="d-flex flex-grow-1 me-4 my-3 my-lg-0">
         <div class="input-group">
-            <input name="keyword" value="{{ request('keyword') }}" class="form-control border-danger-subtle shadow-none py-2" type="search" placeholder="Cari di Telcopedia..." style="font-size: 0.95rem;">
-            <button class="btn btn-danger px-4 shadow-none" type="submit"><i class="fa fa-search"></i></button>
+            <input name="keyword" value="{{ request('keyword') }}" class="form-control border-maroon border-opacity-25 shadow-none py-2 rounded-start-pill ps-4" type="search" placeholder="Cari barang preloved di Telcopedia..." style="font-size: 0.95rem;">
+            <button class="btn btn-maroon px-4 shadow-none rounded-end-pill" type="submit"><i class="fa fa-search"></i></button>
         </div>
       </form>
 
@@ -43,13 +43,13 @@
         @if(Auth::check() && Auth::user()->role !== 'admin')
             <!-- CART WITH BADGE -->
             <li class="nav-item me-4 me-lg-3">
-                <a class="nav-link text-dark position-relative hover-danger" href="{{ route('cart.index') }}" title="Keranjang">
+                <a class="nav-link text-dark position-relative hover-maroon" href="{{ route('cart.index') }}" title="Keranjang">
                     <i class="fa-solid fa-cart-shopping fs-5"></i>
                     @php 
                       $cartCount = \App\Models\CartItem::whereHas('cart', function($q) { $q->where('user_id', auth()->id()); })->count(); 
                     @endphp
                     @if($cartCount > 0)
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-maroon" style="font-size: 0.65rem;">
                             {{ $cartCount > 99 ? '99+' : $cartCount }}
                         </span>
                     @endif
@@ -58,21 +58,21 @@
 
             <!-- PESAN/CHAT -->
             <li class="nav-item me-4 me-lg-3">
-                <a class="nav-link text-dark hover-danger" href="{{ route('chat.index') }}" title="Pesan">
+                <a class="nav-link text-dark hover-maroon" href="{{ route('chat.index') }}" title="Pesan">
                     <i class="fa-solid fa-envelope fs-5"></i>
                 </a>
             </li>
 
             <!-- FAVORITE -->
             <li class="nav-item me-4 me-lg-3">
-                <a class="nav-link text-dark hover-danger" href="{{ route('favorites.index') ?? '#' }}" title="Wishlist">
+                <a class="nav-link text-dark hover-maroon" href="{{ route('favorites.index') ?? '#' }}" title="Wishlist">
                     <i class="fa-solid fa-heart fs-5"></i>
                 </a>
             </li>
 
             <!-- VOUCHER -->
             <li class="nav-item me-lg-3">
-                <a class="nav-link text-dark hover-danger" href="{{ url('/vouchers') }}" title="Voucher">
+                <a class="nav-link text-dark hover-maroon" href="{{ url('/vouchers') }}" title="Voucher">
                     <i class="fa-solid fa-ticket-simple fs-5"></i>
                 </a>
             </li>
@@ -95,11 +95,11 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" style="width: 280px;">
                 <!-- Profile Header -->
-                <li class="px-3 py-3 border-bottom d-flex align-items-center mb-2 bg-light rounded-top">
+                <li class="px-3 py-3 border-bottom d-flex align-items-center mb-2 bg-maroon-soft rounded-top">
                     <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=9F1521&color=fff&bold=true' }}" class="rounded-circle shadow-sm me-3 object-fit-cover" width="50" height="50">
                     <div>
                         <div class="fw-bold text-dark lh-sm text-truncate" style="max-width: 170px;">{{ Auth::user()->name }}</div>
-                        <span class="badge bg-danger mt-1 text-uppercase border" style="font-size: 0.65rem;">{{ Auth::user()->role }} Account</span>
+                        <span class="badge bg-maroon mt-1 text-uppercase border-0" style="font-size: 0.65rem;">{{ Auth::user()->role }} Account</span>
                     </div>
                 </li>
                 
@@ -123,7 +123,7 @@
                 <li>
                   <form action="{{ route('logout') }}" method="POST" class="px-3 pb-2 pt-1">
                     @csrf
-                    <button class="btn btn-outline-danger w-100 fw-bold rounded-pill">Keluar</button>
+                    <button class="btn btn-outline-maroon w-100 fw-bold rounded-pill">Keluar</button>
                   </form>
                 </li>
               </ul>
@@ -132,10 +132,10 @@
             <!-- Guest Buttons -->
             <div class="d-flex w-100 mt-3 mt-lg-0 gap-2">
                 <li class="nav-item flex-grow-1 flex-lg-grow-0">
-                    <a class="btn btn-outline-danger w-100 px-4 fw-bold" href="{{ route('login.form') }}">Masuk</a>
+                    <a class="btn btn-outline-maroon w-100 px-4 fw-bold" href="{{ route('login.form') }}">Masuk</a>
                 </li>
                 <li class="nav-item flex-grow-1 flex-lg-grow-0">
-                    <a class="btn btn-danger w-100 px-4 fw-bold" href="{{ route('register.form') }}">Daftar</a>
+                    <a class="btn btn-maroon w-100 px-4 fw-bold" href="{{ route('register.form') }}">Daftar</a>
                 </li>
             </div>
         @endif
@@ -147,10 +147,22 @@
 
 <style>
 /* Custom Navbar Overrides Khusus Desain Baru */
-.hover-danger { transition: color 0.15s ease-in-out; }
-.hover-danger:hover { color: var(--telkom-red) !important; }
+.hover-maroon { transition: color 0.15s ease-in-out; }
+.hover-maroon:hover { color: var(--telco-maroon) !important; }
 .w-15px { width: 18px; text-align: center; }
-.form-control:focus { border-color: var(--telkom-red); box-shadow: 0 0 0 0.25rem rgba(159, 21, 33, 0.25); }
-.border-danger-subtle { border-color: #f5c2c7 !important; }
+.form-control:focus { border-color: var(--telco-maroon); box-shadow: 0 0 0 0.25rem rgba(159, 21, 33, 0.25); }
+.border-maroon-subtle { border-color: #f5c2c7 !important; }
 .input-group .btn { z-index: 0; }
+
+/* Override Bootstrap Dropdown Blue (Agresif) */
+.dropdown-item:hover {
+    background-color: var(--telco-maroon-soft) !important;
+    color: var(--telco-maroon) !important;
+}
+.dropdown-item:focus, .dropdown-item:active, .dropdown-item.active {
+    background-color: var(--telco-maroon) !important;
+    color: white !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
 </style>

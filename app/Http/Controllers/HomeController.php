@@ -26,8 +26,20 @@ class HomeController extends Controller
 
     public function showProduct($id)
     {
-        $product = Product::with('seller', 'category')->findOrFail($id);
-        return view('product.show', compact('product'));
+        $product = Product::where('status', 'approved')->with('seller', 'category', 'images')->findOrFail($id);
+        $relatedProducts = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $id)
+            ->where('status', 'approved')
+            ->latest()
+            ->take(8)
+            ->get();
+            
+        $isFavorited = false;
+        if (auth()->check()) {
+            $isFavorited = $this->favoriteService->isFavorited(auth()->id(), $id);
+        }
+            
+        return view('product.show', compact('product', 'relatedProducts', 'isFavorited'));
     }
 
     public function about()
@@ -61,5 +73,13 @@ class HomeController extends Controller
         $request->validate(['product_id' => 'required|exists:products,id']);
         $this->favoriteService->toggleFavorite($request->user()->id, $request->product_id);
         return back()->with('success', 'Favorite diupdate');
+    }
+
+    public function sellerProfile($id)
+    {
+        $seller = \App\Models\User::where('role', 'seller')->findOrFail($id);
+        $products = Product::where('seller_id', $id)->where('status', 'approved')->with('category')->latest()->paginate(12);
+        
+        return view('seller.profile', compact('seller', 'products'));
     }
 }

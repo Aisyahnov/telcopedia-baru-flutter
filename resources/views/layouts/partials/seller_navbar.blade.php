@@ -3,7 +3,7 @@
     
     <!-- BRAND (SELLER CENTER LOGO) -->
     <a class="navbar-brand d-flex align-items-center" href="{{ route('seller.dashboard') }}">
-      <strong class="text-white fw-bold me-2" style="font-size: 1.5rem;">Telcopedia</strong>
+      <img src="{{ asset('images/logo.png') }}" alt="Telcopedia Logo" style="height: 40px; object-fit: contain;" class="me-2 bg-white rounded-3 px-2 py-1 shadow-sm">
     </a>
     
     <!-- MOBILE TOGGLE -->

@@ -22,15 +22,51 @@ class CheckoutController extends Controller
 
     public function index(Request $request)
     {
-        $items = $this->cartService->getUserCart($request->user()->id);
-        $cartDetails = $this->cartService->getCartTotal($request->user()->id);
+        $productId = $request->query('product_id');
+        $cartItemIds = $request->query('cart_item_ids');
+        $cart = $this->cartService->getUserCart($request->user()->id);
         
+        if ($productId) {
+            // Filter hanya item yang dipilih (Buy Now)
+            $items = $cart->items->where('product_id', $productId);
+            if ($items->isEmpty()) return redirect()->route('home');
+
+            $subtotal = $items->sum(fn($i) => $i->quantity * $i->product->price);
+            $adminFee = $subtotal * 0.05;
+            $discount = 0; 
+            $total = $subtotal + $adminFee;
+        } elseif ($cartItemIds) {
+            // Filter item terpilih dari keranjang
+            $selectedIds = explode(',', $cartItemIds);
+            $items = $cart->items->whereIn('id', $selectedIds);
+            
+            if ($items->isEmpty()) {
+                return redirect()->route('cart.index')->with('error', 'Silakan pilih produk terlebih dahulu.');
+            }
+            
+            $subtotal = $items->sum(fn($i) => $i->quantity * $i->product->price);
+            $adminFee = $subtotal * 0.05;
+            $discount = $cart->voucher ? $this->cartService->calculateDiscount($subtotal, $cart->voucher) : 0;
+            $total = $subtotal + $adminFee - $discount;
+        } else {
+            // Checkout seluruh isi keranjang
+            $cartDetails = $this->cartService->getCartTotal($request->user()->id);
+            $items = $cart->items;
+            $subtotal = $cartDetails['subtotal'];
+            $adminFee = $cartDetails['admin_fee'];
+            $discount = $cartDetails['discount'];
+            $total = $cartDetails['total'];
+        }
+
         return view('checkout.index', [
             'items' => $items,
-            'subtotal' => $cartDetails['subtotal'],
-            'admin_fee' => $cartDetails['admin_fee'],
-            'discount' => $cartDetails['discount'],
-            'total' => $cartDetails['total']
+            'subtotal' => $subtotal,
+            'admin_fee' => $adminFee,
+            'discount' => $discount,
+            'total' => $total,
+            'userAddress' => $request->user()->address,
+            'buyNowProductId' => $productId,
+            'cartItemIds' => $cartItemIds
         ]);
     }
 
@@ -38,10 +74,21 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'shipping_address' => 'required|string|min:10',
+            'payment_method' => 'required|in:transfer,cod',
         ]);
 
         try {
-            $order = $this->checkoutService->processCheckout($request->user()->id, $request->input('shipping_address'));
+            $order = $this->checkoutService->processCheckout(
+                $request->user()->id, 
+                $request->input('shipping_address'),
+                $request->input('payment_method'),
+                $request->input('buy_now_product_id'),
+                $request->input('cart_item_ids')
+            );
+            if ($request->input('payment_method') === 'cod') {
+                return redirect('/orders')->with('success', 'Pesanan COD berhasil dibuat! Silakan hubungi seller untuk janji temu.');
+            }
+
             return redirect()->route('checkout.upload', $order->id)->with('success', 'Pesanan dibuat! Silakan upload bukti pembayaran.');
         } catch (\Exception $e) {
             return back()->withErrors(['cart' => $e->getMessage()]);

@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-      <strong class="text-danger fs-4 fw-bold">Telcopedia</strong>
+      <img src="{{ asset('images/logo.png') }}" alt="Telcopedia Logo" style="height: 40px; object-fit: contain;">
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">

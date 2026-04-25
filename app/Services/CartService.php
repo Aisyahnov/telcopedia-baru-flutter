@@ -50,7 +50,7 @@ class CartService
         return $cart;
     }
 
-    public function addToCart($userId, $productId, $quantity)
+    public function addToCart($userId, $productId, $quantity, $overrideQuantity = false)
     {
         $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
@@ -61,7 +61,11 @@ class CartService
                             ->first();
 
         if ($cartItem) {
-            $cartItem->quantity += $quantity;
+            if ($overrideQuantity) {
+                $cartItem->quantity = $quantity;
+            } else {
+                $cartItem->quantity += $quantity;
+            }
             $cartItem->save();
         } else {
             CartItem::create([

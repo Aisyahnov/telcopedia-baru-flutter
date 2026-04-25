@@ -12,8 +12,8 @@ class ChatService
      */
     public function getOrCreateRoom($buyerId, $sellerId, $productId)
     {
-        $chat = Chat::where('product_id', $productId)
-            ->where(function ($q) use ($buyerId, $sellerId) {
+        // Cari room yang sudah ada antara kedua user ini (tanpa filter produk dulu)
+        $chat = Chat::where(function ($q) use ($buyerId, $sellerId) {
                 $q->where(function ($sq) use ($buyerId, $sellerId) {
                     $sq->where('user1_id', $buyerId)->where('user2_id', $sellerId);
                 })->orWhere(function ($sq) use ($buyerId, $sellerId) {
@@ -22,7 +22,13 @@ class ChatService
             })
             ->first();
 
-        if (!$chat) {
+        if ($chat) {
+            // Jika room sudah ada, tapi produk yang dibahas berbeda, kita update konteks produknya
+            if ($productId && $chat->product_id != $productId) {
+                $chat->update(['product_id' => $productId]);
+            }
+        } else {
+            // Jika benar-benar belum ada percakapan, buat baru
             $chat = Chat::create([
                 'user1_id' => $buyerId,
                 'user2_id' => $sellerId,
@@ -73,12 +79,19 @@ class ChatService
 
     public function getUserChats($userId)
     {
-        return Chat::where('user1_id', $userId)
+        $chats = Chat::where('user1_id', $userId)
                    ->orWhere('user2_id', $userId)
                    ->with(['user1', 'user2', 'product', 'messages' => function($q) {
                        $q->latest()->limit(1);
                    }])
                    ->orderBy('updated_at', 'desc')
                    ->get();
+
+        // Mengelompokkan berdasarkan pasangan user agar tidak ada duplikat di sidebar
+        return $chats->unique(function ($chat) use ($userId) {
+            $otherId = ($chat->user1_id == $userId) ? $chat->user2_id : $chat->user1_id;
+            // Gunakan kombinasi ID yang urut agar A-B sama dengan B-A
+            return min($userId, $otherId) . '-' . max($userId, $otherId);
+        });
     }
 }

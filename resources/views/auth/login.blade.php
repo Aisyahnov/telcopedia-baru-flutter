@@ -242,7 +242,7 @@
         <!-- Panel Kanan (Form) -->
         <div class="right-panel">
             <div class="form-title">Log In</div>
-            <div class="form-subtitle">Access Your Workspace</div>
+            <div class="form-subtitle">Access Your Account</div>
 
             @if(session('error'))
                 <div class="alert alert-danger" style="font-size:12px; padding:10px; border-radius:8px;">{{ session('error') }}</div>

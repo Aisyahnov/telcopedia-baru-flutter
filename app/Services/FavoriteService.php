@@ -27,4 +27,9 @@ class FavoriteService
 
         return true; // Added
     }
+
+    public function isFavorited($userId, $productId)
+    {
+        return Favorite::where('user_id', $userId)->where('product_id', $productId)->exists();
+    }
 }

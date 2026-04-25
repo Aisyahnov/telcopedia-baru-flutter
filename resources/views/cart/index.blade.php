@@ -9,19 +9,19 @@
     .summary-card { border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
     .btn-maroon { background-color: #9F1521; color: white; border-radius: 10px; font-weight: 600; transition: 0.3s; }
     .btn-maroon:hover { background-color: #7c111b; color: white; transform: translateY(-2px); }
-    .btn-outline-maroon { border: 2px solid #9F1521; color: #9F1521; border-radius: 10px; font-weight: 600; }
-    .btn-outline-maroon:hover { background-color: #9F1521; color: white; }
+    .btn-maroon:disabled { background-color: #ccc; border-color: #ccc; transform: none; cursor: not-allowed; }
     .empty-cart-icon { font-size: 5rem; color: #dee2e6; margin-bottom: 20px; }
+    
+    /* Checkbox Custom Styling */
+    .form-check-input:checked { background-color: #9F1521; border-color: #9F1521; }
 </style>
 @endpush
 
 @section('content')
-
-<!-- Body -->
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold mb-0">Keranjang Belanja</h4>
-        <span class="text-muted">{{ $items->items->count() }} Produk terpilih</span>
+        <span class="text-muted" id="selected-count">0 Produk terpilih</span>
     </div>
 
     @if(session('success'))
@@ -39,18 +39,23 @@
                 <table class="table cart-table align-middle mb-0">
                     <thead>
                         <tr class="text-muted small">
-                            <th class="ps-4 py-3">PRODUK</th>
+                            <th class="ps-4 py-3" style="width: 40px;">
+                                <input type="checkbox" class="form-check-input" id="select-all">
+                            </th>
+                            <th class="py-3">PRODUK</th>
                             <th class="text-center py-3">KUANTITAS</th>
-                            <th class="text-center py-3">HARGA</th>
                             <th class="text-end pe-4 py-3">TOTAL</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($items->items as $item)
-                        <tr>
+                        <tr class="cart-row" data-id="{{ $item->id }}" data-price="{{ $item->product->price }}" data-qty="{{ $item->quantity }}">
                             <td class="ps-4 py-4">
+                                <input type="checkbox" class="form-check-input item-checkbox" name="selected_items[]" value="{{ $item->id }}">
+                            </td>
+                            <td class="py-4">
                                 <div class="d-flex align-items-center">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($item->product->name) }}&background=f8f9fa&color=9F1521&size=100" class="cart-item-img me-3">
+                                    <img src="{{ $item->product->image_url }}" class="cart-item-img me-3">
                                     <div>
                                         <h6 class="fw-bold mb-1">{{ $item->product->name }}</h6>
                                         <span class="text-muted small d-block mb-2">{{ $item->product->category->name ?? 'Kategori' }}</span>
@@ -74,10 +79,7 @@
                                         <i class="fa fa-rotate text-muted" style="font-size: 10px;"></i>
                                     </button>
                                 </form>
-                            </td>
-                            <td class="text-center py-4">
-                                <small class="text-muted d-block" style="font-size: 10px;">Harga Satuan</small>
-                                <span class="fw-semibold">Rp {{ number_format($item->product->price, 0, ',', '.') }}</span>
+                                <small class="text-muted d-block mt-1" style="font-size: 10px;">Rp {{ number_format($item->product->price, 0, ',', '.') }} / pcs</small>
                             </td>
                             <td class="text-end pe-4 py-4">
                                 <span class="fw-bold text-dark">Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
@@ -111,64 +113,36 @@
             <div class="card summary-card p-4 position-sticky" style="top: 20px;">
                 <h5 class="fw-bold mb-4">Ringkasan Belanja</h5>
                 
-                {{-- VOUCHER SECTION --}}
-                <div class="mb-4">
-                    <label class="fw-bold small text-muted mb-2">Punya Kode Voucher?</label>
-                    @if($items->voucher)
-                        <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded border border-success">
-                            <div>
-                                <small class="text-success fw-bold d-block">Voucher Terpasang:</small>
-                                <span class="fw-bold text-dark">{{ $items->voucher->code }}</span>
-                            </div>
-                            <form action="{{ route('cart.voucher.remove') }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm text-danger p-0"><i class="fa fa-times-circle"></i></button>
-                            </form>
-                        </div>
-                    @else
-                        <form action="{{ route('cart.voucher') }}" method="POST" class="d-flex">
-                            @csrf
-                            <input type="text" name="code" class="form-control form-control-sm me-2 shadow-none" placeholder="Masukkan kode...">
-                            <button type="submit" class="btn btn-sm btn-dark px-3">Gunakan</button>
-                        </form>
-                    @endif
-                </div>
-
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted small">Total Harga ({{ $items->items->count() }} barang)</span>
-                    <span class="fw-semibold text-dark">Rp {{ number_format($subtotal ?? 0, 0, ',', '.') }}</span>
+                    <span class="text-muted small">Total Harga (<span id="summary-item-count">0</span> barang)</span>
+                    <span class="fw-semibold text-dark" id="summary-subtotal">Rp 0</span>
                 </div>
                 
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted small">Biaya Layanan (5%)</span>
-                    <span class="fw-semibold text-dark">Rp {{ number_format($admin_fee ?? 0, 0, ',', '.') }}</span>
+                    <span class="fw-semibold text-dark" id="summary-admin-fee">Rp 0</span>
                 </div>
 
-                @if($discount > 0)
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted small">Diskon Voucher</span>
-                    <span class="fw-bold text-success">- Rp {{ number_format($discount ?? 0, 0, ',', '.') }}</span>
-                </div>
-                @endif
-                
                 <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
                     <span class="text-muted small">Biaya Pengiriman</span>
                     <span class="text-success fw-bold small">GRATIS COD</span>
                 </div>
                 
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <span class="fw-bold fs-5">Total Harga</span>
-                    <span class="fw-bold fs-4 text-maroon" style="color: #9F1521;">Rp {{ number_format($total ?? 0, 0, ',', '.') }}</span>
+                    <span class="fw-bold fs-5">Total Bayar</span>
+                    <span class="fw-bold fs-4 text-maroon" id="summary-total">Rp 0</span>
                 </div>
 
-                <a href="{{ route('checkout.index') }}" class="btn btn-maroon w-100 py-3 shadow-sm mb-3">
-                    Lanjut ke Pembayaran <i class="fa fa-arrow-right ms-2 small"></i>
-                </a>
+                <form action="{{ route('checkout.index') }}" method="GET" id="checkout-form">
+                    <input type="hidden" name="cart_item_ids" id="selected-ids-input">
+                    <button type="submit" id="btn-checkout" class="btn btn-maroon w-100 py-3 shadow-sm mb-3" disabled>
+                        Lanjut ke Pembayaran <i class="fa fa-arrow-right ms-2 small"></i>
+                    </button>
+                </form>
 
                 <div class="p-3 bg-light rounded-3 text-center">
                     <small class="text-muted" style="font-size: 11px;">
-                        <i class="fa fa-shield-check me-1 text-success"></i> Transaksi di Telcopedia terjamin aman & terverifikasi NIM Mahasiswa.
+                        <i class="fa fa-shield-check me-1 text-success"></i> Pilih produk yang ingin di-checkout terlebih dahulu.
                     </small>
                 </div>
             </div>
@@ -176,4 +150,69 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.getElementById('select-all');
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const checkoutBtn = document.getElementById('btn-checkout');
+        const selectedIdsInput = document.getElementById('selected-ids-input');
+        
+        // UI Elements for Summary
+        const summaryItemCount = document.getElementById('summary-item-count');
+        const summarySubtotal = document.getElementById('summary-subtotal');
+        const summaryAdminFee = document.getElementById('summary-admin-fee');
+        const summaryTotal = document.getElementById('summary-total');
+        const selectedCountLabel = document.getElementById('selected-count');
+
+        function updateSummary() {
+            let subtotal = 0;
+            let count = 0;
+            let selectedIds = [];
+
+            itemCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const row = checkbox.closest('.cart-row');
+                    const price = parseFloat(row.dataset.price);
+                    const qty = parseInt(row.dataset.qty);
+                    subtotal += price * qty;
+                    count += qty;
+                    selectedIds.push(row.dataset.id);
+                }
+            });
+
+            const adminFee = subtotal * 0.05;
+            const total = subtotal + adminFee;
+
+            // Update UI
+            summaryItemCount.innerText = count;
+            summarySubtotal.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(subtotal);
+            summaryAdminFee.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(adminFee);
+            summaryTotal.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
+            selectedCountLabel.innerText = selectedIds.length + ' Produk terpilih';
+            
+            // Update Form
+            selectedIdsInput.value = selectedIds.join(',');
+            checkoutBtn.disabled = selectedIds.length === 0;
+        }
+
+        selectAll.addEventListener('change', function() {
+            itemCheckboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateSummary();
+        });
+
+        itemCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                updateSummary();
+                // Update select all state
+                selectAll.checked = Array.from(itemCheckboxes).every(i => i.checked);
+            });
+        });
+
+        // Initial update
+        updateSummary();
+    });
+</script>
+@endpush
 @endsection

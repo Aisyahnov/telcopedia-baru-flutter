@@ -21,19 +21,27 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6',
-            'role' => 'in:admin,seller,buyer'
+            'role' => 'in:admin,seller,buyer',
+            'whatsapp_number' => 'required|string|max:20',
+            'ktm' => 'nullable|image|max:10240'
         ]);
+
+        $ktmPath = null;
+        if ($request->hasFile('ktm')) {
+            $ktmPath = $request->file('ktm')->store('ktm', 'public');
+        }
 
         $user = User::create([
             'nim' => $validated['nim'] ?? null,
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'] ?? 'buyer'
+            'role' => $validated['role'] ?? 'buyer',
+            'phone' => $validated['whatsapp_number'],
+            'ktm' => $ktmPath
         ]);
 
-        Auth::login($user);
-        return redirect()->route('home');
+        return redirect()->route('login.form')->with('success', 'Akun Anda berhasil dibuat. Silakan login menggunakan Email dan NIM Anda.');
     }
 
     public function showLogin()

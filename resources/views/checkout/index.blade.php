@@ -11,6 +11,10 @@
     .btn-maroon:hover { background-color: #7c111b; color: white; transform: translateY(-2px); }
     .text-maroon { color: #9F1521; }
     .form-control:focus { border-color: #9F1521; box-shadow: 0 0 0 0.2rem rgba(159, 21, 33, 0.1); }
+    .payment-option { cursor: pointer; transition: 0.2s; }
+    .payment-option:hover { background-color: #fff9f9; border-color: #9F1521 !important; }
+    .payment-option input:checked + div { color: #9F1521; }
+    .cursor-pointer { cursor: pointer; }
 </style>
 @endpush
 
@@ -23,26 +27,66 @@
 
     <form action="{{ route('checkout.save') }}" method="POST">
         @csrf
+        @if(isset($buyNowProductId))
+            <input type="hidden" name="buy_now_product_id" value="{{ $buyNowProductId }}">
+        @endif
+        <input type="hidden" name="cart_item_ids" value="{{ $cartItemIds ?? '' }}">
         <div class="row g-4">
             {{-- LEFT COLUMN --}}
             <div class="col-lg-8">
                 {{-- SHIPPING ADDRESS / LOCATION --}}
-                <div class="card checkout-card p-4 mb-4 address-box">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa-solid fa-location-dot text-maroon fs-4 me-3"></i>
-                        <h5 class="fw-bold mb-0">Lokasi Pengiriman / COD</h5>
+                <div class="card checkout-card p-4 mb-4" style="border-top: 5px solid #9F1521;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-location-dot text-maroon fs-5 me-2"></i>
+                            <h6 class="fw-bold mb-0">Alamat Pengiriman</h6>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" id="btnChangeAddress">
+                            <i class="fa fa-pencil-alt me-1 small"></i> Ubah
+                        </button>
                     </div>
-                    <div class="mb-0">
-                        <label class="form-label small text-muted">Detail Lokasi (Contoh: Gedung GKU Lt. 2, Depan Asrama, atau No. Kamar)</label>
-                        <textarea name="shipping_address" class="form-control border-0 bg-light p-3" rows="3" placeholder="Tuliskan detail lokasi pertemuan atau pengiriman di sini..." required>{{ old('shipping_address') }}</textarea>
-                        @error('shipping_address')
-                            <small class="text-danger mt-1 d-block">{{ $message }}</small>
-                        @enderror
+                    
+                    <div id="addressDisplay">
+                        <div class="fw-bold mb-1">{{ auth()->user()->name }} | {{ auth()->user()->phone ?? 'No. HP Belum Diatur' }}</div>
+                        <div class="text-muted small mb-0" id="addressText">
+                            {{ $userAddress ?? 'Alamat belum disetting di profil. Klik ubah untuk memasukkan alamat.' }}
+                        </div>
                     </div>
+
+                    <div id="addressInput" class="d-none mt-3">
+                        <label class="form-label small text-muted">Masukkan Alamat Baru / Detail Lokasi COD</label>
+                        <textarea name="shipping_address" id="shipping_address_input" class="form-control border-0 bg-light p-3" rows="3" placeholder="Contoh: Gedung GKU Lt. 2, Depan Asrama, atau No. Kamar..." required>{{ old('shipping_address', $userAddress) }}</textarea>
+                        <div class="mt-2 text-end">
+                            <button type="button" class="btn btn-sm btn-link text-decoration-none text-muted" id="btnCancelChange">Batal</button>
+                        </div>
+                    </div>
+
+                    @error('shipping_address')
+                        <small class="text-danger mt-1 d-block">{{ $message }}</small>
+                    @enderror
                 </div>
 
+                @push('scripts')
+                <script>
+                    document.getElementById('btnChangeAddress').addEventListener('click', function() {
+                        document.getElementById('addressDisplay').classList.add('d-none');
+                        document.getElementById('addressInput').classList.remove('d-none');
+                        this.classList.add('d-none');
+                    });
+
+                    document.getElementById('btnCancelChange').addEventListener('click', function() {
+                        document.getElementById('addressDisplay').classList.remove('d-none');
+                        document.getElementById('addressInput').classList.add('d-none');
+                        document.getElementById('btnChangeAddress').classList.remove('d-none');
+                        
+                        // Reset input to original profile address
+                        document.getElementById('shipping_address_input').value = "{{ $userAddress }}";
+                    });
+                </script>
+                @endpush
+
                 {{-- PRODUCT LIST --}}
-                <div class="card checkout-card overflow-hidden">
+                <div class="card checkout-card overflow-hidden mb-4">
                     <div class="card-header bg-white py-3 border-bottom">
                         <h6 class="fw-bold mb-0">Rincian Produk</h6>
                     </div>
@@ -57,11 +101,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($items->items ?? [] as $item)
+                                    @foreach($items as $item)
                                     <tr>
                                         <td class="ps-4 py-3">
                                             <div class="d-flex align-items-center">
-                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($item->product->name) }}&background=f8f9fa&color=9F1521&size=60" class="product-img me-3">
+                                                <img src="{{ $item->product->image_url }}" class="product-img me-3">
                                                 <div>
                                                     <span class="fw-bold d-block">{{ $item->product->name }}</span>
                                                     <small class="text-muted">Rp {{ number_format($item->product->price, 0, ',', '.') }} / item</small>
@@ -77,6 +121,41 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- PAYMENT METHOD --}}
+                <div class="card checkout-card p-4 mb-4">
+                    <h6 class="fw-bold mb-3"><i class="fa-solid fa-credit-card text-maroon me-2"></i>Pilih Metode Pembayaran</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="payment-option border rounded p-3 d-block cursor-pointer position-relative">
+                                <input type="radio" name="payment_method" value="transfer" class="form-check-input position-absolute top-50 end-0 translate-middle-y me-3" checked>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded p-2 me-3">
+                                        <i class="fa-solid fa-building-columns text-maroon fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold small">Transfer Bank</div>
+                                        <div class="text-muted" style="font-size: 10px;">Verifikasi manual oleh Seller</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="payment-option border rounded p-3 d-block cursor-pointer position-relative">
+                                <input type="radio" name="payment_method" value="cod" class="form-check-input position-absolute top-50 end-0 translate-middle-y me-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded p-2 me-3">
+                                        <i class="fa-solid fa-hand-holding-dollar text-maroon fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold small">COD (Bayar di Tempat)</div>
+                                        <div class="text-muted" style="font-size: 10px;">Ketemuan langsung di area kampus</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{-- RIGHT COLUMN: SUMMARY --}}
@@ -85,7 +164,7 @@
                     <h5 class="fw-bold mb-4">Ringkasan Pembayaran</h5>
                     
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted small">Total Harga ({{ $items->items->count() }} barang)</span>
+                        <span class="text-muted small">Total Harga ({{ $items->count() }} barang)</span>
                         <span class="fw-semibold text-dark">Rp {{ number_format($subtotal ?? 0, 0, ',', '.') }}</span>
                     </div>
                     

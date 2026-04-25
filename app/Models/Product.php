@@ -9,6 +9,12 @@ class Product extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+    protected $appends = ['image_url'];
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
 
     public function seller()
     {
@@ -23,5 +29,32 @@ class Product extends Model
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&background=f8f9fa&color=9F1521&size=200';
+        }
+
+        if (\Illuminate\Support\Str::startsWith($this->image, ['http://', 'https://'])) {
+            return $this->image;
+        }
+
+        if (\Illuminate\Support\Str::startsWith($this->image, 'products/')) {
+            return asset('storage/' . $this->image);
+        }
+
+        return asset('images/' . $this->image);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function returns()
+    {
+        return $this->hasMany(ProductReturn::class);
     }
 }

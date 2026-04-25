@@ -53,7 +53,13 @@ class CartController extends Controller
             'quantity' => 'nullable|integer|min:1'
         ]);
 
-        $this->cartService->addToCart($request->user()->id, $request->product_id, $request->quantity ?? 1);
+        $isBuyNow = $request->has('buy_now');
+        $this->cartService->addToCart($request->user()->id, $request->product_id, $request->quantity ?? 1, $isBuyNow);
+        
+        if ($request->has('buy_now')) {
+            return redirect()->route('checkout.index', ['product_id' => $request->product_id]);
+        }
+
         return redirect()->route('cart.index')->with('success', 'Berhasil ditambahkan ke keranjang!');
     }
 

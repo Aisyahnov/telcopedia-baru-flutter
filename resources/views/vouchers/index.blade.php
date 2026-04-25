@@ -4,7 +4,7 @@
 @push('styles')
 <style>
     .voucher-container { max-width: 900px; margin: 0 auto; }
-    .ticket { display: flex; background: #fff; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #eee; transition: 0.3s; height: 160px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .ticket { display: flex; background: #fff; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #eee; transition: 0.3s; height: 160px; box-shadow: 0 4px 15px rgba(255, 255, 255, 1); }
     .ticket:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-color: #9F1521; }
     
     /* Gerigi Ticket Effect */
@@ -32,8 +32,8 @@
 @section('content')
 <div class="container my-5">
     <div class="text-center mb-5">
-        <h2 class="fw-bold">Hujan Promo Telcopedia! 🎫</h2>
-        <p class="text-muted">Gunakan kode voucher di bawah ini saat checkout untuk mendapatkan potongan harga spesial mahasiswa.</p>
+        <h2 class="fw-900">Katalog <span class="text-maroon">Voucher & Promo</span></h2>
+        <p class="text-muted">Gunakan kode voucher di bawah ini untuk mendapatkan potongan harga spesial</p>
     </div>
 
     <div class="voucher-container">
