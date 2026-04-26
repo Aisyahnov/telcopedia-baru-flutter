@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Persetujuan Dana - Admin')
 
-@section('hero_title', 'Pencairan Saldo')
+@section('hero_title', 'Persetujuan Dana')
 @section('hero_subtitle', 'Tinjau dan proses permintaan penarikan dana dari para seller.')
 @section('hero_emoji', '')
 

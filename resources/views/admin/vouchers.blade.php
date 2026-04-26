@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Kelola Voucher - Admin')
 
-@section('hero_title', 'Manajemen Voucher')
+@section('hero_title', 'Kelola Voucher')
 @section('hero_subtitle', 'Terbitkan dan pantau kode promo diskon untuk meningkatkan daya beli mahasiswa.')
 @section('hero_emoji', '')
 

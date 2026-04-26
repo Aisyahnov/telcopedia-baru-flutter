@@ -17,9 +17,9 @@ class CheckoutService
         $this->cartService = $cartService;
     }
 
-    public function processCheckout($userId, $shippingAddress, $paymentMethod = 'transfer', $productId = null, $cartItemIds = null)
+    public function processCheckout($userId, $shippingAddress, $paymentMethod = 'transfer', $productId = null, $cartItemIds = null, $voucherCode = null)
     {
-        return DB::transaction(function () use ($userId, $shippingAddress, $paymentMethod, $productId, $cartItemIds) {
+        return DB::transaction(function () use ($userId, $shippingAddress, $paymentMethod, $productId, $cartItemIds, $voucherCode) {
             $cart = Cart::where('user_id', $userId)->with('items.product')->first();
             
             if (!$cart || $cart->items->isEmpty()) {
@@ -42,12 +42,22 @@ class CheckoutService
             if ($productId || $cartItemIds) {
                 $subtotal = $items->sum(fn($i) => $i->quantity * $i->product->price);
                 $discount = 0;
-                if ($cart->voucher) {
-                    $discount = $this->cartService->calculateDiscount($subtotal, $cart->voucher);
+                $voucherId = null;
+
+                $voucher = null;
+                if ($voucherCode) {
+                    $voucher = Voucher::where('code', $voucherCode)->first();
+                } elseif ($cart->voucher) {
+                    $voucher = $cart->voucher;
                 }
+
+                if ($voucher) {
+                    $discount = min($voucher->discount_amount, $subtotal);
+                    $voucherId = $voucher->id;
+                }
+
                 $adminFee = $subtotal * 0.05;
                 $total = $subtotal + $adminFee - $discount;
-                $voucherId = $discount > 0 ? $cart->voucher_id : null;
             } else {
                 $cartDetails = $this->cartService->getCartTotal($userId);
                 $subtotal = $cartDetails['subtotal'];

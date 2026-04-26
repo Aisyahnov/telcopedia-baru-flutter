@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Pesanan Masuk - Telcopedia')
+@section('title', 'Kelola Pesanan - Telcopedia')
 
-@section('hero_title', 'Manajemen Pesanan')
+@section('hero_title', 'Pesanan Masuk')
 @section('hero_subtitle', 'Pantau pesanan masuk, verifikasi pembayaran, dan atur pengiriman barang.')
 @section('hero_emoji', '')
 

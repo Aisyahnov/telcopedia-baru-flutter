@@ -1,7 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Kelola Produk - Admin')
+@section('title', 'Screening Produk - Admin')
 
-@section('hero_title', 'Kelola Produk Telcopedia')
 @section('hero_subtitle', 'Audit dan takedown produk yang melanggar ketentuan kampus.')
 @section('hero_emoji', '')
 

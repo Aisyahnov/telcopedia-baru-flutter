@@ -29,7 +29,7 @@
             <i class="fa-solid fa-box-open me-3"></i> Kelola Produk
         </a>
         <a href="{{ route('seller.orders.index') }}" class="sidebar-link {{ Request::is('seller/orders*') ? 'active' : '' }}">
-            <i class="fa-solid fa-receipt me-3"></i> Pesanan Masuk
+            <i class="fa-solid fa-receipt me-3"></i> Kelola Pesanan
         </a>
         <a href="{{ route('seller.returns.index') }}" class="sidebar-link {{ Request::is('seller/returns*') ? 'active' : '' }}">
             <i class="fa-solid fa-rotate-left me-3"></i> Retur & Komplain

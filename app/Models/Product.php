@@ -42,10 +42,10 @@ class Product extends Model
         }
 
         if (\Illuminate\Support\Str::startsWith($this->image, 'products/')) {
-            return asset('storage/' . $this->image);
+            return url('api/storage/' . $this->image);
         }
 
-        return asset('images/' . $this->image);
+        return url('api/storage/' . $this->image);
     }
 
     public function reviews()

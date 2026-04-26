@@ -26,9 +26,23 @@ class CheckoutController extends Controller
 
     public function save(Request $request)
     {
+        $request->validate([
+            'shipping_address' => 'required|string',
+            'payment_method' => 'required|in:transfer,cod',
+            'product_id' => 'nullable|exists:products,id',
+            'cart_item_ids' => 'nullable|string',
+            'voucher_code' => 'nullable|string|exists:vouchers,code',
+        ]);
+
         try {
-            $voucherId = $request->input('voucher_id');
-            $order = $this->checkoutService->processCheckout($request->user()->id, $voucherId);
+            $order = $this->checkoutService->processCheckout(
+                $request->user()->id,
+                $request->shipping_address,
+                $request->payment_method,
+                $request->product_id,
+                $request->cart_item_ids,
+                $request->voucher_code
+            );
             return response()->json(['data' => $order, 'message' => 'Checkout success'], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);

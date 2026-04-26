@@ -59,6 +59,71 @@ class AuthController extends Controller
         return response()->json(['data' => $request->user()]);
     }
 
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'phone' => 'nullable|string',
+            'address' => 'nullable|string',
+        ]);
+
+        $user->update($validated);
+
+        return response()->json(['data' => $user]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Password saat ini salah'], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return response()->json(['message' => 'Password berhasil diperbarui']);
+    }
+
+    public function updatePhoto(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('users', 'public');
+            $user->update(['photo' => $path]);
+            return response()->json(['photo' => $path]);
+        }
+
+        return response()->json(['message' => 'Gagal upload foto'], 400);
+    }
+
+    public function updateKtm(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'ktm' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        if ($request->hasFile('ktm')) {
+            $path = $request->file('ktm')->store('ktm', 'public');
+            $user->update(['ktm' => $path]);
+            return response()->json(['ktm' => $path]);
+        }
+
+        return response()->json(['message' => 'Gagal upload KTM'], 400);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

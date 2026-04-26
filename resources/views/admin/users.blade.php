@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Manajemen Pengguna - Admin')
 
-@section('hero_title', 'Manajemen Pengguna')
+@section('hero_title', 'Kelola User')
 @section('hero_subtitle', 'Kendalikan akses dan moderasi akun mahasiswa Telkom.')
 @section('hero_emoji', '')
 

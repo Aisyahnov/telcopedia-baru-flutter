@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Kelola Pembayaran - Admin')
 
-@section('hero_title', 'Monitoring Keuangan')
+@section('hero_title', 'Monitoring Pembayaran')
 @section('hero_subtitle', 'Pantau arus kas, metode pembayaran, dan pendapatan admin fee (5%).')
 @section('hero_emoji', '')
 

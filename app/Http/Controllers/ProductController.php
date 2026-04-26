@@ -51,7 +51,8 @@ class ProductController extends Controller
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $product = $this->productService->createProduct($request->user()->id, $validated);
+        $productData = collect($validated)->except(['gallery'])->toArray();
+        $product = $this->productService->createProduct($request->user()->id, $productData);
 
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $file) {
@@ -92,7 +93,8 @@ class ProductController extends Controller
             unset($validated['image']);
         }
 
-        $product = $this->productService->updateProduct($id, $request->user()->id, $validated);
+        $productData = collect($validated)->except(['gallery'])->toArray();
+        $product = $this->productService->updateProduct($id, $request->user()->id, $productData);
 
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $file) {

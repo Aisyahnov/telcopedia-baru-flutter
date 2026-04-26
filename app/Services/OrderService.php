@@ -27,20 +27,40 @@ class OrderService
         return $order;
     }
 
-    public function verifyPayment($orderId) // Admin action
+    public function getOrderDetails($orderId)
+    {
+        return Order::with(['items.product', 'reviews', 'returns'])->findOrFail($orderId);
+    }
+
+    public function completeOrder($orderId)
     {
         $order = Order::findOrFail($orderId);
-        $order->status = 'processing';
+        $order->status = 'completed';
         $order->save();
         return $order;
     }
 
-    public function updateTracking($orderId, $trackingNumber) // Seller action
+    public function storeReturn($userId, $orderId, $productId, $reason, $mediaPath = null)
     {
-        $order = Order::findOrFail($orderId);
-        $order->status = 'shipped';
-        $order->tracking_number = $trackingNumber;
-        $order->save();
-        return $order;
+        return \App\Models\ProductReturn::create([
+            'user_id' => $userId,
+            'order_id' => $orderId,
+            'product_id' => $productId,
+            'reason' => $reason,
+            'media' => $mediaPath,
+            'status' => 'pending'
+        ]);
+    }
+
+    public function storeReview($userId, $orderId, $productId, $rating, $comment = null, $mediaPath = null)
+    {
+        return \App\Models\Review::create([
+            'user_id' => $userId,
+            'order_id' => $orderId,
+            'product_id' => $productId,
+            'rating' => $rating,
+            'comment' => $comment,
+            'media' => $mediaPath
+        ]);
     }
 }

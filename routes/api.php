@@ -10,6 +10,15 @@ use App\Http\Controllers\Api\CheckoutController as ApiCheckoutController;
 use App\Http\Controllers\Api\ChatController as ApiChatController;
 use App\Http\Controllers\Api\HomeController as ApiHomeController;
 use App\Http\Controllers\Api\AdminController as ApiAdminController;
+use App\Http\Controllers\FileController;
+
+/*
+|--------------------------------------------------------------------------
+| FILE PROXY (PUBLIC)
+|--------------------------------------------------------------------------
+*/
+Route::get('storage/{path}', [FileController::class, 'serve'])->where('path', '.*');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +40,11 @@ Route::middleware('auth:sanctum')->group(function () {
     | AUTH
     |--------------------------------------------------------------------------
     */
+    Route::get('user', [AuthController::class, 'user']);
+    Route::put('user/profile', [AuthController::class, 'updateProfile']);
+    Route::put('user/password', [AuthController::class, 'updatePassword']);
+    Route::post('user/photo', [AuthController::class, 'updatePhoto']);
+    Route::post('user/ktm', [AuthController::class, 'updateKtm']);
     Route::post('logout', [AuthController::class, 'logout']);
 
     /*
@@ -40,6 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::get('home', [ApiHomeController::class, 'index']); 
     Route::get('home/product/{id}', [ApiHomeController::class, 'showProduct']);
+    Route::get('categories', [ApiHomeController::class, 'categories']);
+    Route::get('home/favorites', [ApiHomeController::class, 'favorites']);
+    Route::post('home/favorite/toggle', [ApiHomeController::class, 'toggleFavorite']);
+    Route::get('vouchers', [ApiHomeController::class, 'vouchers']);
 
     /*
     |--------------------------------------------------------------------------
@@ -67,10 +85,21 @@ Route::middleware('auth:sanctum')->group(function () {
     | CHAT 
     |--------------------------------------------------------------------------
     */
+    Route::get('chats', [ApiChatController::class, 'index']);
     Route::get('chat/{chat}', [ApiChatController::class, 'room']);
+    Route::get('chat/{chat}/messages', [ApiChatController::class, 'messages']);
     Route::post('chat/{chat}/send', [ApiChatController::class, 'send']);
     Route::put('chat/message/{message}', [ApiChatController::class, 'updateMessage']);
     Route::delete('chat/message/{message}', [ApiChatController::class, 'deleteMessage']);
+    /*
+    |--------------------------------------------------------------------------
+    | ORDERS
+    |--------------------------------------------------------------------------
+    */
+    Route::get('orders', [OrderController::class, 'buyerOrders']);
+    Route::post('orders/{order}/complete', [OrderController::class, 'completeOrder']);
+    Route::post('reviews', [OrderController::class, 'storeReview']);
+    Route::post('returns', [OrderController::class, 'storeReturn']);
 });
 
 /*
@@ -87,12 +116,20 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckRole::class.':selle
 
     // Order masuk ke seller
     Route::apiResource('orders', OrderController::class)->only(['index', 'show', 'update']);
+    Route::post('orders/{id}/approve', [OrderController::class, 'approvePayment']);
+    Route::post('orders/{id}/reject', [OrderController::class, 'rejectPayment']);
+    Route::put('orders/{id}/tracking', [OrderController::class, 'updateTracking']);
+    
+    Route::get('returns', [OrderController::class, 'sellerReturns']);
+    Route::post('returns/{id}/approve', [OrderController::class, 'approveReturn']);
+    Route::post('returns/{id}/reject', [OrderController::class, 'rejectReturn']);
 
     // Dashboard
     Route::get('dashboard', [SellerDashboardController::class, 'index']);
     Route::get('revenue', [SellerDashboardController::class, 'revenue']);
     Route::get('products/stats', [SellerDashboardController::class, 'productStats']);
     Route::get('chat/list', [SellerDashboardController::class, 'chatList']);
+    Route::get('reviews', [SellerDashboardController::class, 'reviews']);
 });
 
 /*
@@ -104,7 +141,11 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckRole::class.':admin
     ->prefix('admin')
     ->group(function () {
 
+    Route::get('dashboard', [ApiAdminController::class, 'dashboard']);
+    
     Route::get('products', [ApiAdminController::class, 'products']);
+    Route::post('products/{id}/approve', [ApiAdminController::class, 'approveProduct']);
+    Route::post('products/{id}/reject', [ApiAdminController::class, 'rejectProduct']);
     Route::delete('products/{id}', [ApiAdminController::class, 'destroyProduct']);
 
     Route::get('users', [ApiAdminController::class, 'users']);
@@ -114,4 +155,10 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckRole::class.':admin
     Route::post('vouchers', [ApiAdminController::class, 'storeVoucher']);
     Route::put('vouchers/{id}', [ApiAdminController::class, 'updateVoucher']);
     Route::delete('vouchers/{id}', [ApiAdminController::class, 'destroyVoucher']);
+
+    Route::get('payments', [ApiAdminController::class, 'payments']);
+
+    Route::get('withdrawals', [ApiAdminController::class, 'withdrawals']);
+    Route::post('withdrawals/{id}/approve', [ApiAdminController::class, 'approveWithdrawal']);
+    Route::post('withdrawals/{id}/reject', [ApiAdminController::class, 'rejectWithdrawal']);
 });

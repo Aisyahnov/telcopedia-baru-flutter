@@ -30,7 +30,7 @@
             <small class="x-small text-muted fw-bold ps-2" style="font-size: 0.6rem;">TRANSAKSI & DANA</small>
         </div>
         <a href="{{ route('admin.payments') }}" class="sidebar-link {{ Request::is('admin/payments*') ? 'active' : '' }}">
-            <i class="fa-solid fa-money-bill-transfer me-3"></i> Monitor Pembayaran
+            <i class="fa-solid fa-money-bill-transfer me-3"></i> Kelola Pembayaran
         </a>
         <a href="{{ route('admin.withdrawals.index') }}" class="sidebar-link {{ Request::is('admin/withdrawals*') ? 'active' : '' }}">
             <i class="fa-solid fa-hand-holding-dollar me-3"></i> Persetujuan Dana
@@ -47,7 +47,7 @@
             <i class="fa-solid fa-users-gear me-3"></i> Kelola User
         </a>
         <a href="{{ route('admin.products') }}" class="sidebar-link {{ Request::is('admin/products*') ? 'active' : '' }}">
-            <i class="fa-solid fa-boxes-packing me-3"></i> Kelola Produk
+            <i class="fa-solid fa-boxes-packing me-3"></i> Screening Produk
             @php $countPendingProd = \App\Models\Product::where('status', 'pending')->count(); @endphp
             @if($countPendingProd > 0)
                 <span class="badge bg-warning text-dark ms-auto rounded-pill">{{ $countPendingProd }}</span>

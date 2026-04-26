@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\CartService;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -52,7 +53,20 @@ class CartController extends Controller
 
     public function applyVoucher(Request $request)
     {
-        // Pengecekan validasi voucher oleh request
-        return response()->json(['message' => 'Voucher applied successfully']);
+        $request->validate(['code' => 'required|string']);
+        
+        $voucher = Voucher::where('code', $request->code)
+            ->where('valid_until', '>=', now())
+            ->first();
+
+        if (!$voucher) {
+            return response()->json(['message' => 'Voucher tidak valid atau sudah kadaluarsa'], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'discount_amount' => (float)$voucher->discount_amount,
+            'message' => 'Voucher berhasil digunakan: Potongan ' . number_format($voucher->discount_amount, 0, ',', '.')
+        ]);
     }
 }

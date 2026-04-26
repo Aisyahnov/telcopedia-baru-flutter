@@ -22,6 +22,12 @@ class SellerDashboardController extends Controller
             'data' => [
                 'total_products' => $totalProducts,
                 'total_orders' => $totalOrders,
+                'total_reviews' => \App\Models\Review::whereHas('product', function($q) use ($sellerId) {
+                    $q->where('seller_id', $sellerId);
+                })->count(),
+                'avg_rating' => \App\Models\Review::whereHas('product', function($q) use ($sellerId) {
+                    $q->where('seller_id', $sellerId);
+                })->avg('rating') ?? 0,
             ]
         ]);
     }
@@ -50,5 +56,15 @@ class SellerDashboardController extends Controller
                      ->with(['user1', 'user2', 'messages' => function($q) { $q->latest()->limit(1); }])
                      ->get();
         return response()->json(['data' => $chats]);
+    }
+
+    public function reviews(Request $request)
+    {
+        $sellerId = $request->user()->id;
+        $reviews = \App\Models\Review::whereHas('product', function($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })->with(['user', 'product'])->latest()->get();
+
+        return response()->json(['data' => $reviews]);
     }
 }
