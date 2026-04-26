@@ -57,4 +57,23 @@ class User {
     if (value is String) return double.tryParse(value) ?? 0.0;
     return 0.0;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'role': role,
+      'nim': nim,
+      'photo': photo,
+      'balance': balance,
+      'penalty_points': penaltyPoints,
+      'is_banned_from_posting': isBannedFromPosting,
+      'is_verified': isVerified,
+      'phone': phone,
+      'address': address,
+      'ktm': ktm,
+      'created_at': createdAt?.toIso8601String(),
+    };
+  }
 }

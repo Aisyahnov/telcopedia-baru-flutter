@@ -22,4 +22,12 @@ class ProductImage {
     if (url.startsWith('http')) return url;
     return 'http://127.0.0.1:8000/api/files/proxy?path=$url';
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'product_id': productId,
+      'image_url': imageUrl,
+    };
+  }
 }

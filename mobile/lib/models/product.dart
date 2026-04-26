@@ -72,4 +72,23 @@ class Product {
     if (url.startsWith('http')) return url;
     return 'http://127.0.0.1:8000/api/files/proxy?path=$url';
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'seller_id': sellerId,
+      'category_id': categoryId,
+      'name': name,
+      'description': description,
+      'price': price,
+      'stock': stock,
+      'image_url': imageUrl,
+      'status': status,
+      'condition': condition,
+      'category': category?.toJson(),
+      'seller': seller?.toJson(),
+      'images': images.map((i) => i.toJson()).toList(),
+      'reviews': reviews.map((r) => r.toJson()).toList(),
+    };
+  }
 }

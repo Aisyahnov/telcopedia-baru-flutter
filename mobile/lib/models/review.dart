@@ -30,4 +30,16 @@ class Review {
       user: json['user'] != null ? User.fromJson(json['user']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'product_id': productId,
+      'user_id': userId,
+      'rating': rating,
+      'comment': comment,
+      'created_at': createdAt?.toIso8601String(),
+      'user': user?.toJson(),
+    };
+  }
 }
