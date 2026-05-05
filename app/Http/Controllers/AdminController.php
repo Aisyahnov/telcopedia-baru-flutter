@@ -40,6 +40,14 @@ class AdminController extends Controller
         $product = Product::findOrFail($id);
         $product->status = 'approved';
         $product->save();
+
+        // Notify Seller
+        $product->seller->notify(new \App\Notifications\SystemNotification(
+            'Produk Disetujui',
+            "Produk Anda '{$product->name}' telah disetujui dan sekarang tayang.",
+            'product'
+        ));
+
         return back()->with('success', 'Produk berhasil disetujui untuk tayang.');
     }
 
@@ -48,6 +56,14 @@ class AdminController extends Controller
         $product = Product::findOrFail($id);
         $product->status = 'rejected';
         $product->save();
+
+        // Notify Seller
+        $product->seller->notify(new \App\Notifications\SystemNotification(
+            'Produk Ditolak',
+            "Maaf, produk '{$product->name}' ditolak oleh admin.",
+            'product'
+        ));
+
         return back()->with('success', 'Produk telah ditolak.');
     }
 

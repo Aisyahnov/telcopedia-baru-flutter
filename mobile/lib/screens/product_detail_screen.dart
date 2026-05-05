@@ -130,6 +130,54 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link produk berhasil disalin!')));
   }
 
+  void _showEditQtyDialog() {
+    if (_product == null) return;
+    final controller = TextEditingController(text: _quantity.toString());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Jumlah Pembelian', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Maksimal stok: ${_product!.stock}', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.grey)),
+            const SizedBox(height: 10),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          ElevatedButton(
+            onPressed: () {
+              final newQty = int.tryParse(controller.text) ?? _quantity;
+              if (newQty > _product!.stock) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Stok tidak mencukupi (Maks: ${_product!.stock})')));
+                return;
+              }
+              if (newQty < 1) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Minimal pembelian 1 item')));
+                return;
+              }
+              setState(() => _quantity = newQty);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9F1521), foregroundColor: Colors.white),
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -151,7 +199,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       appBar: AppBar(
         title: Text('Detail Produk', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 16)),
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1A1A1A),
+        foregroundColor: const Color(0xFF9F1521),
         elevation: 0.5,
         actions: [
           IconButton(
@@ -400,8 +448,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: Row(
                 children: [
                   IconButton(onPressed: _decrementQty, icon: const Icon(Icons.remove, size: 16)),
-                  Expanded(child: Text('$_quantity', textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold))),
-                  IconButton(onPressed: _incrementQty, icon: const Icon(Icons.add, size: 16)),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _showEditQtyDialog(),
+                      child: Text('$_quantity', textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  IconButton(onPressed: _quantity < (_product?.stock ?? 0) ? _incrementQty : null, icon: Icon(Icons.add, size: 16, color: _quantity < (_product?.stock ?? 0) ? Colors.black : Colors.grey.shade300)),
                 ],
               ),
             ),

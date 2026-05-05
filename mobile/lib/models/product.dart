@@ -70,7 +70,7 @@ class Product {
   static String _formatImageUrl(String? url) {
     if (url == null || url.isEmpty) return 'https://via.placeholder.com/150';
     if (url.startsWith('http')) return url;
-    return 'http://127.0.0.1:8000/api/files/proxy?path=$url';
+    return 'http://127.0.0.1:8000/api/storage/$url';
   }
 
   Map<String, dynamic> toJson() {

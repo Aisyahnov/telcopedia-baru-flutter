@@ -71,12 +71,20 @@
 
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
-                                        <label class="form-label">Kategori</label>
-                                        <select class="form-select border-0 bg-light shadow-sm" name="category_id" required>
-                                            <option value="">Pilih Kategori</option>
+                                        <label class="form-label">Kategori Utama</label>
+                                        <select class="form-select border-0 bg-light shadow-sm" id="parent_category" required>
+                                            <option value="">Pilih Kategori Utama</option>
                                             @foreach($categories as $cat)
-                                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                @if(!$cat->parent_id)
+                                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                @endif
                                             @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Sub-Kategori</label>
+                                        <select class="form-select border-0 bg-light shadow-sm" name="category_id" id="sub_category" required disabled>
+                                            <option value="">Pilih Kategori Utama Dahulu</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -172,6 +180,40 @@
 </div>
 
 <script>
+    const categories = @json($categories);
+    const parentSelect = document.getElementById('parent_category');
+    const subSelect = document.getElementById('sub_category');
+
+    parentSelect.addEventListener('change', function() {
+        const parentId = this.value;
+        subSelect.innerHTML = '<option value="">Pilih Sub-Kategori</option>';
+        
+        if (parentId) {
+            const parent = categories.find(c => c.id == parentId);
+            const subcats = parent ? (parent.subcategories || parent.sub_categories || []) : [];
+            
+            if (subcats.length > 0) {
+                subSelect.disabled = false;
+                subcats.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.id;
+                    opt.textContent = sub.name;
+                    subSelect.appendChild(opt);
+                });
+            } else {
+                // Tidak ada subcategories, gunakan parentId itu sendiri
+                const opt = document.createElement('option');
+                opt.value = parentId;
+                opt.textContent = 'Gunakan Kategori Utama (Tanpa Sub)';
+                subSelect.appendChild(opt);
+                subSelect.disabled = false;
+            }
+        } else {
+            subSelect.disabled = true;
+            subSelect.innerHTML = '<option value="">Pilih Kategori Utama Dahulu</option>';
+        }
+    });
+
     function previewMain(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();

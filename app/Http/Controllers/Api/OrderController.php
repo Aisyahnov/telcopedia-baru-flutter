@@ -146,6 +146,16 @@ class OrderController extends Controller
         return response()->json(['data' => $return, 'message' => 'Return request approved']);
     }
 
+    public function cancel($id, Request $request)
+    {
+        try {
+            $order = $this->orderService->cancelOrder($id, $request->user()->id);
+            return response()->json(['data' => $order, 'message' => 'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
     public function rejectReturn($id)
     {
         $return = \App\Models\ProductReturn::findOrFail($id);

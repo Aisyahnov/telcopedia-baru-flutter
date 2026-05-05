@@ -60,14 +60,41 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        // Add Categories
-        $categories = ['Fashion', 'Buku', 'Furniture', 'Elektronik', 'Alat Tulis', 'Hobi', 'Peralatan Kos', 'Kesehatan', 'Otomotif'];
+        $categories = ['Fashion', 'Buku', 'Furniture', 'Elektronik', 'Alat Tulis', 'Hobi', 'Peralatan Kos', 'Kesehatan', 'Otomotif', 'Lainnya'];
         foreach ($categories as $cat) {
             Category::create([
                 'name' => $cat,
                 'slug' => strtolower(str_replace(' ', '-', $cat)),
                 'description' => 'Kategori ' . $cat
             ]);
+        }
+
+        // Add Sub-categories
+        $subCategories = [
+            'Elektronik' => ['Smartphone', 'Laptop', 'Aksesoris PC', 'Audio', 'Kamera'],
+            'Fashion' => ['Pakaian Pria', 'Pakaian Wanita', 'Sepatu', 'Tas', 'Aksesoris'],
+            'Buku' => ['Buku Kuliah', 'Novel', 'Komik', 'Pengembangan Diri'],
+            'Furniture' => ['Meja', 'Kursi', 'Lemari', 'Kasur'],
+            'Alat Tulis' => ['Alat Tulis Kantor', 'Buku Catatan', 'Perlengkapan Gambar'],
+            'Hobi' => ['Alat Musik', 'Olahraga', 'Gaming', 'Mainan'],
+            'Peralatan Kos' => ['Alat Masak', 'Kipas Angin', 'Kebersihan', 'Organisasi Kamar'],
+            'Kesehatan' => ['Masker & Sanitizer', 'Suplemen', 'Alat Medis'],
+            'Otomotif' => ['Helm', 'Suku Cadang', 'Aksesoris Kendaraan'],
+            'Lainnya' => ['Jasa', 'Makanan & Minuman', 'Lain-lain'],
+        ];
+
+        foreach ($subCategories as $parentName => $subs) {
+            $parent = Category::where('name', $parentName)->first();
+            if ($parent) {
+                foreach ($subs as $sub) {
+                    Category::create([
+                        'parent_id' => $parent->id,
+                        'name' => $sub,
+                        'slug' => strtolower(str_replace(' ', '-', $parentName . '-' . $sub)),
+                        'description' => 'Sub-kategori ' . $sub . ' dari ' . $parentName
+                    ]);
+                }
+            }
         }
 
         // Add Voucher

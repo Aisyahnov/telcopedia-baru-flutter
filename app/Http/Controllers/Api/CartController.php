@@ -31,8 +31,12 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
-        $cart = $this->cartService->addToCart($request->user()->id, $request->product_id, $request->quantity);
-        return response()->json(['data' => $cart, 'message' => 'Item added to cart']);
+        try {
+            $cart = $this->cartService->addToCart($request->user()->id, $request->product_id, $request->quantity);
+            return response()->json(['data' => $cart, 'message' => 'Item added to cart']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 
     public function remove(Request $request, $itemId)
@@ -47,8 +51,13 @@ class CartController extends Controller
             'item_id' => 'required',
             'quantity' => 'required|integer|min:1'
         ]);
-        // Update logic implementation would go here inside service
-        return response()->json(['message' => 'Cart updated']);
+
+        try {
+            $cart = $this->cartService->updateCartQuantity($request->user()->id, $request->item_id, $request->quantity);
+            return response()->json(['data' => $cart, 'message' => 'Cart updated']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 
     public function applyVoucher(Request $request)

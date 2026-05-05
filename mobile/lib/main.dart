@@ -59,6 +59,7 @@ class MyApp extends StatelessWidget {
             foregroundColor: Colors.white,
             elevation: 0,
             centerTitle: false,
+            iconTheme: IconThemeData(color: Color(0xFF9F1521)),
             titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           cardTheme: CardThemeData(

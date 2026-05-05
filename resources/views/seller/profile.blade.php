@@ -162,12 +162,7 @@
                             <i class="fa-solid fa-star store-stat-icon"></i>
                             <div>
                                 <span class="d-block small text-muted">Penilaian</span>
-                                @php
-                                    $rating = \App\Models\Review::whereHas('product', function($q) use($seller) {
-                                        $q->where('seller_id', $seller->id);
-                                    })->avg('rating');
-                                @endphp
-                                <span class="fw-bold text-maroon">{{ $rating ? number_format($rating, 1) : 'Belum ada' }}</span>
+                                <span class="fw-bold text-maroon">{{ $avgSellerRating ? number_format($avgSellerRating, 1) : 'Belum ada' }}</span>
                             </div>
                         </div>
                     </div>
@@ -177,14 +172,19 @@
     </div>
 
     <!-- Store Navigation -->
-    <ul class="nav nav-store d-flex">
-        <li class="nav-item">
-            <a class="nav-link active" href="#">Semua Produk</a>
+    <ul class="nav nav-store d-flex" id="storeTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="products-tab" data-bs-toggle="tab" data-bs-target="#products-content" type="button" role="tab">Semua Produk</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-content" type="button" role="tab">Ulasan Seller ({{ $reviews->total() }})</button>
         </li>
     </ul>
 
-    <!-- Product Grid -->
-    <div class="row g-3 mb-5">
+    <div class="tab-content" id="storeTabContent">
+        <!-- Product Grid Tab -->
+        <div class="tab-pane fade show active" id="products-content" role="tabpanel">
+            <div class="row g-3 mb-5">
         @forelse($products as $p)
             <div class="col-6 col-md-4 col-lg-3">
                 <div class="product-card-premium" style="position: relative;">
@@ -234,10 +234,67 @@
         @endforelse
     </div>
 
-    <!-- Pagination -->
-    <div class="d-flex justify-content-center mb-5">
-        {{ $products->links() }}
-    </div>
+            <!-- Pagination Products -->
+            <div class="d-flex justify-content-center mb-5">
+                {{ $products->appends(['r_page' => $reviews->currentPage()])->links() }}
+            </div>
+        </div>
 
+        <!-- Reviews Tab -->
+        <div class="tab-pane fade" id="reviews-content" role="tabpanel">
+            <div class="row mb-5">
+                <div class="col-lg-8">
+                    @forelse($reviews as $review)
+                        <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($review->user->name) }}&background=f8f9fa&color=9F1521&bold=true" class="rounded-circle me-3" width="40" height="40">
+                                    <div>
+                                        <h6 class="fw-bold mb-0">{{ $review->user->name }}</h6>
+                                        <div class="text-info small">
+                                            @for($i=1; $i<=5; $i++)
+                                                <i class="fa-solid fa-star {{ $i <= $review->seller_rating ? 'text-info' : 'text-muted opacity-25' }}" style="font-size: 0.7rem;"></i>
+                                            @endfor
+                                            <span class="ms-1 fw-bold">{{ $review->seller_rating }}.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                            </div>
+                            <p class="mb-2 text-dark" style="font-size: 0.9rem;">{{ $review->seller_comment ?? 'Tidak ada komentar.' }}</p>
+                            @if($review->product)
+                                <div class="bg-light p-2 rounded-3 d-inline-flex align-items-center mt-2 border">
+                                    <img src="{{ $review->product->image_url }}" class="rounded me-2" width="25" height="25" style="object-fit: cover;">
+                                    <span class="x-small text-muted">Membeli: <strong>{{ $review->product->name }}</strong></span>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="text-center py-5">
+                            <i class="fa-solid fa-comment-slash fa-3x text-muted opacity-25 mb-3"></i>
+                            <p class="text-muted">Belum ada ulasan untuk seller ini.</p>
+                        </div>
+                    @endforelse
+
+                    <!-- Pagination Reviews -->
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $reviews->appends(['p_page' => $products->currentPage()])->links() }}
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-maroon text-white sticky-top" style="top: 20px;">
+                        <h6 class="fw-bold mb-3">Ringkasan Seller</h6>
+                        <div class="display-4 fw-bold mb-1">{{ number_format($avgSellerRating, 1) }}</div>
+                        <div class="mb-4">
+                            @for($i=1; $i<=5; $i++)
+                                <i class="fa-solid fa-star {{ $i <= round($avgSellerRating) ? 'text-warning' : 'text-white-50' }}"></i>
+                            @endfor
+                        </div>
+                        <p class="small mb-0 opacity-75">Rating ini berdasarkan akumulasi dari seluruh pembeli yang memberikan ulasan layanan kepada seller ini.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

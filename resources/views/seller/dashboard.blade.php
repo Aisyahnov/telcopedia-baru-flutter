@@ -29,46 +29,48 @@
     @endif
 
     <!-- STATISTIC TILES -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
             <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-maroon border-3 hover-translate-y transition-all">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-maroon-soft p-3 rounded-circle text-maroon shadow-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-box-archive fa-lg"></i>
-                        </div>
-                        <span class="badge bg-light text-muted x-small">STOK</span>
+                <div class="card-body p-4 text-center">
+                    <div class="bg-maroon-soft mx-auto mb-3 rounded-circle text-maroon shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-box-archive"></i>
                     </div>
-                    <h3 class="fw-900 mb-1 text-dark">{{ $totalProducts }}</h3>
-                    <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.6rem; letter-spacing: 1px;">Produk Terdaftar</p>
+                    <h4 class="fw-900 mb-1 text-dark">{{ $totalProducts }}</h4>
+                    <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.55rem; letter-spacing: 1px;">Produk</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-primary border-3 hover-translate-y transition-all">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-primary-subtle p-3 rounded-circle text-primary shadow-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-cart-shopping fa-lg"></i>
-                        </div>
-                        <span class="badge bg-primary-subtle text-primary x-small">LIVE</span>
+        <div class="col-md-3">
+            <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-warning border-3 hover-translate-y transition-all">
+                <div class="card-body p-4 text-center">
+                    <div class="bg-warning-subtle mx-auto mb-3 rounded-circle text-warning shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-star"></i>
                     </div>
-                    <h3 class="fw-900 mb-1 text-dark">0</h3>
-                    <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.6rem; letter-spacing: 1px;">Pesanan Baru</p>
+                    <h4 class="fw-900 mb-1 text-dark">{{ number_format($avgProductRating, 1) }}</h4>
+                    <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.55rem; letter-spacing: 1px;">Rating Produk</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-info border-3 hover-translate-y transition-all">
+                <div class="card-body p-4 text-center">
+                    <div class="bg-info-subtle mx-auto mb-3 rounded-circle text-info shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <h4 class="fw-900 mb-1 text-dark">{{ number_format($avgSellerRating, 1) }}</h4>
+                    <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.55rem; letter-spacing: 1px;">Rating Pelayanan</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="card card-management shadow-sm h-100 bg-white border-0 border-bottom border-success border-3 hover-translate-y transition-all">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-success-subtle p-3 rounded-circle text-success shadow-sm" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-wallet fa-lg"></i>
-                        </div>
-                        <span class="badge bg-success-subtle text-success x-small">CAIR</span>
+                <div class="card-body p-4 text-center">
+                    <div class="bg-success-subtle mx-auto mb-3 rounded-circle text-success shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-wallet"></i>
                     </div>
-                    <h3 class="fw-900 mb-1 text-dark">Rp {{ number_format(Auth::user()->balance, 0, ',', '.') }}</h3>
-                    <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.6rem; letter-spacing: 1px;">Saldo Tersedia</p>
+                    <h4 class="fw-900 mb-1 text-dark">Rp {{ number_format(Auth::user()->balance, 0, ',', '.') }}</h4>
+                    <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.55rem; letter-spacing: 1px;">Saldo</p>
                 </div>
             </div>
         </div>

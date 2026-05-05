@@ -27,6 +27,15 @@ class ChatController extends Controller
     }
 
     /**
+     * Tampilkan chat seller yang dikelompokkan per produk.
+     */
+    public function sellerIndex(Request $request)
+    {
+        $groups = $this->chatService->getSellerChatGroups($request->user()->id);
+        return view('chat.seller', compact('groups'));
+    }
+
+    /**
      * Inisiasi chat dari halaman produk.
      * Menggunakan model binding Product $product untuk keamanan.
      */
@@ -83,10 +92,21 @@ class ChatController extends Controller
             abort(403);
         }
 
-        $chats = $this->chatService->getUserChats($request->user()->id);
-        $messages = $this->chatService->getMessages($chat->id);
-        
-        return view('chat.room', compact('chats', 'messages', 'chat'));
+        if ($request->user()->role === 'seller') {
+            // Hanya ambil group yang produknya sama dengan chat saat ini agar tidak bingung
+            $groups = $this->chatService->getSellerChatGroups($request->user()->id);
+            // Filter agar hanya group produk ini yang muncul di sidebar (opsional, tapi user minta "di satu produk itu aja")
+            $groups = array_filter($groups, function($g) use ($chat) {
+                return $g['product']->id == $chat->product_id;
+            });
+            
+            $messages = $this->chatService->getMessages($chat->id);
+            return view('chat.room', compact('groups', 'messages', 'chat'));
+        } else {
+            $chats = $this->chatService->getUserChats($request->user()->id);
+            $messages = $this->chatService->getMessages($chat->id);
+            return view('chat.room', compact('chats', 'messages', 'chat'));
+        }
     }
 
     /**

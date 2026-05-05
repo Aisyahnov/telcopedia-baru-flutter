@@ -62,4 +62,19 @@ class ChatService {
       return false;
     }
   }
+
+  Future<Chat?> getOrCreateChat(int sellerId, int? productId) async {
+    try {
+      final response = await _apiService.dio.post('chat/get-or-create', data: {
+        'seller_id': sellerId,
+        'product_id': productId,
+      });
+      if (response.statusCode == 200) {
+        return Chat.fromJson(response.data['data']);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
 }

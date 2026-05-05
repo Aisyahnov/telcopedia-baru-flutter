@@ -15,6 +15,38 @@ class SellerService {
     return prefs.getString('token');
   }
 
+  Future<Map<String, dynamic>?> getDashboardStats() async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/seller/dashboard'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body)['data'];
+    }
+    return null;
+  }
+
+  Future<List<dynamic>> getSellerReviews() async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/seller/reviews'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body)['data'];
+    }
+    return [];
+  }
+
   Future<List<Product>> getMyProducts() async {
     final token = await _getToken();
     final response = await http.get(
@@ -45,6 +77,22 @@ class SellerService {
     if (response.statusCode == 200) {
       final List data = json.decode(response.body)['data'];
       return data.map((json) => Order.fromJson(json)).toList();
+    }
+    return [];
+  }
+
+  Future<List<dynamic>> getSellerChats() async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/seller/chats'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body)['data'];
     }
     return [];
   }
@@ -162,7 +210,7 @@ class SellerService {
   Future<List<Category>> getCategories() async {
     final response = await http.get(Uri.parse('$baseUrl/categories'));
     if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
+      final List data = json.decode(response.body)['data'];
       return data.map((json) => Category.fromJson(json)).toList();
     }
     return [];

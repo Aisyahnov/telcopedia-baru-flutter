@@ -85,25 +85,44 @@
                     <h6 class="fw-bold mb-0 text-dark">PESAN SAYA</h6>
                 </div>
                 <div class="chat-list">
-                    @forelse($chats as $c)
-                        @php
-                            $opponent = ($c->user1_id == auth()->id()) ? $c->user2 : $c->user1;
-                            $lastMsg = $c->messages->last();
-                        @endphp
-                        <a href="{{ route('chat.room', $c->id) }}" class="chat-item {{ isset($chat) && $chat->id == $c->id ? 'active' : '' }} border-bottom">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-maroon-soft text-maroon rounded-circle d-flex align-items-center justify-content-center me-3 border shadow-sm" style="width: 42px; height: 42px;">
-                                    <i class="fa fa-user opacity-50"></i>
+                    @if(Auth::user()->role === 'seller' && isset($groups))
+                        @foreach($groups as $group)
+                            <div class="p-3 bg-light x-small fw-bold border-bottom">{{ $group['product']->name }}</div>
+                            @foreach($group['chats'] as $c)
+                                <a href="{{ route('chat.room', $c['id']) }}" class="chat-item {{ isset($chat) && $chat->id == $c['id'] ? 'active' : '' }} border-bottom">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-maroon-soft text-maroon rounded-circle d-flex align-items-center justify-content-center me-3 border shadow-sm" style="width: 32px; height: 32px;">
+                                            <i class="fa fa-user small opacity-50"></i>
+                                        </div>
+                                        <div class="overflow-hidden">
+                                            <h6 class="mb-0 fw-bold text-truncate text-dark" style="font-size: 0.8rem;">{{ $c['other_user']->name ?? 'User' }}</h6>
+                                            <p class="mb-0 x-small text-muted text-truncate" style="font-size: 0.65rem;">{{ $c['last_message'] ? $c['last_message']->message : 'Mulai chat...' }}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        @endforeach
+                    @else
+                        @forelse($chats as $c)
+                            @php
+                                $opponent = ($c->user1_id == auth()->id()) ? $c->user2 : $c->user1;
+                                $lastMsg = $c->messages->last();
+                            @endphp
+                            <a href="{{ route('chat.room', $c->id) }}" class="chat-item {{ isset($chat) && $chat->id == $c->id ? 'active' : '' }} border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-maroon-soft text-maroon rounded-circle d-flex align-items-center justify-content-center me-3 border shadow-sm" style="width: 42px; height: 42px;">
+                                        <i class="fa fa-user opacity-50"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <h6 class="mb-0 fw-bold text-truncate text-dark" style="font-size: 0.85rem;">{{ $opponent->name ?? 'User' }}</h6>
+                                        <p class="mb-0 x-small text-muted text-truncate" style="font-size: 0.7rem;">{{ $lastMsg ? $lastMsg->message : 'Mulai chat...' }}</p>
+                                    </div>
                                 </div>
-                                <div class="overflow-hidden">
-                                    <h6 class="mb-0 fw-bold text-truncate text-dark" style="font-size: 0.85rem;">{{ $opponent->name ?? 'User' }}</h6>
-                                    <p class="mb-0 x-small text-muted text-truncate" style="font-size: 0.7rem;">{{ $lastMsg ? $lastMsg->message : 'Mulai chat...' }}</p>
-                                </div>
-                            </div>
-                        </a>
-                    @empty
-                        <div class="text-center p-5 text-muted x-small fw-bold">KOTAK MASUK KOSONG</div>
-                    @endforelse
+                            </a>
+                        @empty
+                            <div class="text-center p-5 text-muted x-small fw-bold">KOTAK MASUK KOSONG</div>
+                        @endforelse
+                    @endif
                 </div>
             </div>
 

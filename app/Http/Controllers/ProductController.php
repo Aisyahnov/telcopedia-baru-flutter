@@ -26,8 +26,8 @@ class ProductController extends Controller
         if (auth()->user()->is_banned_from_posting) {
             return redirect()->route('seller.products.index')->withErrors(['error' => 'Akses ditolak. Anda telah menerima 3 teguran retur.']);
         }
-        $categories = Category::all();
-        return view('seller.products.create', compact('categories'));
+        $categories = Category::whereNull('parent_id')->with('subcategories')->get();
+        return view('seller.products.create', ['categories' => $categories]);
     }
 
     public function store(Request $request)
@@ -64,14 +64,25 @@ class ProductController extends Controller
             }
         }
 
+        // Notify Admins
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\SystemNotification(
+                'Produk Baru Perlu Review',
+                "Seller {$request->user()->name} mengunggah produk: {$product->name}",
+                'product',
+                route('admin.products')
+            ));
+        }
+
         return redirect()->route('seller.products.index')->with('success', 'Produk berhasil ditambahkan dan sedang menunggu persetujuan admin.');
     }
 
     public function edit(Request $request, $id)
     {
-        $product = \App\Models\Product::with('images')->where('id', $id)->where('seller_id', $request->user()->id)->firstOrFail();
-        $categories = Category::all();
-        return view('seller.products.edit', compact('product', 'categories'));
+        $product = \App\Models\Product::with(['images', 'category.parent'])->where('id', $id)->where('seller_id', $request->user()->id)->firstOrFail();
+        $categories = Category::whereNull('parent_id')->with('subcategories')->get();
+        return view('seller.products.edit', ['product' => $product, 'categories' => $categories]);
     }
 
     public function update(Request $request, $id)

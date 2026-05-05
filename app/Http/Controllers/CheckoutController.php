@@ -85,11 +85,8 @@ class CheckoutController extends Controller
                 $request->input('buy_now_product_id'),
                 $request->input('cart_item_ids')
             );
-            if ($request->input('payment_method') === 'cod') {
-                return redirect('/orders')->with('success', 'Pesanan COD berhasil dibuat! Silakan hubungi seller untuk janji temu.');
-            }
 
-            return redirect()->route('checkout.upload', $order->id)->with('success', 'Pesanan dibuat! Silakan upload bukti pembayaran.');
+            return view('checkout.success', compact('order'));
         } catch (\Exception $e) {
             return back()->withErrors(['cart' => $e->getMessage()]);
         }

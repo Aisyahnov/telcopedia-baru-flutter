@@ -23,6 +23,7 @@ class _SellerEditProductScreenState extends State<SellerEditProductScreen> {
   late TextEditingController _imageUrlController;
   
   int? _selectedCategoryId;
+  int? _selectedSubCategoryId;
   String _selectedCondition = 'Very Good';
   List<Category> _categories = [];
   bool _isSaving = false;
@@ -42,16 +43,43 @@ class _SellerEditProductScreenState extends State<SellerEditProductScreen> {
 
   Future<void> _loadCategories() async {
     final cats = await _sellerService.getCategories();
-    setState(() => _categories = cats);
+    setState(() {
+      _categories = cats;
+      // Inisialisasi _selectedCategoryId sebagai parent jika ID produk sekarang adalah sub
+      for (var parent in _categories) {
+        if (parent.id == widget.product.categoryId) {
+          _selectedCategoryId = parent.id;
+          _selectedSubCategoryId = null;
+          break;
+        }
+        if (parent.subCategories != null) {
+          for (var sub in parent.subCategories!) {
+            if (sub.id == widget.product.categoryId) {
+              _selectedCategoryId = parent.id;
+              _selectedSubCategoryId = sub.id;
+              break;
+            }
+          }
+        }
+      }
+    });
   }
 
   Future<void> _save() async {
+    final mainCat = _categories.firstWhere((c) => c.id == _selectedCategoryId, orElse: () => _categories.isNotEmpty ? _categories.first : Category(id: 0, name: '', slug: ''));
+    final hasSub = mainCat.subCategories != null && mainCat.subCategories!.isNotEmpty;
+
     if (_formKey.currentState!.validate() && _selectedCategoryId != null) {
+      if (hasSub && _selectedSubCategoryId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan pilih sub-kategori.')));
+        return;
+      }
+
       setState(() => _isSaving = true);
       
       final data = {
         'name': _nameController.text,
-        'category_id': _selectedCategoryId,
+        'category_id': _selectedSubCategoryId ?? _selectedCategoryId,
         'condition': _selectedCondition,
         'price': double.parse(_priceController.text),
         'stock': int.parse(_stockController.text),
@@ -240,17 +268,47 @@ class _SellerEditProductScreenState extends State<SellerEditProductScreen> {
   }
 
   Widget _buildCategoryDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: _selectedCategoryId,
-          isExpanded: true,
-          items: _categories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: const TextStyle(fontSize: 14)))).toList(),
-          onChanged: (val) => setState(() => _selectedCategoryId = val),
+    final mainCategories = _categories;
+    final selectedMainCat = mainCategories.firstWhere((c) => c.id == _selectedCategoryId, orElse: () => mainCategories.isNotEmpty ? mainCategories.first : Category(id: 0, name: '', slug: ''));
+    final subCategories = selectedMainCat.subCategories ?? [];
+
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: _selectedCategoryId,
+              isExpanded: true,
+              hint: const Text('Pilih Kategori Utama', style: TextStyle(fontSize: 14)),
+              items: mainCategories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: const TextStyle(fontSize: 14)))).toList(),
+              onChanged: (val) {
+                setState(() {
+                  _selectedCategoryId = val;
+                  _selectedSubCategoryId = null;
+                });
+              },
+            ),
+          ),
         ),
-      ),
+        if (subCategories.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _selectedSubCategoryId,
+                isExpanded: true,
+                hint: const Text('Pilih Sub-Kategori', style: TextStyle(fontSize: 14)),
+                items: subCategories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: const TextStyle(fontSize: 14)))).toList(),
+                onChanged: (val) => setState(() => _selectedSubCategoryId = val),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 

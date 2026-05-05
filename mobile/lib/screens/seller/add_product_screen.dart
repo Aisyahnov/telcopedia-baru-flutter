@@ -21,6 +21,7 @@ class _SellerAddProductScreenState extends State<SellerAddProductScreen> {
   final _imageUrlController = TextEditingController(); // Untuk demo, kita pakai URL
   
   int? _selectedCategoryId;
+  int? _selectedSubCategoryId;
   String _selectedCondition = 'Very Good';
   List<Category> _categories = [];
   bool _isSaving = false;
@@ -37,12 +38,20 @@ class _SellerAddProductScreenState extends State<SellerAddProductScreen> {
   }
 
   Future<void> _save() async {
+    final mainCat = _categories.firstWhere((c) => c.id == _selectedCategoryId, orElse: () => _categories.first);
+    final hasSub = mainCat.subCategories != null && mainCat.subCategories!.isNotEmpty;
+
     if (_formKey.currentState!.validate() && _selectedCategoryId != null) {
+      if (hasSub && _selectedSubCategoryId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan pilih sub-kategori.')));
+        return;
+      }
+      
       setState(() => _isSaving = true);
       
       final data = {
         'name': _nameController.text,
-        'category_id': _selectedCategoryId,
+        'category_id': _selectedSubCategoryId ?? _selectedCategoryId,
         'condition': _selectedCondition,
         'price': double.parse(_priceController.text),
         'stock': int.parse(_stockController.text),
@@ -241,18 +250,47 @@ class _SellerAddProductScreenState extends State<SellerAddProductScreen> {
   }
 
   Widget _buildCategoryDropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: _selectedCategoryId,
-          isExpanded: true,
-          hint: const Text('Pilih Kategori', style: TextStyle(fontSize: 14)),
-          items: _categories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: const TextStyle(fontSize: 14)))).toList(),
-          onChanged: (val) => setState(() => _selectedCategoryId = val),
+    final mainCategories = _categories;
+    final selectedMainCat = mainCategories.firstWhere((c) => c.id == _selectedCategoryId, orElse: () => mainCategories.isNotEmpty ? mainCategories.first : Category(id: 0, name: '', slug: ''));
+    final subCategories = selectedMainCat.subCategories ?? [];
+
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: _selectedCategoryId,
+              isExpanded: true,
+              hint: const Text('Pilih Kategori', style: TextStyle(fontSize: 14)),
+              items: mainCategories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: const TextStyle(fontSize: 14)))).toList(),
+              onChanged: (val) {
+                setState(() {
+                  _selectedCategoryId = val;
+                  _selectedSubCategoryId = null; // Reset sub
+                });
+              },
+            ),
+          ),
         ),
-      ),
+        if (subCategories.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _selectedSubCategoryId,
+                isExpanded: true,
+                hint: const Text('Pilih Sub-Kategori', style: TextStyle(fontSize: 14)),
+                items: subCategories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: const TextStyle(fontSize: 14)))).toList(),
+                onChanged: (val) => setState(() => _selectedSubCategoryId = val),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 

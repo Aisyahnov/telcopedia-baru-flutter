@@ -60,21 +60,42 @@ class CartService
                             ->where('product_id', $productId)
                             ->first();
 
+        $targetQuantity = $quantity;
+        if ($cartItem && !$overrideQuantity) {
+            $targetQuantity += $cartItem->quantity;
+        }
+
+        if ($targetQuantity > $product->stock) {
+            throw new \Exception("Stok tidak mencukupi. Stok tersedia: " . $product->stock);
+        }
+
         if ($cartItem) {
-            if ($overrideQuantity) {
-                $cartItem->quantity = $quantity;
-            } else {
-                $cartItem->quantity += $quantity;
-            }
-            $cartItem->save();
+            $cartItem->update(['quantity' => $targetQuantity]);
         } else {
             CartItem::create([
                 'cart_id' => $cart->id,
                 'product_id' => $productId,
-                'quantity' => $quantity,
+                'quantity' => $targetQuantity,
             ]);
         }
 
+        return $this->getUserCart($userId);
+    }
+
+    public function updateCartQuantity($userId, $itemId, $quantity)
+    {
+        $cart = $this->getUserCart($userId);
+        $cartItem = $cart->items()->where('id', $itemId)->first();
+
+        if (!$cartItem) {
+            throw new \Exception("Item tidak ditemukan di keranjang.");
+        }
+
+        if ($quantity > $cartItem->product->stock) {
+            throw new \Exception("Stok tidak mencukupi. Stok tersedia: " . $cartItem->product->stock);
+        }
+
+        $cartItem->update(['quantity' => $quantity]);
         return $this->getUserCart($userId);
     }
 

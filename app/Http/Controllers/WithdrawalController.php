@@ -40,6 +40,16 @@ class WithdrawalController extends Controller
         // Usually best to deduct immediately and put in "escrow" or just pending state.
         $user->decrement('balance', $request->amount);
 
+        // Notify Admins
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\SystemNotification(
+                'Permintaan Pencairan Dana',
+                "Seller {$user->name} mengajukan penarikan Rp " . number_format($request->amount, 0, ',', '.'),
+                'withdrawal'
+            ));
+        }
+
         return back()->with('success', 'Permintaan penarikan dana berhasil dikirim.');
     }
 
@@ -57,6 +67,13 @@ class WithdrawalController extends Controller
         $withdrawal->status = 'approved';
         $withdrawal->save();
 
+        // Notify Seller
+        $withdrawal->user->notify(new \App\Notifications\SystemNotification(
+            'Pencairan Dana Berhasil',
+            "Permintaan penarikan dana Rp " . number_format($withdrawal->amount, 0, ',', '.') . " telah disetujui.",
+            'withdrawal'
+        ));
+
         return back()->with('success', 'Penarikan dana disetujui.');
     }
 
@@ -70,6 +87,13 @@ class WithdrawalController extends Controller
 
         // Refund balance
         $withdrawal->user->increment('balance', $withdrawal->amount);
+
+        // Notify Seller
+        $withdrawal->user->notify(new \App\Notifications\SystemNotification(
+            'Pencairan Dana Ditolak',
+            "Maaf, penarikan dana Rp " . number_format($withdrawal->amount, 0, ',', '.') . " ditolak admin.",
+            'withdrawal'
+        ));
 
         return back()->with('success', 'Penarikan dana ditolak. Saldo dikembalikan ke penjual.');
     }

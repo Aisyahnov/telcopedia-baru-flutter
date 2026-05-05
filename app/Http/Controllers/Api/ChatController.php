@@ -21,15 +21,22 @@ class ChatController extends Controller
         return response()->json(['data' => $rooms]);
     }
 
+    public function sellerChats(Request $request)
+    {
+        $groups = $this->chatService->getSellerChatGroups($request->user()->id);
+        return response()->json(['data' => $groups]);
+    }
+
     public function room($chat)
     {
         $messages = $this->chatService->getMessages($chat);
         return response()->json(['data' => $messages]);
     }
 
-    public function messages($chatId)
+    public function messages(Request $request, $chatId)
     {
-        $messages = $this->chatService->getMessages($chatId);
+        $afterId = $request->query('after_id', 0);
+        $messages = $this->chatService->getMessages($chatId, $afterId);
         return response()->json(['data' => $messages]);
     }
 
@@ -43,6 +50,22 @@ class ChatController extends Controller
     public function updateMessage(Request $request, $messageId)
     {
         return response()->json(['message' => 'Message updated (simulated)']);
+    }
+
+    public function getOrCreate(Request $request)
+    {
+        $request->validate([
+            'seller_id' => 'required',
+            'product_id' => 'nullable'
+        ]);
+
+        $room = $this->chatService->getOrCreateRoom(
+            $request->user()->id,
+            $request->seller_id,
+            $request->product_id
+        );
+
+        return response()->json(['data' => $room->load(['user1', 'user2', 'product', 'messages'])]);
     }
 
     public function deleteMessage($messageId)

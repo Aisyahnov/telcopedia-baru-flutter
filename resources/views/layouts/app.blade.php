@@ -169,14 +169,18 @@
 
 @if(!Request::is('login') && !Request::is('register'))
   @php
-    $isSellerAdminArea = (Request::is('seller*') && !Request::routeIs('seller.profile')) || Request::is('admin*') || (Request::is('chat*') && Auth::check() && Auth::user()->role !== 'buyer') || (Request::is('profile*') && Auth::check() && Auth::user()->role !== 'buyer');
+    $isSellerAdminArea = (Request::is('seller*') && !Request::routeIs('seller.profile')) || 
+                        Request::is('admin*') || 
+                        (Request::is('chat*') && Auth::check() && Auth::user()->role !== 'buyer') || 
+                        (Request::is('profile*') && Auth::check() && Auth::user()->role !== 'buyer') ||
+                        (Request::is('notifications*') && Auth::check() && Auth::user()->role !== 'buyer');
   @endphp
   
   @if($isSellerAdminArea)
     <div class="dashboard-wrapper">
         <!-- SIDEBAR -->
         <aside class="dashboard-sidebar">
-            @if(Request::is('admin*'))
+            @if(Auth::user()->role === 'admin')
                 @include('layouts.partials.admin_sidebar')
             @else
                 @include('layouts.partials.seller_sidebar')
@@ -193,13 +197,13 @@
                     <div class="row align-items-center">
                         <div class="col-lg-8">
                             <h2 class="fw-900 text-white mb-2 tracking-tight">
-                                @yield('hero_title', 'Pusat Seller Telcopedia') 
+                                @yield('hero_title', Auth::user()->role === 'admin' ? 'Dashboard Control Admin' : 'Pusat Seller Telcopedia') 
                                 @if(trim($__env->yieldContent('hero_emoji')))
                                     <span class="ms-2">@yield('hero_emoji')</span>
                                 @endif
                             </h2>
                             <p class="text-white-50 mb-0 lead-sm">
-                                @yield('hero_subtitle', 'Kelola operasional dan pantau performa lapak Anda di satu tempat.')
+                                @yield('hero_subtitle', Auth::user()->role === 'admin' ? 'Pantau aktivitas kampus dan moderasi produk secara menyeluruh.' : 'Kelola operasional dan pantau performa lapak Anda di satu tempat.')
                             </p>
                         </div>
                         @hasSection('hero_action')

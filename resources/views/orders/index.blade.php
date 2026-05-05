@@ -193,18 +193,34 @@
 
                                                                 <div class="mb-4 text-center">
                                                                     <label class="form-label fw-bold d-block mb-3">Berapa bintang untuk produk ini?</label>
-                                                                    <div class="shopee-star-container" data-id="{{ $order->id }}-{{ $item->product_id }}">
+                                                                    <div class="shopee-star-container" data-id="product-{{ $order->id }}-{{ $item->product_id }}">
                                                                         @for($i=1; $i<=5; $i++)
                                                                             <i class="fa-solid fa-star shopee-star active" data-val="{{ $i }}"></i>
                                                                         @endfor
                                                                     </div>
-                                                                    <input type="hidden" name="rating" id="rating-input-{{ $order->id }}-{{ $item->product_id }}" value="5" required>
-                                                                    <div class="rating-label-text mt-2 fw-bold text-warning" id="rating-text-{{ $order->id }}-{{ $item->product_id }}">Sangat Baik</div>
+                                                                    <input type="hidden" name="rating" id="rating-input-product-{{ $order->id }}-{{ $item->product_id }}" value="5" required>
+                                                                    <div class="rating-label-text mt-2 fw-bold text-warning" id="rating-text-product-{{ $order->id }}-{{ $item->product_id }}">Sangat Baik</div>
                                                                 </div>
 
                                                                 <div class="mb-4">
-                                                                    <label class="form-label fw-bold small">Tuliskan pengalaman Anda</label>
-                                                                    <textarea class="form-control bg-light border-0" name="comment" rows="3" placeholder="Sangat bagus, sesuai gambar! (Opsional)" maxlength="500"></textarea>
+                                                                    <label class="form-label fw-bold small text-muted mb-1">Pengalaman tentang Produk</label>
+                                                                    <textarea class="form-control bg-light border-0" name="comment" rows="2" placeholder="Sangat bagus, sesuai gambar! (Opsional)" maxlength="500"></textarea>
+                                                                </div>
+
+                                                                <div class="mb-4 text-center pt-3 border-top">
+                                                                    <label class="form-label fw-bold d-block mb-3">Bagaimana layanan Seller?</label>
+                                                                    <div class="shopee-star-container" data-id="seller-{{ $order->id }}-{{ $item->product_id }}">
+                                                                        @for($i=1; $i<=5; $i++)
+                                                                            <i class="fa-solid fa-star shopee-star active" data-val="{{ $i }}"></i>
+                                                                        @endfor
+                                                                    </div>
+                                                                    <input type="hidden" name="seller_rating" id="rating-input-seller-{{ $order->id }}-{{ $item->product_id }}" value="5" required>
+                                                                    <div class="rating-label-text mt-2 fw-bold text-info" id="rating-text-seller-{{ $order->id }}-{{ $item->product_id }}">Sangat Baik</div>
+                                                                </div>
+
+                                                                <div class="mb-4">
+                                                                    <label class="form-label fw-bold small text-muted mb-1">Ulasan untuk Penjual</label>
+                                                                    <textarea class="form-control bg-light border-0" name="seller_comment" rows="2" placeholder="Seller ramah dan pengiriman cepat! (Opsional)" maxlength="500"></textarea>
                                                                 </div>
 
                                                                 <div class="mb-3">
@@ -292,6 +308,17 @@
                                         </button>
                                     </div>
                                 @endif
+
+                                @if($order->status == 'pending_payment' || $order->status == 'paid_verifying' || $order->status == 'processing' || $order->status == 'shipped')
+                                    <div class="mt-2">
+                                        <form id="cancel-form-{{ $order->id }}" action="{{ route('orders.cancel', $order->id) }}" method="POST" class="d-none">
+                                            @csrf
+                                        </form>
+                                        <button type="button" class="btn btn-link text-danger text-decoration-none small fw-bold btn-cancel-order" data-order-id="{{ $order->id }}">
+                                            <i class="fa fa-times-circle me-1"></i> Batalkan Pesanan
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -303,6 +330,34 @@
 
 @push('scripts')
 <script>
+    document.querySelectorAll('.btn-cancel-order').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            const form = document.getElementById('cancel-form-' + orderId);
+            
+            Swal.fire({
+                title: 'Batalkan Pesanan?',
+                text: "Apakah Anda yakin ingin membatalkan pesanan ini? Stok produk akan dikembalikan ke penjual.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Batalkan',
+                cancelButtonText: 'Kembali',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'rounded-pill px-4',
+                    cancelButton: 'rounded-pill px-4'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
     document.querySelectorAll('.btn-complete-order').forEach(button => {
         button.addEventListener('click', function() {
             const orderId = this.getAttribute('data-order-id');

@@ -63,4 +63,31 @@ class OrderService
             'media' => $mediaPath
         ]);
     }
+
+    public function cancelOrder($orderId, $userId)
+    {
+        $order = Order::where('id', $orderId)
+                      ->where(function($q) use ($userId) {
+                          $q->where('user_id', $userId) // Buyer
+                            ->orWhereHas('items.product', function($sq) use ($userId) {
+                                $sq->where('seller_id', $userId); // Seller
+                            });
+                      })->firstOrFail();
+
+        if ($order->status === 'cancelled' || $order->status === 'completed' || $order->status === 'returned') {
+            throw new \Exception('Pesanan dengan status ' . $order->status . ' tidak dapat dibatalkan.');
+        }
+
+        // Kembalikan stok produk
+        foreach ($order->items as $item) {
+            if ($item->product) {
+                $item->product->increment('stock', $item->quantity);
+            }
+        }
+
+        $order->status = 'cancelled';
+        $order->save();
+
+        return $order;
+    }
 }

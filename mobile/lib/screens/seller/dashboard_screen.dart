@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import '../../services/seller_service.dart';
+
 class SellerDashboardScreen extends StatefulWidget {
   const SellerDashboardScreen({super.key});
 
@@ -17,20 +19,27 @@ class SellerDashboardScreen extends StatefulWidget {
 
 class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   final AuthService _authService = AuthService();
+  final SellerService _sellerService = SellerService();
   User? _user;
+  Map<String, dynamic>? _dashboardStats;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUser();
+    _loadData();
   }
 
-  Future<void> _loadUser() async {
-    final user = await _authService.getCurrentUser();
+  Future<void> _loadData() async {
+    final results = await Future.wait([
+      _authService.getCurrentUser(),
+      _sellerService.getDashboardStats(),
+    ]);
+    
     if (mounted) {
       setState(() {
-        _user = user;
+        _user = results[0] as User?;
+        _dashboardStats = results[1] as Map<String, dynamic>?;
         _isLoading = false;
       });
     }
@@ -70,7 +79,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator(color: Color(0xFF9F1521)))
         : RefreshIndicator(
-            onRefresh: _loadUser,
+            onRefresh: _loadData,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -168,49 +177,49 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   }
 
   Widget _buildStatCards(NumberFormat formatter) {
+    final stats = _dashboardStats;
     return Column(
       children: [
-        _buildStatCard('PRODUK TERDAFTAR', '0', Icons.inventory_2_outlined, const Color(0xFF9F1521), const Color(0xFF9F1521).withOpacity(0.05), 'STOK'),
+        Row(
+          children: [
+            Expanded(child: _buildStatCardSmall('PRODUK', '${stats?['total_products'] ?? 0}', Icons.inventory_2_outlined, const Color(0xFF9F1521))),
+            const SizedBox(width: 15),
+            Expanded(child: _buildStatCardSmall('SALDO', formatter.format(_user?.balance ?? 0), Icons.wallet_outlined, Colors.green)),
+          ],
+        ),
         const SizedBox(height: 15),
-        _buildStatCard('PESANAN BARU', '0', Icons.shopping_cart_outlined, Colors.blue, Colors.blue.withOpacity(0.05), 'LIVE'),
-        const SizedBox(height: 15),
-        _buildStatCard('SALDO TERSEDIA', formatter.format(_user?.balance ?? 0), Icons.wallet_outlined, Colors.green, Colors.green.withOpacity(0.05), 'CAIR'),
+        Row(
+          children: [
+            Expanded(child: _buildStatCardSmall('RATING PRODUK', '${stats?['avg_product_rating'] ?? 0.0}', Icons.star_border, Colors.orange)),
+            const SizedBox(width: 15),
+            Expanded(child: _buildStatCardSmall('RATING SELLER', '${stats?['avg_seller_rating'] ?? 0.0}', Icons.verified_user_outlined, Colors.blue)),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color, Color bgColor, String badge) {
+  Widget _buildStatCardSmall(String label, String value, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         border: Border(bottom: BorderSide(color: color, width: 3)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(width: 55, height: 55, decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: color, size: 24)),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.grey.shade600, letterSpacing: 1)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
-                      child: Text(badge, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.grey.shade500)),
-                    ),
-                  ],
-                ),
-                Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A1A))),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(icon, color: color, size: 16),
+              Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.grey.shade600, letterSpacing: 0.5)),
+            ],
           ),
+          const SizedBox(height: 10),
+          Text(value, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A1A)), overflow: TextOverflow.ellipsis),
         ],
       ),
     );

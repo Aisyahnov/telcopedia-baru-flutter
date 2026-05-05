@@ -112,6 +112,16 @@ class CheckoutService
                 $cart->items()->delete();
             }
 
+            // Notify Sellers
+            $sellers = $items->map(fn($i) => $i->product->seller)->unique('id');
+            foreach ($sellers as $seller) {
+                $seller->notify(new \App\Notifications\SystemNotification(
+                    'Pesanan Baru!',
+                    "Seseorang telah memesan produk Anda. Silakan cek detail pesanan.",
+                    'order'
+                ));
+            }
+
             return $order->load('items.product');
         });
     }

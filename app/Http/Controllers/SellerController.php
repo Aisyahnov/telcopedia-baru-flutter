@@ -19,7 +19,11 @@ class SellerController extends Controller
     {
         $sellerId = $request->user()->id;
         $totalProducts = Product::where('seller_id', $sellerId)->count();
-        return view('seller.dashboard', compact('totalProducts'));
+        $avgProductRating = \App\Models\Review::where('seller_id', $sellerId)->avg('rating') ?? 0;
+        $avgSellerRating = \App\Models\Review::where('seller_id', $sellerId)->avg('seller_rating') ?? 0;
+        $totalReviews = \App\Models\Review::where('seller_id', $sellerId)->count();
+
+        return view('seller.dashboard', compact('totalProducts', 'avgProductRating', 'avgSellerRating', 'totalReviews'));
     }
 
     public function orders(Request $request)
@@ -54,17 +58,11 @@ class SellerController extends Controller
 
     public function rejectPayment($id)
     {
-        $order = \App\Models\Order::findOrFail($id);
-        
-        $isOwner = $order->items()->whereHas('product', function($q) {
-            $q->where('seller_id', auth()->id());
-        })->exists();
-
-        if (!$isOwner) abort(403);
-
-        $order->status = 'cancelled';
-        $order->save();
-
-        return back()->with('success', 'Pembayaran ditolak, pesanan dibatalkan.');
+        try {
+            $this->orderService->cancelOrder($id, auth()->id());
+            return back()->with('success', 'Pembayaran ditolak dan pesanan telah dibatalkan. Stok produk dikembalikan.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

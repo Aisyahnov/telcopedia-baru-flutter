@@ -94,4 +94,42 @@ class ChatService
             return min($userId, $otherId) . '-' . max($userId, $otherId);
         });
     }
+
+    public function getSellerChatGroups($sellerId)
+    {
+        // Ambil semua chat yang di mana user ini adalah salah satu pesertanya
+        // DAN ada kaitan produknya (biasanya seller selalu dikaitkan dengan produk yang ditanya)
+        // Kita kelompokkan berdasarkan product_id
+        $chats = Chat::where(function($q) use ($sellerId) {
+                        $q->where('user1_id', $sellerId)->orWhere('user2_id', $sellerId);
+                    })
+                    ->whereNotNull('product_id')
+                    ->with(['product', 'user1', 'user2', 'messages' => function($q) {
+                        $q->latest()->limit(1);
+                    }])
+                    ->orderBy('updated_at', 'desc')
+                    ->get();
+
+        $grouped = $chats->groupBy('product_id');
+        
+        $result = [];
+        foreach ($grouped as $productId => $productChats) {
+            $product = $productChats->first()->product;
+            if (!$product) continue;
+
+            $result[] = [
+                'product' => $product,
+                'chats' => $productChats->map(function($chat) use ($sellerId) {
+                    return [
+                        'id' => $chat->id,
+                        'other_user' => ($chat->user1_id == $sellerId) ? $chat->user2 : $chat->user1,
+                        'last_message' => $chat->messages->first(),
+                        'updated_at' => $chat->updated_at
+                    ];
+                })
+            ];
+        }
+
+        return $result;
+    }
 }

@@ -13,13 +13,21 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        // Ambil semua kategori
-        $categories = Category::withCount(['products' => function($q) {
-            $q->where('status', 'approved');
-        }])->get()->map(function ($category) {
-            $category->icon = $this->getIconForCategory($category->name);
-            return $category;
-        });
+        // Ambil semua kategori utama (parent)
+        $categories = Category::whereNull('parent_id')
+            ->with(['subcategories' => function($q) {
+                $q->withCount(['products' => function($pq) {
+                    $pq->where('status', 'approved');
+                }]);
+            }])
+            ->withCount(['products' => function($q) {
+                $q->where('status', 'approved');
+            }])
+            ->get()
+            ->map(function ($category) {
+                $category->icon = $this->getIconForCategory($category->name);
+                return $category;
+            });
 
         // Ambil produk untuk kategori pertama sebagai default
         $firstCategory = $categories->first();
@@ -41,7 +49,11 @@ class CategoryController extends Controller
      */
     public function getProductsAjax($id)
     {
-        $products = Product::where('category_id', $id)
+        $categoryIds = Category::where('id', $id)
+            ->orWhere('parent_id', $id)
+            ->pluck('id');
+
+        $products = Product::whereIn('category_id', $categoryIds)
             ->where('status', 'approved')
             ->with(['seller', 'category'])
             ->latest()
@@ -91,6 +103,7 @@ class CategoryController extends Controller
             'Otomotif'    => 'fa-motorcycle',
             'Furniture'   => 'fa-couch',
             'Makanan'     => 'fa-bowl-food',
+            'Lainnya'     => 'fa-layer-group',
         ];
 
         // Cari yang mirip (case-insensitive)

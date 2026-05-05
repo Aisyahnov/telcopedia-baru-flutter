@@ -25,6 +25,13 @@
         <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ Request::is('admin/dashboard') ? 'active' : '' }}">
             <i class="fa-solid fa-gauge-high me-3"></i> Ringkasan Utama
         </a>
+        <a href="{{ route('notifications.index') }}" class="sidebar-link {{ Request::is('notifications*') ? 'active' : '' }}">
+            <i class="fa-solid fa-bell me-3"></i> Notifikasi
+            @php $countNotif = auth()->user()->unreadNotifications->count(); @endphp
+            @if($countNotif > 0)
+                <span class="badge bg-danger ms-auto rounded-pill">{{ $countNotif }}</span>
+            @endif
+        </a>
 
         <div class="px-3 mt-4 mb-2">
             <small class="x-small text-muted fw-bold ps-2" style="font-size: 0.6rem;">TRANSAKSI & DANA</small>

@@ -17,6 +17,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   List<model.Category> _categories = [];
   List<Product> _products = [];
   int? _selectedCategoryId;
+  int? _selectedSubCategoryId;
   bool _isLoadingCategories = true;
   bool _isLoadingProducts = false;
 
@@ -34,6 +35,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         _isLoadingCategories = false;
         if (_categories.isNotEmpty) {
           _selectedCategoryId = _categories[0].id;
+          // Sub-kategori default ke null (semua di bawah parent) atau ambil yang pertama
           _loadProducts(_selectedCategoryId!);
         }
       });
@@ -53,6 +55,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedCategory = _categories.firstWhere((c) => c.id == _selectedCategoryId, orElse: () => _categories.first);
+    final subCategories = selectedCategory.subCategories ?? [];
+
     return Scaffold(
       backgroundColor: const Color(0xFFFCFCFC),
       appBar: AppBar(
@@ -72,6 +77,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         children: [
           const SizedBox(height: 10),
           _buildCategoryNav(),
+          if (subCategories.isNotEmpty) _buildSubCategoryNav(subCategories),
           Expanded(
             child: _isLoadingProducts 
               ? const Center(child: CircularProgressIndicator(color: Color(0xFF9F1521)))
@@ -87,7 +93,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       return const SizedBox(height: 60, child: Center(child: LinearProgressIndicator()));
     }
     return SizedBox(
-      height: 60,
+      height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -96,13 +102,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
           final cat = _categories[index];
           final isSelected = _selectedCategoryId == cat.id;
           return Padding(
-            padding: const EdgeInsets.only(right: 10),
+            padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
               label: Text(cat.name),
               selected: isSelected,
               onSelected: (selected) {
                 if (selected) {
-                  setState(() => _selectedCategoryId = cat.id);
+                  setState(() {
+                    _selectedCategoryId = cat.id;
+                    _selectedSubCategoryId = null; // Reset sub-category
+                  });
                   _loadProducts(cat.id);
                 }
               },
@@ -111,14 +120,68 @@ class _CategoryScreenState extends State<CategoryScreen> {
               labelStyle: GoogleFonts.plusJakartaSans(
                 color: isSelected ? Colors.white : Colors.black87,
                 fontWeight: FontWeight.bold,
-                fontSize: 13,
+                fontSize: 12,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(100),
                 side: BorderSide(color: isSelected ? const Color(0xFF9F1521) : Colors.grey.shade200),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
               showCheckmark: false,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSubCategoryNav(List<model.Category> subs) {
+    return Container(
+      height: 45,
+      margin: const EdgeInsets.only(top: 5, bottom: 10),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        itemCount: subs.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            // "Semua" option
+            final isSelected = _selectedSubCategoryId == null;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ActionChip(
+                label: const Text('Semua'),
+                onPressed: () {
+                  setState(() => _selectedSubCategoryId = null);
+                  _loadProducts(_selectedCategoryId!);
+                },
+                backgroundColor: isSelected ? const Color(0xFF9F1521).withOpacity(0.1) : Colors.transparent,
+                labelStyle: GoogleFonts.plusJakartaSans(
+                  color: isSelected ? const Color(0xFF9F1521) : Colors.grey,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 11,
+                ),
+                shape: StadiumBorder(side: BorderSide(color: isSelected ? const Color(0xFF9F1521) : Colors.grey.shade200)),
+              ),
+            );
+          }
+          final sub = subs[index - 1];
+          final isSelected = _selectedSubCategoryId == sub.id;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ActionChip(
+              label: Text(sub.name),
+              onPressed: () {
+                setState(() => _selectedSubCategoryId = sub.id);
+                _loadProducts(sub.id);
+              },
+              backgroundColor: isSelected ? const Color(0xFF9F1521).withOpacity(0.1) : Colors.transparent,
+              labelStyle: GoogleFonts.plusJakartaSans(
+                color: isSelected ? const Color(0xFF9F1521) : Colors.grey,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 11,
+              ),
+              shape: StadiumBorder(side: BorderSide(color: isSelected ? const Color(0xFF9F1521) : Colors.grey.shade200)),
             ),
           );
         },

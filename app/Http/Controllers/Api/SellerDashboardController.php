@@ -22,12 +22,9 @@ class SellerDashboardController extends Controller
             'data' => [
                 'total_products' => $totalProducts,
                 'total_orders' => $totalOrders,
-                'total_reviews' => \App\Models\Review::whereHas('product', function($q) use ($sellerId) {
-                    $q->where('seller_id', $sellerId);
-                })->count(),
-                'avg_rating' => \App\Models\Review::whereHas('product', function($q) use ($sellerId) {
-                    $q->where('seller_id', $sellerId);
-                })->avg('rating') ?? 0,
+                'total_reviews' => \App\Models\Review::where('seller_id', $sellerId)->count(),
+                'avg_product_rating' => \App\Models\Review::where('seller_id', $sellerId)->avg('rating') ?? 0,
+                'avg_seller_rating' => \App\Models\Review::where('seller_id', $sellerId)->avg('seller_rating') ?? 0,
             ]
         ]);
     }
@@ -61,9 +58,7 @@ class SellerDashboardController extends Controller
     public function reviews(Request $request)
     {
         $sellerId = $request->user()->id;
-        $reviews = \App\Models\Review::whereHas('product', function($q) use ($sellerId) {
-            $q->where('seller_id', $sellerId);
-        })->with(['user', 'product'])->latest()->get();
+        $reviews = \App\Models\Review::where('seller_id', $sellerId)->with(['user', 'product'])->latest()->get();
 
         return response()->json(['data' => $reviews]);
     }

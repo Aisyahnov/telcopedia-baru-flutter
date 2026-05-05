@@ -24,7 +24,10 @@ class ProductService
         }
 
         if ($categoryId) {
-            $query->where('category_id', $categoryId);
+            $categoryIds = \App\Models\Category::where('id', $categoryId)
+                ->orWhere('parent_id', $categoryId)
+                ->pluck('id');
+            $query->whereIn('category_id', $categoryIds);
         }
 
         return $query->latest()->paginate(8);

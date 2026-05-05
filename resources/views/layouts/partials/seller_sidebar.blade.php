@@ -25,6 +25,13 @@
         <a href="{{ route('seller.dashboard') }}" class="sidebar-link {{ Request::is('seller/dashboard') ? 'active' : '' }}">
             <i class="fa-solid fa-chart-pie me-3"></i> Ringkasan Utama
         </a>
+        <a href="{{ route('notifications.index') }}" class="sidebar-link {{ Request::is('notifications*') ? 'active' : '' }}">
+            <i class="fa-solid fa-bell me-3"></i> Notifikasi
+            @php $countNotif = auth()->user()->unreadNotifications->count(); @endphp
+            @if($countNotif > 0)
+                <span class="badge bg-danger ms-auto rounded-pill">{{ $countNotif }}</span>
+            @endif
+        </a>
         <a href="{{ route('seller.products.index') }}" class="sidebar-link {{ Request::is('seller/products*') ? 'active' : '' }}">
             <i class="fa-solid fa-box-open me-3"></i> Kelola Produk
         </a>
@@ -38,7 +45,7 @@
         <div class="px-3 mt-4 mb-2">
             <small class="x-small text-muted fw-bold ps-2" style="font-size: 0.6rem;">KOMUNIKASI</small>
         </div>
-        <a href="{{ route('chat.index') }}" class="sidebar-link {{ Request::is('chat*') ? 'active' : '' }}">
+        <a href="{{ route('seller.chats') }}" class="sidebar-link {{ Request::is('seller/chats*') ? 'active' : '' }}">
             <i class="fa-solid fa-comments me-3"></i> Chat Pembeli
         </a>
 

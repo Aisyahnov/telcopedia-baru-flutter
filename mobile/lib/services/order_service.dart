@@ -20,6 +20,15 @@ class OrderService {
     }
   }
 
+  Future<bool> cancelOrder(int orderId) async {
+    try {
+      final response = await _apiService.dio.post('orders/$orderId/cancel');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> completeOrder(int orderId) async {
     try {
       final response = await _apiService.dio.post('orders/$orderId/complete');
@@ -34,6 +43,8 @@ class OrderService {
     required int productId,
     required int rating,
     String? comment,
+    int? sellerRating,
+    String? sellerComment,
     XFile? media,
   }) async {
     try {
@@ -57,6 +68,8 @@ class OrderService {
         'product_id': productId,
         'rating': rating,
         'comment': comment,
+        'seller_rating': sellerRating ?? rating,
+        'seller_comment': sellerComment ?? comment,
         if (multipartFile != null) 'media': multipartFile,
       });
 

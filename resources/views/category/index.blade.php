@@ -79,7 +79,7 @@
     </div>
 
     <!-- Category Nav -->
-    <div class="cat-nav-wrapper mb-5 pb-2">
+    <div class="cat-nav-wrapper mb-3 pb-2">
         @foreach($categories as $index => $cat)
             <button class="cat-btn {{ $firstCategory && $firstCategory->id == $cat->id ? 'active' : '' }}" 
                     onclick="loadCategory({{ $cat->id }}, this)">
@@ -87,6 +87,16 @@
                 {{ $cat->name }}
             </button>
         @endforeach
+    </div>
+
+    <!-- Sub-Category Nav (Dynamic) -->
+    <div id="subcat-container" class="d-flex flex-wrap gap-2 mb-5">
+        @if($firstCategory && $firstCategory->subcategories->count() > 0)
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 active" onclick="loadSubCategory({{ $firstCategory->id }}, this)">Semua</button>
+            @foreach($firstCategory->subcategories as $sub)
+                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="loadSubCategory({{ $sub->id }}, this)">{{ $sub->name }}</button>
+            @endforeach
+        @endif
     </div>
 
     <!-- Product Grid Section -->
@@ -163,13 +173,26 @@
         const loading = document.getElementById('loading');
         const moreContainer = document.getElementById('more-container');
         const btnMore = document.getElementById('btn-show-more');
+        const subcatContainer = document.getElementById('subcat-container');
 
         loading.style.display = 'flex';
         
         try {
+            // Kita ambil data kategori ini dari API
             const response = await fetch(`/categories/products/${catId}`);
             const data = await response.json();
             
+            // Update Sub-kategori chips
+            const catData = @json($categories).find(c => c.id == catId);
+            if (catData && catData.subcategories.length > 0) {
+                subcatContainer.innerHTML = `<button class="btn btn-sm btn-outline-secondary rounded-pill px-3 active" onclick="loadSubCategory(${catId}, this)">Semua</button>`;
+                catData.subcategories.forEach(sub => {
+                    subcatContainer.innerHTML += `<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="loadSubCategory(${sub.id}, this)">${sub.name}</button>`;
+                });
+            } else {
+                subcatContainer.innerHTML = '';
+            }
+
             grid.innerHTML = '';
             
             if (data.products.length === 0) {
@@ -190,6 +213,46 @@
             }
         } catch (error) {
             console.error('Error loading category:', error);
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    async function loadSubCategory(subId, btn) {
+        // Toggle active class
+        document.querySelectorAll('#subcat-container button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const grid = document.getElementById('product-grid');
+        const loading = document.getElementById('loading');
+        const moreContainer = document.getElementById('more-container');
+        
+        loading.style.display = 'flex';
+        
+        try {
+            const response = await fetch(`/categories/products/${subId}`);
+            const data = await response.json();
+            
+            grid.innerHTML = '';
+            
+            if (data.products.length === 0) {
+                grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Belum ada produk di kategori ini.</p></div>';
+                moreContainer.classList.add('d-none');
+            } else {
+                data.products.forEach(p => {
+                    const card = createProductCard(p);
+                    grid.appendChild(card);
+                });
+
+                if (data.has_more) {
+                    moreContainer.classList.remove('d-none');
+                    document.getElementById('btn-show-more').href = `/categories/${data.category_slug}`;
+                } else {
+                    moreContainer.classList.add('d-none');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading sub-category:', error);
         } finally {
             loading.style.display = 'none';
         }

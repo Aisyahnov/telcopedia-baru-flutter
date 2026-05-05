@@ -17,11 +17,12 @@ class SellerChatListScreen extends StatefulWidget {
 }
 
 class _SellerChatListScreenState extends State<SellerChatListScreen> {
-  final ChatService _chatService = ChatService();
+  final SellerService _sellerService = SellerService();
   final AuthService _authService = AuthService();
-  List<Chat> _chats = [];
+  List<dynamic> _chatGroups = [];
   User? _user;
   bool _isLoading = true;
+  int? _expandedProductId;
 
   @override
   void initState() {
@@ -31,11 +32,11 @@ class _SellerChatListScreenState extends State<SellerChatListScreen> {
 
   Future<void> _loadData() async {
     final user = await _authService.getCurrentUser();
-    final chats = await _chatService.getChats();
+    final groups = await _sellerService.getSellerChats();
     if (mounted) {
       setState(() {
         _user = user;
-        _chats = chats;
+        _chatGroups = groups;
         _isLoading = false;
       });
     }
@@ -74,13 +75,13 @@ class _SellerChatListScreenState extends State<SellerChatListScreen> {
         ? const Center(child: CircularProgressIndicator(color: Color(0xFF9F1521)))
         : RefreshIndicator(
             onRefresh: _loadData,
-            child: _chats.isEmpty 
+            child: _chatGroups.isEmpty 
               ? _buildEmptyState()
               : ListView.separated(
                   padding: const EdgeInsets.all(20),
-                  itemCount: _chats.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) => _buildChatItem(_chats[index]),
+                  itemCount: _chatGroups.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 15),
+                  itemBuilder: (context, index) => _buildProductGroup(_chatGroups[index]),
                 ),
           ),
     );
@@ -101,72 +102,119 @@ class _SellerChatListScreenState extends State<SellerChatListScreen> {
     );
   }
 
-  Widget _buildChatItem(Chat chat) {
-    final partner = chat.user1Id == _user?.id ? chat.user2 : chat.user1;
-    final lastMsg = chat.messages.isNotEmpty ? chat.messages.last : null;
-    final isUnread = lastMsg != null && !lastMsg.isRead && lastMsg.senderId != _user?.id;
+  Widget _buildProductGroup(dynamic group) {
+    final product = group['product'];
+    final List<dynamic> chats = group['chats'];
+    final bool isExpanded = _expandedProductId == product['id'];
 
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _expandedProductId = isExpanded ? null : product['id'];
+              });
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      product['image_url'] ?? '',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => Container(color: Colors.grey.shade200, width: 50, height: 50, child: const Icon(Icons.image)),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(product['name'] ?? 'Produk', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 14)),
+                        Text('${chats.length} Calon Pembeli', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey.shade600)),
+                      ],
+                    ),
+                  ),
+                  Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey),
+                ],
+              ),
+            ),
+          ),
+          if (isExpanded)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 15, left: 15, right: 15),
+              child: Column(
+                children: chats.map<Widget>((chat) => _buildBuyerChatItem(chat, product)).toList(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBuyerChatItem(dynamic chat, dynamic product) {
+    final otherUser = chat['other_user'];
+    final lastMsg = chat['last_message'];
+    
     return InkWell(
       onTap: () async {
-        await Navigator.pushNamed(context, '/chat/room', arguments: chat);
-        _loadData();
+        Navigator.pushNamed(context, '/chat/room', arguments: Chat(
+          id: chat['id'],
+          user1Id: _user!.id, 
+          user2Id: otherUser['id'],
+          productId: product['id'],
+          updatedAt: DateTime.parse(chat['updated_at']),
+          createdAt: DateTime.now(),
+          user1: _user,
+          user2: User.fromJson(otherUser),
+          product: Product.fromJson(product),
+          messages: [],
+        ));
       },
-      borderRadius: BorderRadius.circular(15),
       child: Container(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.grey.shade50,
           borderRadius: BorderRadius.circular(15),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Row(
           children: [
-            // Avatar
-            Container(
-              width: 55,
-              height: 55,
-              decoration: BoxDecoration(color: const Color(0xFF9F1521).withOpacity(0.05), shape: BoxShape.circle, border: Border.all(color: const Color(0xFF9F1521).withOpacity(0.1))),
-              child: const Icon(Icons.person, color: Color(0xFF9F1521), size: 30),
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: const Color(0xFF9F1521).withOpacity(0.1),
+              child: Text(
+                otherUser['name']?[0].toUpperCase() ?? 'U',
+                style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF9F1521)),
+              ),
             ),
-            const SizedBox(width: 15),
-            // Preview
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(partner?.name ?? 'Pengguna Telcopedia', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14)),
-                      Text(lastMsg != null ? DateFormat('HH:mm').format(lastMsg.createdAt) : '', style: GoogleFonts.plusJakartaSans(fontSize: 9, color: Colors.grey)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      if (lastMsg?.senderId == _user?.id)
-                        const Padding(padding: EdgeInsets.only(right: 4), child: Icon(Icons.done_all, size: 14, color: Colors.blue)),
-                      Expanded(
-                        child: Text(
-                          lastMsg?.message ?? 'Mulai obrolan sekarang...',
-                          style: GoogleFonts.plusJakartaSans(fontSize: 12, color: isUnread ? Colors.black : Colors.grey.shade600, fontWeight: isUnread ? FontWeight.bold : FontWeight.normal),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (isUnread)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
-                          child: Text('BARU', style: GoogleFonts.plusJakartaSans(fontSize: 7, color: Colors.white, fontWeight: FontWeight.bold)),
-                        ),
-                    ],
+                  Text(otherUser['name'] ?? 'User', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 13)),
+                  Text(
+                    lastMsg?['message'] ?? 'Klik untuk membalas chat...',
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey.shade600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 10),
-            Icon(Icons.chevron_right, color: Colors.grey.shade300, size: 18),
+            const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
           ],
         ),
       ),

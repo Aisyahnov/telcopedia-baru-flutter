@@ -56,8 +56,9 @@
                     <div id="addressInput" class="d-none mt-3">
                         <label class="form-label small text-muted">Masukkan Alamat Baru / Detail Lokasi COD</label>
                         <textarea name="shipping_address" id="shipping_address_input" class="form-control border-0 bg-light p-3" rows="3" placeholder="Contoh: Gedung GKU Lt. 2, Depan Asrama, atau No. Kamar..." required>{{ old('shipping_address', $userAddress) }}</textarea>
-                        <div class="mt-2 text-end">
+                        <div class="mt-2 d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-sm btn-link text-decoration-none text-muted" id="btnCancelChange">Batal</button>
+                            <button type="button" class="btn btn-sm btn-maroon rounded-pill px-3 py-1" id="btnSaveAddress">Simpan Alamat</button>
                         </div>
                     </div>
 
@@ -74,13 +75,25 @@
                         this.classList.add('d-none');
                     });
 
+                    document.getElementById('btnSaveAddress').addEventListener('click', function() {
+                        const newAddress = document.getElementById('shipping_address_input').value;
+                        if(newAddress.trim() === '') {
+                            alert('Alamat tidak boleh kosong!');
+                            return;
+                        }
+                        document.getElementById('addressText').innerText = newAddress;
+                        document.getElementById('addressDisplay').classList.remove('d-none');
+                        document.getElementById('addressInput').classList.add('d-none');
+                        document.getElementById('btnChangeAddress').classList.remove('d-none');
+                    });
+
                     document.getElementById('btnCancelChange').addEventListener('click', function() {
                         document.getElementById('addressDisplay').classList.remove('d-none');
                         document.getElementById('addressInput').classList.add('d-none');
                         document.getElementById('btnChangeAddress').classList.remove('d-none');
                         
-                        // Reset input to original profile address
-                        document.getElementById('shipping_address_input').value = "{{ $userAddress }}";
+                        // Reset input to what's currently displayed
+                        document.getElementById('shipping_address_input').value = document.getElementById('addressText').innerText.trim();
                     });
                 </script>
                 @endpush

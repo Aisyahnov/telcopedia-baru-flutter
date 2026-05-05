@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('home/favorites', [ApiHomeController::class, 'favorites']);
     Route::post('home/favorite/toggle', [ApiHomeController::class, 'toggleFavorite']);
     Route::get('vouchers', [ApiHomeController::class, 'vouchers']);
+    Route::get('seller/{id}/profile', [ApiHomeController::class, 'sellerProfile']);
 
     /*
     |--------------------------------------------------------------------------
@@ -91,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('chat/{chat}/send', [ApiChatController::class, 'send']);
     Route::put('chat/message/{message}', [ApiChatController::class, 'updateMessage']);
     Route::delete('chat/message/{message}', [ApiChatController::class, 'deleteMessage']);
+    Route::post('chat/get-or-create', [ApiChatController::class, 'getOrCreate']);
     /*
     |--------------------------------------------------------------------------
     | ORDERS
@@ -98,8 +100,19 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::get('orders', [OrderController::class, 'buyerOrders']);
     Route::post('orders/{order}/complete', [OrderController::class, 'completeOrder']);
+    Route::post('orders/{order}/cancel', [OrderController::class, 'cancel']);
     Route::post('reviews', [OrderController::class, 'storeReview']);
     Route::post('returns', [OrderController::class, 'storeReturn']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOTIFICATIONS
+    |--------------------------------------------------------------------------
+    */
+    Route::get('notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+    Route::get('notifications/count', [\App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
+    Route::post('notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+    Route::post('notifications/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead']);
 });
 
 /*
@@ -129,6 +142,7 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckRole::class.':selle
     Route::get('revenue', [SellerDashboardController::class, 'revenue']);
     Route::get('products/stats', [SellerDashboardController::class, 'productStats']);
     Route::get('chat/list', [SellerDashboardController::class, 'chatList']);
+    Route::get('chats', [ApiChatController::class, 'sellerChats']);
     Route::get('reviews', [SellerDashboardController::class, 'reviews']);
 });
 

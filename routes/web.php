@@ -41,7 +41,7 @@ Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('cat
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::middleware([\App\Http\Middleware\CheckRole::class.':buyer,seller'])->group(function () {
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':buyer,seller,admin'])->group(function () {
         Route::post('/favorite/toggle', [HomeController::class, 'toggleFavorite'])->name('favorite.toggle');
         Route::get('/favorites', [HomeController::class, 'favorites'])->name('favorites.index');
 
@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->name('index');
             Route::post('/{id}/complete', [OrderController::class, 'complete'])->name('complete');
+            Route::post('/{id}/cancel', [OrderController::class, 'cancel'])->name('cancel');
         });
 
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
@@ -88,6 +89,11 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
+
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\Web\NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/{id}/read', [\App\Http\Controllers\Web\NotificationController::class, 'read'])->name('notifications.read');
+        Route::get('/notifications/read-all', [\App\Http\Controllers\Web\NotificationController::class, 'readAll'])->name('notifications.read_all');
     });
 });
 
@@ -105,6 +111,8 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class.':seller'])->pr
 
     Route::get('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'sellerIndex'])->name('withdrawals.index');
     Route::post('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'store'])->name('withdrawals.store');
+    
+    Route::get('/chats', [ChatController::class, 'sellerIndex'])->name('chats');
 });
 
 Route::middleware(['auth', \App\Http\Middleware\CheckRole::class.':admin'])->prefix('admin')->name('admin.')->group(function () {

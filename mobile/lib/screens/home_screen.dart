@@ -14,6 +14,8 @@ import 'chat_room_screen.dart';
 import 'category_screen.dart';
 import 'account_screen.dart';
 import '../models/chat.dart';
+import '../services/notification_service.dart';
+import 'notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,8 +27,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ProductService _productService = ProductService();
   final AuthService _authService = AuthService();
+  final NotificationService _notificationService = NotificationService();
   List<Product> _products = [];
   bool _isLoading = true;
+  int _unreadNotifCount = 0;
   final TextEditingController _searchController = TextEditingController();
   int _currentIndex = 0;
 
@@ -34,6 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadProducts();
+    _loadUnreadCount();
+  }
+
+  Future<void> _loadUnreadCount() async {
+    final count = await _notificationService.getUnreadCount();
+    if (mounted) {
+      setState(() => _unreadNotifCount = count);
+    }
   }
 
   Future<void> _loadProducts() async {
@@ -100,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       actions: [
         _buildAppBarIcon(Icons.confirmation_number_outlined, '/vouchers'),
+        _buildNotificationIcon(),
         _buildAppBarIcon(Icons.chat_outlined, '/chat'),
         _buildCartIcon(),
       ],
@@ -176,6 +189,38 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildNotificationIcon() {
+    return Stack(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.notifications_outlined, size: 22),
+          onPressed: () async {
+            await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
+            _loadUnreadCount();
+          },
+        ),
+        if (_unreadNotifCount > 0)
+          Positioned(
+            right: 8,
+            top: 8,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF9F1521),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+              child: Text(
+                _unreadNotifCount > 9 ? '9+' : '$_unreadNotifCount',
+                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildCartIcon() {
     return Stack(
       children: [
@@ -186,17 +231,19 @@ class _HomeScreenState extends State<HomeScreen> {
         Positioned(
           right: 8,
           top: 8,
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: const Color(0xFF9F1521),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
-            child: Text(
-              '3', // Placeholder for cart count
-              style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
+          child: IgnorePointer(
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF9F1521),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+              child: Text(
+                '3', // Placeholder for cart count
+                style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ),

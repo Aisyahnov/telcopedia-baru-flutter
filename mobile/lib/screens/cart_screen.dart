@@ -99,6 +99,7 @@ class _CartScreenState extends State<CartScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
+        foregroundColor: const Color(0xFF9F1521),
         title: Text(
           'Keranjang Belanja',
           style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 18),
@@ -203,11 +204,14 @@ class _CartScreenState extends State<CartScreen> {
                     Row(
                       children: [
                         _buildQtyBtn(Icons.remove, () => _updateQty(item.id, item.quantity - 1)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('${item.quantity}', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                        GestureDetector(
+                          onTap: () => _showEditQtyDialog(item),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text('${item.quantity}', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                          ),
                         ),
-                        _buildQtyBtn(Icons.add, () => _updateQty(item.id, item.quantity + 1)),
+                        _buildQtyBtn(Icons.add, item.quantity < (item.product?.stock ?? 0) ? () => _updateQty(item.id, item.quantity + 1) : null),
                       ],
                     ),
                     IconButton(
@@ -224,17 +228,60 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildQtyBtn(IconData icon, VoidCallback onTap) {
+  void _showEditQtyDialog(CartItem item) {
+    final controller = TextEditingController(text: item.quantity.toString());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Ubah Jumlah', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Maksimal stok: ${item.product?.stock ?? 0}', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.grey)),
+            const SizedBox(height: 10),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          ElevatedButton(
+            onPressed: () {
+              final newQty = int.tryParse(controller.text) ?? item.quantity;
+              if (newQty > (item.product?.stock ?? 0)) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Stok tidak mencukupi (Maks: ${item.product?.stock})')));
+                return;
+              }
+              _updateQty(item.id, newQty);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9F1521), foregroundColor: Colors.white),
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQtyBtn(IconData icon, VoidCallback? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: onTap == null ? Colors.grey.shade50 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade200),
         ),
-        child: Icon(icon, size: 16, color: Colors.black87),
+        child: Icon(icon, size: 16, color: onTap == null ? Colors.grey.shade300 : Colors.black87),
       ),
     );
   }

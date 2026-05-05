@@ -372,7 +372,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                           }
                         },
                         style: OutlinedButton.styleFrom(foregroundColor: Colors.black, side: const BorderSide(color: Colors.black), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)), padding: const EdgeInsets.symmetric(vertical: 15)),
-                        child: const Text('Tolak'),
+                        child: Text(order.paymentMethod == 'cod' ? 'Tolak / Batalkan' : 'Tolak', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -402,6 +402,19 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                           },
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)), padding: const EdgeInsets.symmetric(vertical: 12)),
                           child: Text(order.paymentMethod == 'cod' ? 'Selesaikan Pesanan' : 'Update Tracking', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: TextButton(
+                          onPressed: () async {
+                            final success = await _sellerService.rejectPayment(order.id);
+                            if (success && mounted) {
+                              Navigator.pop(context);
+                              _loadData();
+                            }
+                          },
+                          child: Text('Batalkan Pesanan', style: GoogleFonts.plusJakartaSans(color: Colors.red, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],

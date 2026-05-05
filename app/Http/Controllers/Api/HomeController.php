@@ -59,7 +59,7 @@ class HomeController extends Controller
 
     public function categories()
     {
-        $categories = Category::all();
+        $categories = Category::whereNull('parent_id')->with('subcategories')->get();
         return response()->json(['data' => $categories]);
     }
 
@@ -85,5 +85,34 @@ class HomeController extends Controller
             ->latest()
             ->get();
         return response()->json(['data' => $vouchers]);
+    }
+
+    public function sellerProfile($id)
+    {
+        $seller = \App\Models\User::where('role', 'seller')->find($id);
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+
+        $products = \App\Models\Product::where('seller_id', $id)
+            ->where('status', 'approved')
+            ->with('category')
+            ->latest()
+            ->paginate(12);
+            
+        $reviews = \App\Models\Review::where('seller_id', $id)
+            ->with('user', 'product')
+            ->whereNotNull('seller_rating')
+            ->latest()
+            ->paginate(10);
+            
+        $avgSellerRating = \App\Models\Review::where('seller_id', $id)->avg('seller_rating') ?? 0;
+        
+        return response()->json([
+            'seller' => $seller,
+            'products' => $products,
+            'reviews' => $reviews,
+            'rating' => (float)$avgSellerRating
+        ]);
     }
 }

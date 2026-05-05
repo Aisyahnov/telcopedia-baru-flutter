@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/product.dart';
 import '../../models/user.dart';
+import '../../models/review.dart';
 import '../../services/product_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -24,8 +25,10 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   User? _seller;
   User? _currentUser;
   List<Product> _products = [];
+  List<Review> _sellerReviews = [];
   bool _isLoading = true;
   double _rating = 0.0;
+  bool _isProductTab = true;
 
   @override
   void initState() {
@@ -45,6 +48,12 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
             _seller = User.fromJson(data['seller']);
             final List prodData = data['products']['data'];
             _products = prodData.map((json) => Product.fromJson(json)).toList();
+            
+            if (data['reviews'] != null && data['reviews']['data'] != null) {
+              final List revData = data['reviews']['data'];
+              _sellerReviews = revData.map((json) => Review.fromJson(json)).toList();
+            }
+            
             _rating = (data['rating'] ?? 0.0).toDouble();
           }
           _isLoading = false;
@@ -189,7 +198,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
               _buildSliverAppBar(),
               SliverToBoxAdapter(child: _buildProfileCard()),
               SliverToBoxAdapter(child: _buildNavigationTab()),
-              _buildProductGrid(formatter),
+              _isProductTab ? _buildProductGrid(formatter) : _buildReviewsList(),
               const SliverToBoxAdapter(child: SizedBox(height: 50)),
             ],
           ),
@@ -352,12 +361,20 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE), width: 2))),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFF9F1521), width: 3))),
-            child: Text('SEMUA PRODUK', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w900, color: const Color(0xFF9F1521))),
-          ),
+          _buildTabItem('SEMUA PRODUK', _isProductTab, () => setState(() => _isProductTab = true)),
+          _buildTabItem('ULASAN SELLER', !_isProductTab, () => setState(() => _isProductTab = false)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTabItem(String title, bool isActive, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: isActive ? const Color(0xFF9F1521) : Colors.transparent, width: 3))),
+        child: Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w900, color: isActive ? const Color(0xFF9F1521) : Colors.grey)),
       ),
     );
   }
@@ -473,6 +490,68 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReviewsList() {
+    if (_sellerReviews.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.rate_review_outlined, size: 80, color: Colors.grey.shade200),
+              const SizedBox(height: 20),
+              Text('Belum Ada Ulasan', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.all(20),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final review = _sellerReviews[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 15),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: const Color(0xFFF0F0F0))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundImage: NetworkImage('https://ui-avatars.com/api/?name=${review.user?.name ?? "User"}&background=f0f0f0&color=9F1521&bold=true'),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(review.user?.name ?? 'Pembeli', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.bold)),
+                            Row(
+                              children: List.generate(5, (star) => Icon(Icons.star, size: 10, color: star < (review.sellerRating ?? 0) ? Colors.blue : Colors.grey.shade300)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(DateFormat('dd MMM').format(review.createdAt ?? DateTime.now()), style: GoogleFonts.plusJakartaSans(fontSize: 10, color: Colors.grey)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(review.sellerComment ?? 'Tidak ada komentar.', style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.black87)),
+                ],
+              ),
+            );
+          },
+          childCount: _sellerReviews.length,
+        ),
       ),
     );
   }

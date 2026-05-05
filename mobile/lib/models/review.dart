@@ -6,6 +6,8 @@ class Review {
   final int userId;
   final int rating;
   final String? comment;
+  final int? sellerRating;
+  final String? sellerComment;
   final DateTime? createdAt;
   final User? user;
 
@@ -15,6 +17,8 @@ class Review {
     required this.userId,
     required this.rating,
     this.comment,
+    this.sellerRating,
+    this.sellerComment,
     this.createdAt,
     this.user,
   });
@@ -26,6 +30,8 @@ class Review {
       userId: json['user_id'],
       rating: json['rating'] ?? 0,
       comment: json['comment'],
+      sellerRating: json['seller_rating'],
+      sellerComment: json['seller_comment'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
       user: json['user'] != null ? User.fromJson(json['user']) : null,
     );
@@ -38,6 +44,8 @@ class Review {
       'user_id': userId,
       'rating': rating,
       'comment': comment,
+      'seller_rating': sellerRating,
+      'seller_comment': sellerComment,
       'created_at': createdAt?.toIso8601String(),
       'user': user?.toJson(),
     };

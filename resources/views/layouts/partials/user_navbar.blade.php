@@ -56,6 +56,62 @@
                 </a>
             </li>
 
+            <!-- NOTIFICATIONS -->
+            <li class="nav-item me-4 me-lg-3 dropdown">
+                <a class="nav-link text-dark position-relative hover-maroon" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-bell fs-5"></i>
+                    @php 
+                      $notifCount = auth()->user()->unreadNotifications->count(); 
+                    @endphp
+                    @if($notifCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-maroon" style="font-size: 0.65rem;">
+                            {{ $notifCount > 99 ? '99+' : $notifCount }}
+                        </span>
+                    @endif
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-0 overflow-hidden" style="width: 320px; border-radius: 15px;">
+                    <li class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                        <span class="fw-bold small text-dark">Notifikasi</span>
+                        @if($notifCount > 0)
+                            <a href="{{ route('notifications.read_all') }}" class="x-small text-maroon text-decoration-none fw-bold">Tandai Semua Dibaca</a>
+                        @endif
+                    </li>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        @forelse(auth()->user()->notifications()->latest()->take(5)->get() as $notif)
+                            <li class="border-bottom {{ $notif->unread() ? 'bg-light' : '' }}">
+                                <a class="dropdown-item py-3 px-3 d-flex align-items-start whitespace-normal position-relative" href="{{ route('notifications.read', $notif->id) }}">
+                                    @if($notif->unread())
+                                        <span class="position-absolute top-0 start-0 translate-middle p-1 bg-maroon border border-light rounded-circle" style="margin-left: 12px; margin-top: 12px;"></span>
+                                    @endif
+                                    <div class="me-3 mt-1">
+                                        @php
+                                            $icon = 'fa-info-circle text-info';
+                                            if(($notif->data['type'] ?? '') == 'product') $icon = 'fa-box text-warning';
+                                            if(($notif->data['type'] ?? '') == 'order') $icon = 'fa-shopping-bag text-success';
+                                            if(($notif->data['type'] ?? '') == 'withdrawal') $icon = 'fa-wallet text-primary';
+                                        @endphp
+                                        <i class="fa-solid {{ $icon }} fs-5"></i>
+                                    </div>
+                                    <div style="white-space: normal;">
+                                        <div class="fw-bold text-dark small mb-1">{{ $notif->data['title'] ?? 'Notifikasi Baru' }}</div>
+                                        <p class="text-muted mb-1" style="font-size: 0.78rem; line-height: 1.3;">{{ $notif->data['message'] ?? '' }}</p>
+                                        <span class="text-muted x-small opacity-75">{{ $notif->created_at->diffForHumans() }}</span>
+                                    </div>
+                                </a>
+                            </li>
+                        @empty
+                            <li class="px-4 py-5 text-center text-muted">
+                                <i class="fa-solid fa-bell-slash fs-1 opacity-25 mb-3"></i>
+                                <p class="small mb-0">Belum ada notifikasi baru</p>
+                            </li>
+                        @endforelse
+                    </div>
+                    <li class="bg-light text-center border-top">
+                        <a href="{{ route('notifications.index') }}" class="dropdown-item py-2 fw-bold text-maroon small">Lihat Semua Notifikasi</a>
+                    </li>
+                </ul>
+            </li>
+
             <!-- PESAN/CHAT -->
             <li class="nav-item me-4 me-lg-3">
                 <a class="nav-link text-dark hover-maroon" href="{{ route('chat.index') }}" title="Pesan">

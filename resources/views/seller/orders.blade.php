@@ -137,12 +137,12 @@
                             <form action="{{ route('seller.payments.reject', $order->id) }}" method="POST" class="flex-fill">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-dark w-100 rounded-pill py-3 fw-bold">
-                                    Tolak
+                                    {{ $order->payment_method == 'cod' ? 'Tolak / Batalkan' : 'Tolak' }}
                                 </button>
                             </form>
                         </div>
                     @elseif($order->status == 'processing')
-                        <form action="{{ route('seller.orders.tracking', $order->id) }}" method="POST" class="bg-light p-3 rounded-20 border">
+                        <form action="{{ route('seller.orders.tracking', $order->id) }}" method="POST" class="bg-light p-3 rounded-20 border mb-3">
                             @csrf
                             @method('PUT')
                             <div class="mb-3">
@@ -153,6 +153,13 @@
                             </div>
                             <button type="submit" class="btn btn-dark w-100 rounded-pill py-3 fw-bold">
                                 {{ $order->payment_method == 'cod' ? 'Selesaikan Pesanan' : 'Update Tracking' }}
+                            </button>
+                        </form>
+                        
+                        <form action="{{ route('seller.payments.reject', $order->id) }}" method="POST" class="text-center">
+                            @csrf
+                            <button type="submit" class="btn btn-link text-danger text-decoration-none small fw-bold">
+                                <i class="fa fa-times-circle me-1"></i> Batalkan Pesanan
                             </button>
                         </form>
                     @endif

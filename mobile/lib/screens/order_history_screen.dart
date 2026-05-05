@@ -39,6 +39,33 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     if (success) _loadOrders();
   }
 
+  Future<void> _handleCancel(int orderId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Batalkan Pesanan?', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+        content: Text('Apakah Anda yakin ingin membatalkan pesanan ini? Stok produk akan dikembalikan.', style: GoogleFonts.plusJakartaSans()),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Kembali')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9F1521), foregroundColor: Colors.white),
+            child: const Text('Ya, Batalkan'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      final success = await _orderService.cancelOrder(orderId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(success ? 'Pesanan dibatalkan & stok dikembalikan' : 'Gagal membatalkan pesanan')));
+        _loadOrders();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -322,6 +349,14 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 child: Text('Pesanan Diterima', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
               ),
             ),
+          if (order.status == 'pending_payment' || order.status == 'paid_verifying' || order.status == 'processing' || order.status == 'shipped')
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: TextButton(
+                onPressed: () => _handleCancel(order.id),
+                child: Text('Batalkan Pesanan', style: GoogleFonts.plusJakartaSans(color: const Color(0xFF9F1521), fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+            ),
         ],
       ),
     );
@@ -367,7 +402,9 @@ class ReviewDialog extends StatefulWidget {
 
 class _ReviewDialogState extends State<ReviewDialog> {
   int _rating = 5;
+  int _sellerRating = 5;
   final TextEditingController _commentController = TextEditingController();
+  final TextEditingController _sellerCommentController = TextEditingController();
   final OrderService _orderService = OrderService();
   bool _isSubmitting = false;
   XFile? _media;
@@ -388,9 +425,12 @@ class _ReviewDialogState extends State<ReviewDialog> {
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.productName, style: GoogleFonts.plusJakartaSans(fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 20),
+            Text('ULASAN PRODUK', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.grey)),
+            const SizedBox(height: 5),
+            Text(widget.productName, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
@@ -400,18 +440,43 @@ class _ReviewDialogState extends State<ReviewDialog> {
                 );
               }),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             TextField(
               controller: _commentController,
-              maxLines: 3,
+              maxLines: 2,
+              style: const TextStyle(fontSize: 13),
               decoration: InputDecoration(
-                hintText: 'Tulis ulasan Anda...',
+                hintText: 'Tulis ulasan produk...',
                 filled: true,
                 fillColor: Colors.grey.shade50,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
+            const SizedBox(height: 25),
+            Text('ULASAN SELLER', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.grey)),
             const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                return IconButton(
+                  icon: Icon(index < _sellerRating ? Icons.star : Icons.star_border, color: Colors.blue, size: 30),
+                  onPressed: () => setState(() => _sellerRating = index + 1),
+                );
+              }),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _sellerCommentController,
+              maxLines: 2,
+              style: const TextStyle(fontSize: 13),
+              decoration: InputDecoration(
+                hintText: 'Tulis ulasan seller...',
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: _pickMedia,
               child: Container(
@@ -422,7 +487,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
                     Icon(Icons.camera_alt, color: Colors.grey.shade600, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(_media == null ? 'Tambah Foto (Opsional)' : 'Foto terpilih: ${_media!.name}', 
+                      child: Text(_media == null ? 'Tambah Foto Produk (Opsional)' : 'Foto terpilih: ${_media!.name}', 
                         style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.grey.shade700)),
                     ),
                   ],
@@ -450,6 +515,8 @@ class _ReviewDialogState extends State<ReviewDialog> {
       productId: widget.productId,
       rating: _rating,
       comment: _commentController.text,
+      sellerRating: _sellerRating,
+      sellerComment: _sellerCommentController.text,
       media: _media,
     );
     if (mounted) {

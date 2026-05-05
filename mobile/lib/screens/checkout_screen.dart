@@ -6,6 +6,8 @@ import '../services/checkout_service.dart';
 import '../models/cart.dart';
 import '../models/order.dart' as model;
 import '../providers/auth_provider.dart';
+import '../services/chat_service.dart';
+import '../models/chat.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<CartItem> items;
@@ -28,8 +30,11 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
+
+
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final CheckoutService _checkoutService = CheckoutService();
+  final ChatService _chatService = ChatService();
   final TextEditingController _addressController = TextEditingController();
   String _paymentMethod = 'transfer';
   bool _isEditingAddress = false;
@@ -69,20 +74,62 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Navigator.pushReplacementNamed(context, '/payment', arguments: order);
         } else {
           // COD success
-          showDialog(
-            context: context,
-            builder: (c) => AlertDialog(
-              title: const Text('Pesanan Berhasil!'),
-              content: const Text('Pesanan COD Anda telah dibuat. Silakan hubungi seller untuk janji temu.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false),
-                  child: const Text('Kembali ke Home'),
-                ),
+        // COD success
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (c) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Column(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 60),
+                const SizedBox(height: 15),
+                Text('Pesanan Berhasil!', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
               ],
             ),
-          );
-        }
+            content: Text(
+              'Pesanan COD Anda telah dibuat. Silakan hubungi seller untuk menentukan lokasi dan waktu janji temu.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.plusJakartaSans(fontSize: 14),
+            ),
+            actions: [
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final product = order.items.first.product;
+                        if (product != null) {
+                          final chat = await _chatService.getOrCreateChat(product.sellerId, product.id);
+                          if (chat != null && mounted) {
+                            Navigator.pushNamed(context, '/chat/room', arguments: chat);
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                      label: const Text('Chat Seller Sekarang'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF9F1521),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false),
+                      child: Text('Kembali ke Beranda', style: TextStyle(color: Colors.grey.shade600)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal membuat pesanan')));
       }
@@ -98,6 +145,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
+        foregroundColor: const Color(0xFF9F1521),
         title: Text(
           'Checkout',
           style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 18),
@@ -170,16 +218,34 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           const SizedBox(height: 8),
           _isEditingAddress
-              ? TextField(
-                  controller: _addressController,
-                  maxLines: 3,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 13),
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan alamat atau detail lokasi COD...',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  ),
+              ? Column(
+                  children: [
+                    TextField(
+                      controller: _addressController,
+                      maxLines: 3,
+                      style: GoogleFonts.plusJakartaSans(fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Titik Temu / Alamat Detail...',
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => setState(() => _isEditingAddress = false),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF9F1521),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: const Text('Simpan Alamat', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    ),
+                  ],
                 )
               : Text(
                   _addressController.text.isEmpty ? 'Alamat belum diatur.' : _addressController.text,

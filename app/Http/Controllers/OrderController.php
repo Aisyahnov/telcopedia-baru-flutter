@@ -38,4 +38,14 @@ class OrderController extends Controller
 
         return back()->with('success', 'Pesanan telah diterima. Terima kasih! Jangan lupa berikan ulasan produk.');
     }
+    public function cancel(Request $request, $id)
+    {
+        try {
+            $service = app(\App\Services\OrderService::class);
+            $service->cancelOrder($id, $request->user()->id);
+            return back()->with('success', 'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
 }

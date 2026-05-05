@@ -17,6 +17,8 @@ class ReviewController extends Controller
             'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:500',
+            'seller_rating' => 'nullable|integer|min:1|max:5',
+            'seller_comment' => 'nullable|string|max:500',
             'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480'
         ]);
 
@@ -51,8 +53,11 @@ class ReviewController extends Controller
             'user_id' => Auth::id(),
             'order_id' => $order->id,
             'product_id' => $request->product_id,
+            'seller_id' => Product::find($request->product_id)->seller_id,
             'rating' => $request->rating,
             'comment' => $request->comment,
+            'seller_rating' => $request->seller_rating ?? $request->rating,
+            'seller_comment' => $request->seller_comment ?? $request->comment,
             'media' => $mediaPath
         ]);
 

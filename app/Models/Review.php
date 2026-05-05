@@ -25,4 +25,9 @@ class Review extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
 }

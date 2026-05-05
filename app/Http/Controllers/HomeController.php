@@ -78,8 +78,16 @@ class HomeController extends Controller
     public function sellerProfile($id)
     {
         $seller = \App\Models\User::where('role', 'seller')->findOrFail($id);
-        $products = Product::where('seller_id', $id)->where('status', 'approved')->with('category')->latest()->paginate(12);
+        $products = Product::where('seller_id', $id)->where('status', 'approved')->with('category')->latest()->paginate(12, ['*'], 'p_page');
         
-        return view('seller.profile', compact('seller', 'products'));
+        $reviews = \App\Models\Review::where('seller_id', $id)
+            ->with('user')
+            ->whereNotNull('seller_rating')
+            ->latest()
+            ->paginate(10, ['*'], 'r_page');
+            
+        $avgSellerRating = \App\Models\Review::where('seller_id', $id)->avg('seller_rating') ?? 0;
+        
+        return view('seller.profile', compact('seller', 'products', 'reviews', 'avgSellerRating'));
     }
 }
