@@ -33,7 +33,14 @@
                                     <img src="{{ $ret->product->image_url }}" alt="{{ $ret->product->name }}" class="rounded-15 shadow-sm me-3 border" width="55" height="55" style="object-fit: cover;">
                                     <div>
                                         <div class="fw-bold text-dark mb-1">{{ $ret->product->name }}</div>
-                                        <div class="x-small text-muted fw-normal">ORDER: #TPD-{{ $ret->order_id }}</div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="x-small text-muted fw-normal">ORDER: #TPD-{{ $ret->order_id }}</div>
+                                            @if($ret->tipe_retur === 'kembali_dana')
+                                                <span class="badge bg-primary-subtle text-primary border border-primary px-1 py-0" style="font-size: 0.55rem;">REFUND</span>
+                                            @else
+                                                <span class="badge bg-info-subtle text-info border border-info px-1 py-0" style="font-size: 0.55rem;">TUKAR</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -80,7 +87,13 @@
                                           <div class="fw-bold text-dark">{{ $ret->user->name }}</div>
                                       </div>
                                       <div class="col-6 text-end">
-                                          <span class="x-small text-muted d-block mb-1">Status Saat Ini</span>
+                                          <span class="x-small text-muted d-block mb-1">Status & Jenis</span>
+                                          @if($ret->tipe_retur === 'kembali_dana')
+                                              <span class="badge bg-primary-subtle text-primary border border-primary px-2 py-1 x-small fw-bold me-1">REFUND</span>
+                                          @else
+                                              <span class="badge bg-info-subtle text-info border border-info px-2 py-1 x-small fw-bold me-1">TUKAR</span>
+                                          @endif
+
                                           @if($ret->status == 'pending')
                                               <span class="badge-status bg-warning-subtle text-warning border border-warning">PENDING</span>
                                           @elseif($ret->status == 'approved')

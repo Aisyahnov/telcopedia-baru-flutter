@@ -184,7 +184,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
           children: [
             Expanded(child: _buildStatCardSmall('PRODUK', '${stats?['total_products'] ?? 0}', Icons.inventory_2_outlined, const Color(0xFF9F1521))),
             const SizedBox(width: 15),
-            Expanded(child: _buildStatCardSmall('SALDO', formatter.format(_user?.balance ?? 0), Icons.wallet_outlined, Colors.green)),
+            Expanded(child: _buildStatCardSmall('SALDO', formatter.format(_user?.saldo ?? 0), Icons.wallet_outlined, Colors.green)),
           ],
         ),
         const SizedBox(height: 15),

@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Cari barang preloved...',
+                      hintText: 'Cari barang atau nama seller...',
                       hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: Colors.grey),
                       prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
                       border: InputBorder.none,

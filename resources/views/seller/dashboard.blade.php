@@ -69,7 +69,7 @@
                     <div class="bg-success-subtle mx-auto mb-3 rounded-circle text-success shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
                         <i class="fa-solid fa-wallet"></i>
                     </div>
-                    <h4 class="fw-900 mb-1 text-dark">Rp {{ number_format(Auth::user()->balance, 0, ',', '.') }}</h4>
+                    <h4 class="fw-900 mb-1 text-dark">Rp {{ number_format(Auth::user()->saldo, 0, ',', '.') }}</h4>
                     <p class="text-muted fw-bold text-uppercase mb-0 x-small" style="font-size: 0.55rem; letter-spacing: 1px;">Saldo</p>
                 </div>
             </div>

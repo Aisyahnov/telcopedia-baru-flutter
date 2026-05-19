@@ -84,6 +84,7 @@ class OrderService {
     required int orderId,
     required int productId,
     required String reason,
+    required String tipeRetur,
     XFile? media,
   }) async {
     try {
@@ -106,6 +107,7 @@ class OrderService {
         'order_id': orderId,
         'product_id': productId,
         'reason': reason,
+        'tipe_retur': tipeRetur,
         if (multipartFile != null) 'media': multipartFile,
       });
 

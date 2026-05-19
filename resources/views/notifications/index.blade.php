@@ -44,7 +44,7 @@
                                             $bg = 'bg-secondary-subtle text-secondary';
                                             if(($notif->data['type'] ?? '') == 'product') { $icon = 'fa-box-open'; $bg = 'bg-warning-subtle text-warning'; }
                                             if(($notif->data['type'] ?? '') == 'order') { $icon = 'fa-shopping-cart'; $bg = 'bg-success-subtle text-success'; }
-                                            if(($notif->data['type'] ?? '') == 'withdrawal') { $icon = 'fa-wallet'; $bg = 'bg-primary-subtle text-primary'; }
+                                            if(($notif->data['type'] ?? '') == 'penarikan') { $icon = 'fa-wallet'; $bg = 'bg-primary-subtle text-primary'; }
                                         @endphp
                                         <div class="{{ $bg }} rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 56px; height: 56px; border: 4px solid #fff;">
                                             <i class="fa-solid {{ $icon }} fs-4"></i>

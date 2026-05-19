@@ -541,6 +541,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
   final OrderService _orderService = OrderService();
   bool _isSubmitting = false;
   XFile? _media;
+  String _tipeRetur = 'tukar_barang';
 
   Future<void> _pickMedia() async {
     final picker = ImagePicker();
@@ -561,9 +562,33 @@ class _ReturnDialogState extends State<ReturnDialog> {
           children: [
             Text(widget.productName, style: GoogleFonts.plusJakartaSans(fontSize: 13, color: Colors.grey)),
             const SizedBox(height: 20),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: _tipeRetur,
+              decoration: InputDecoration(
+                labelText: 'Jenis Pengembalian',
+                labelStyle: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.bold),
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: 'tukar_barang', 
+                  child: Text('Tukar Barang', style: GoogleFonts.plusJakartaSans(fontSize: 13))
+                ),
+                DropdownMenuItem(
+                  value: 'kembali_dana', 
+                  child: Text('Kembali Dana (Refund)', style: GoogleFonts.plusJakartaSans(fontSize: 13))
+                ),
+              ],
+              onChanged: (v) => setState(() => _tipeRetur = v!),
+            ),
+            const SizedBox(height: 15),
             TextField(
               controller: _reasonController,
               maxLines: 4,
+              style: const TextStyle(fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'Alasan pengembalian...',
                 filled: true,
@@ -610,6 +635,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
       orderId: widget.orderId,
       productId: widget.productId,
       reason: _reasonController.text,
+      tipeRetur: _tipeRetur,
       media: _media,
     );
     if (mounted) {

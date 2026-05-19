@@ -18,8 +18,23 @@ class ProductService
 
         if ($keyword) {
             $query->where(function($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('description', 'like', "%{$keyword}%");
+                // Exact word match to prevent "meja" from matching "kemeja"
+                $q->where('name', 'like', $keyword . ' %')
+                  ->orWhere('name', 'like', '% ' . $keyword . ' %')
+                  ->orWhere('name', 'like', '% ' . $keyword)
+                  ->orWhere('name', $keyword)
+                  
+                  ->orWhere('description', 'like', $keyword . ' %')
+                  ->orWhere('description', 'like', '% ' . $keyword . ' %')
+                  ->orWhere('description', 'like', '% ' . $keyword)
+                  ->orWhere('description', $keyword)
+                  
+                  ->orWhereHas('seller', function($sq) use ($keyword) {
+                      $sq->where('name', 'like', $keyword . ' %')
+                         ->orWhere('name', 'like', '% ' . $keyword . ' %')
+                         ->orWhere('name', 'like', '% ' . $keyword)
+                         ->orWhere('name', $keyword);
+                  });
             });
         }
 

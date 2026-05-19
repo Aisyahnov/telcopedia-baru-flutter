@@ -175,7 +175,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         icon = Icons.shopping_bag_outlined;
         color = Colors.green;
         break;
-      case 'withdrawal':
+      case 'penarikan':
         icon = Icons.account_balance_wallet_outlined;
         color = Colors.blue;
         break;

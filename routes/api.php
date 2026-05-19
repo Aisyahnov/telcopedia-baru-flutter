@@ -172,7 +172,7 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckRole::class.':admin
 
     Route::get('payments', [ApiAdminController::class, 'payments']);
 
-    Route::get('withdrawals', [ApiAdminController::class, 'withdrawals']);
-    Route::post('withdrawals/{id}/approve', [ApiAdminController::class, 'approveWithdrawal']);
-    Route::post('withdrawals/{id}/reject', [ApiAdminController::class, 'rejectWithdrawal']);
+    Route::get('penarikan', [ApiAdminController::class, 'penarikan']);
+    Route::post('penarikan/{id}/approve', [ApiAdminController::class, 'approvePenarikan']);
+    Route::post('penarikan/{id}/reject', [ApiAdminController::class, 'rejectPenarikan']);
 });

@@ -5,7 +5,7 @@ import '../models/product.dart';
 import '../models/category.dart';
 import '../models/order.dart';
 import '../models/product_return.dart';
-import '../models/withdrawal.dart';
+import '../models/penarikan.dart';
 
 class SellerService {
   final String baseUrl = 'http://127.0.0.1:8000/api';
@@ -176,10 +176,10 @@ class SellerService {
     return response.statusCode == 200;
   }
 
-  Future<List<Withdrawal>> getWithdrawals() async {
+  Future<List<PenarikanDana>> getPenarikanDanas() async {
     final token = await _getToken();
     final response = await http.get(
-      Uri.parse('$baseUrl/seller/withdrawals'),
+      Uri.parse('$baseUrl/seller/penarikan'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -188,15 +188,15 @@ class SellerService {
 
     if (response.statusCode == 200) {
       final List data = json.decode(response.body)['data'];
-      return data.map((json) => Withdrawal.fromJson(json)).toList();
+      return data.map((json) => PenarikanDana.fromJson(json)).toList();
     }
     return [];
   }
 
-  Future<bool> requestWithdrawal(Map<String, dynamic> data) async {
+  Future<bool> requestPenarikanDana(Map<String, dynamic> data) async {
     final token = await _getToken();
     final response = await http.post(
-      Uri.parse('$baseUrl/seller/withdrawals'),
+      Uri.parse('$baseUrl/seller/penarikan'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

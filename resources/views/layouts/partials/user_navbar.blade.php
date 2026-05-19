@@ -22,7 +22,7 @@
             Kategori
           </a>
           <ul class="dropdown-menu shadow-sm border-0">
-            @foreach(\App\Models\Category::all() as $cat)
+            @foreach(\App\Models\Category::whereNull('parent_id')->get() as $cat)
               <li><a class="dropdown-item py-2" href="{{ route('category.show', $cat->slug) }}">{{ $cat->name }}</a></li>
             @endforeach
             <li><hr class="dropdown-divider"></li>
@@ -33,7 +33,7 @@
       <!-- SEARCH BAR WIDESCREEN -->
       <form action="{{ route('home') }}" method="GET" class="d-flex flex-grow-1 me-4 my-3 my-lg-0">
         <div class="input-group">
-            <input name="keyword" value="{{ request('keyword') }}" class="form-control border-maroon border-opacity-25 shadow-none py-2 rounded-start-pill ps-4" type="search" placeholder="Cari barang preloved di Telcopedia..." style="font-size: 0.95rem;">
+            <input name="keyword" value="{{ request('keyword') }}" class="form-control border-maroon border-opacity-25 shadow-none py-2 rounded-start-pill ps-4" type="search" placeholder="Cari barang atau nama seller..." style="font-size: 0.95rem;">
             <button class="btn btn-maroon px-4 shadow-none rounded-end-pill" type="submit"><i class="fa fa-search"></i></button>
         </div>
       </form>
@@ -85,10 +85,10 @@
                                     @endif
                                     <div class="me-3 mt-1">
                                         @php
-                                            $icon = 'fa-info-circle text-info';
-                                            if(($notif->data['type'] ?? '') == 'product') $icon = 'fa-box text-warning';
-                                            if(($notif->data['type'] ?? '') == 'order') $icon = 'fa-shopping-bag text-success';
-                                            if(($notif->data['type'] ?? '') == 'withdrawal') $icon = 'fa-wallet text-primary';
+                                            $icon = 'fa-bell text-secondary';
+                                            if(($notif->data['type'] ?? '') == 'product') $icon = 'fa-box-open text-warning';
+                                            if(($notif->data['type'] ?? '') == 'order') $icon = 'fa-shopping-cart text-success';
+                                            if(($notif->data['type'] ?? '') == 'penarikan') $icon = 'fa-wallet text-primary';
                                         @endphp
                                         <i class="fa-solid {{ $icon }} fs-5"></i>
                                     </div>

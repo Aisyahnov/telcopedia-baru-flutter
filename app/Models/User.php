@@ -11,16 +11,16 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['nim', 'name', 'email', 'password', 'role', 'is_verified', 'phone', 'address', 'photo', 'ktm', 'balance'])]
+#[Fillable(['nim', 'name', 'email', 'password', 'role', 'is_verified', 'phone', 'address', 'photo', 'ktm', 'saldo'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    public function withdrawals()
+    public function penarikanDana()
     {
-        return $this->hasMany(Withdrawal::class);
+        return $this->hasMany(PenarikanDana::class);
     }
 
     /**

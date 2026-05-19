@@ -1,7 +1,7 @@
 import 'api_service.dart';
 import '../models/product.dart';
 import '../models/user.dart';
-import '../models/withdrawal.dart';
+import '../models/penarikan.dart';
 
 class AdminService {
   final ApiService _apiService = ApiService();
@@ -62,28 +62,28 @@ class AdminService {
     }
   }
 
-  Future<List<Withdrawal>> getAllWithdrawals() async {
+  Future<List<PenarikanDana>> getAllPenarikanDanas() async {
     try {
-      final response = await _apiService.dio.get('admin/withdrawals');
+      final response = await _apiService.dio.get('admin/penarikan');
       final List data = response.data['data'];
-      return data.map((json) => Withdrawal.fromJson(json)).toList();
+      return data.map((json) => PenarikanDana.fromJson(json)).toList();
     } catch (e) {
       return [];
     }
   }
 
-  Future<bool> approveWithdrawal(int id) async {
+  Future<bool> approvePenarikanDana(int id) async {
     try {
-      await _apiService.dio.post('admin/withdrawals/$id/approve');
+      await _apiService.dio.post('admin/penarikan/$id/approve');
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  Future<bool> rejectWithdrawal(int id) async {
+  Future<bool> rejectPenarikanDana(int id) async {
     try {
-      await _apiService.dio.post('admin/withdrawals/$id/reject');
+      await _apiService.dio.post('admin/penarikan/$id/reject');
       return true;
     } catch (e) {
       return false;

@@ -6,7 +6,7 @@ class AdminSidebar extends StatelessWidget {
   final User? user;
   final String currentRoute;
   final int pendingProducts;
-  final int pendingWithdrawals;
+  final int pendingPenarikanDanas;
   final Function(String) onNavigate;
   final VoidCallback onLogout;
 
@@ -15,7 +15,7 @@ class AdminSidebar extends StatelessWidget {
     required this.user,
     required this.currentRoute,
     this.pendingProducts = 0,
-    this.pendingWithdrawals = 0,
+    this.pendingPenarikanDanas = 0,
     required this.onNavigate,
     required this.onLogout,
   });
@@ -35,7 +35,7 @@ class AdminSidebar extends StatelessWidget {
                   _buildSectionHeader('OVERVIEW'),
                   _buildMenuItem(Icons.dashboard_outlined, 'Ringkasan Utama', '/admin/dashboard'),
                   _buildMenuItem(Icons.payments_outlined, 'Kelola Pembayaran', '/admin/payments'),
-                  _buildMenuItem(Icons.account_balance_wallet_outlined, 'Persetujuan Dana', '/admin/withdrawals', badgeCount: pendingWithdrawals),
+                  _buildMenuItem(Icons.account_balance_wallet_outlined, 'Persetujuan Dana', '/admin/penarikan', badgeCount: pendingPenarikanDana),
                   
                   const SizedBox(height: 20),
                   _buildSectionHeader('MANAGEMENT'),

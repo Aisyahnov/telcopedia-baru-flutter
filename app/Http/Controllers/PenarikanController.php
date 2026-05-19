@@ -2,14 +2,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Withdrawal;
+use App\Models\PenarikanDana;
 use App\Models\User;
 
-class WithdrawalController extends Controller
+class PenarikanController extends Controller
 {
     public function sellerIndex(Request $request)
     {
-        $withdrawals = Withdrawal::where('user_id', $request->user()->id)->latest()->get();
+        $withdrawals = PenarikanDana::where('user_id', $request->user()->id)->latest()->get();
         return view('seller.withdrawals.index', compact('withdrawals'));
     }
 
@@ -24,11 +24,11 @@ class WithdrawalController extends Controller
 
         $user = $request->user();
 
-        if ($user->balance < $request->amount) {
+        if ($user->saldo < $request->amount) {
             return back()->with('error', 'Saldo tidak mencukupi.');
         }
 
-        Withdrawal::create([
+        PenarikanDana::create([
             'user_id' => $user->id,
             'amount' => $request->amount,
             'bank_name' => $request->bank_name,
@@ -38,7 +38,7 @@ class WithdrawalController extends Controller
 
         // Deduct balance immediately or on approval? 
         // Usually best to deduct immediately and put in "escrow" or just pending state.
-        $user->decrement('balance', $request->amount);
+        $user->decrement('saldo', $request->amount);
 
         // Notify Admins
         $admins = User::where('role', 'admin')->get();
@@ -55,13 +55,13 @@ class WithdrawalController extends Controller
 
     public function adminIndex()
     {
-        $withdrawals = Withdrawal::with('user')->latest()->get();
+        $withdrawals = PenarikanDana::with('user')->latest()->get();
         return view('admin.withdrawals.index', compact('withdrawals'));
     }
 
     public function approve($id)
     {
-        $withdrawal = Withdrawal::findOrFail($id);
+        $withdrawal = PenarikanDana::findOrFail($id);
         if ($withdrawal->status !== 'pending') return back();
 
         $withdrawal->status = 'approved';
@@ -79,14 +79,14 @@ class WithdrawalController extends Controller
 
     public function reject($id)
     {
-        $withdrawal = Withdrawal::findOrFail($id);
+        $withdrawal = PenarikanDana::findOrFail($id);
         if ($withdrawal->status !== 'pending') return back();
 
         $withdrawal->status = 'rejected';
         $withdrawal->save();
 
         // Refund balance
-        $withdrawal->user->increment('balance', $withdrawal->amount);
+        $withdrawal->user->increment('saldo', $withdrawal->amount);
 
         // Notify Seller
         $withdrawal->user->notify(new \App\Notifications\SystemNotification(

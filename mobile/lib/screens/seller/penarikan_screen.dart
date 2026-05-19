@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/withdrawal.dart';
+import '../../models/penarikan.dart';
 import '../../models/user.dart';
 import '../../services/seller_service.dart';
 import '../../services/auth_service.dart';
@@ -9,17 +9,17 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-class SellerWithdrawalsScreen extends StatefulWidget {
-  const SellerWithdrawalsScreen({super.key});
+class SellerPenarikanDanaScreen extends StatefulWidget {
+  const SellerPenarikanDanaScreen({super.key});
 
   @override
-  State<SellerWithdrawalsScreen> createState() => _SellerWithdrawalsScreenState();
+  State<SellerPenarikanDanaScreen> createState() => _SellerPenarikanDanaScreenState();
 }
 
-class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
+class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
   final SellerService _sellerService = SellerService();
   final AuthService _authService = AuthService();
-  List<Withdrawal> _withdrawals = [];
+  List<PenarikanDana> _penarikan = [];
   User? _user;
   bool _isLoading = true;
 
@@ -31,18 +31,18 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
 
   Future<void> _loadData() async {
     final user = await _authService.getCurrentUser();
-    final withdrawals = await _sellerService.getWithdrawals();
+    final penarikan = await _sellerService.getPenarikanDanas();
     if (mounted) {
       setState(() {
         _user = user;
-        _withdrawals = withdrawals;
+        _penarikan = penarikan;
         _isLoading = false;
       });
     }
   }
 
   void _handleNavigation(String route) {
-    if (route == '/seller/withdrawals') return;
+    if (route == '/seller/penarikan') return;
     if (route == '/seller/settings') {
       final authId = Provider.of<AuthProvider>(context, listen: false).user?.id;
       Navigator.pushNamed(context, route, arguments: _user?.id ?? authId);
@@ -65,7 +65,7 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
       ),
       drawer: SellerSidebar(
         user: _user,
-        currentRoute: '/seller/withdrawals',
+        currentRoute: '/seller/penarikan',
         onNavigate: _handleNavigation,
         onLogout: () async {
           await _authService.logout();
@@ -87,7 +87,7 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
                   const SizedBox(height: 30),
                   Text('RIWAYAT PENARIKAN DANA', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.grey.shade600, letterSpacing: 1)),
                   const SizedBox(height: 15),
-                  _buildWithdrawalList(formatter),
+                  _buildPenarikanDanaList(formatter),
                   const SizedBox(height: 50),
                 ],
               ),
@@ -125,7 +125,7 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
                 children: [
                   Text('SALDO TERSEDIA', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
                   const SizedBox(height: 5),
-                  Text(formatter.format(_user?.balance ?? 0), style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A1A))),
+                  Text(formatter.format(_user?.saldo ?? 0), style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A1A))),
                   const SizedBox(height: 5),
                   Text('Dapat dicairkan kapan saja.', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey)),
                 ],
@@ -159,8 +159,8 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
     );
   }
 
-  Widget _buildWithdrawalList(NumberFormat formatter) {
-    if (_withdrawals.isEmpty) {
+  Widget _buildPenarikanDanaList(NumberFormat formatter) {
+    if (_penarikan.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 40),
@@ -184,17 +184,17 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: _withdrawals.length,
+        itemCount: _penarikan.length,
         separatorBuilder: (context, index) => Divider(color: Colors.grey.shade100, height: 1),
         itemBuilder: (context, index) {
-          final w = _withdrawals[index];
-          return _buildWithdrawalItem(w, formatter);
+          final w = _penarikan[index];
+          return _buildPenarikanDanaItem(w, formatter);
         },
       ),
     );
   }
 
-  Widget _buildWithdrawalItem(Withdrawal w, NumberFormat formatter) {
+  Widget _buildPenarikanDanaItem(PenarikanDana w, NumberFormat formatter) {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Row(
@@ -292,7 +292,7 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
                     children: [
                       Text('SALDO ANDA SAAT INI', style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.bold, color: const Color(0xFF9F1521))),
                       const SizedBox(height: 5),
-                      Text(NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(_user?.balance ?? 0), style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w900, color: const Color(0xFF9F1521))),
+                      Text(NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(_user?.saldo ?? 0), style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w900, color: const Color(0xFF9F1521))),
                     ],
                   ),
                 ),
@@ -365,7 +365,7 @@ class _SellerWithdrawalsScreenState extends State<SellerWithdrawalsScreen> {
                   child: ElevatedButton(
                     onPressed: isSubmitting ? null : () async {
                       setModalState(() => isSubmitting = true);
-                      final success = await _sellerService.requestWithdrawal({
+                      final success = await _sellerService.requestPenarikanDana({
                         'amount': double.parse(amountController.text),
                         'bank_name': bankController.text,
                         'account_number': numberController.text,

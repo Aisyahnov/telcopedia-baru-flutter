@@ -29,7 +29,7 @@ class AdminController extends Controller
                 $subtotal = $order->items->sum(fn($i) => $i->price * $i->quantity);
                 return $subtotal * 0.05;
             }),
-            'pending_withdrawals' => \App\Models\Withdrawal::where('status', 'pending')->count(),
+            'pending_withdrawals' => \App\Models\PenarikanDana::where('status', 'pending')->count(),
         ];
         return response()->json(['data' => $stats]);
     }
@@ -101,15 +101,15 @@ class AdminController extends Controller
         return response()->json(['data' => $orders]);
     }
 
-    public function withdrawals()
+    public function penarikan()
     {
-        $withdrawals = \App\Models\Withdrawal::with('user')->latest()->get();
+        $withdrawals = \App\Models\PenarikanDana::with('user')->latest()->get();
         return response()->json(['data' => $withdrawals]);
     }
 
-    public function approveWithdrawal($id)
+    public function approvePenarikan($id)
     {
-        $withdrawal = \App\Models\Withdrawal::findOrFail($id);
+        $withdrawal = \App\Models\PenarikanDana::findOrFail($id);
         if ($withdrawal->status !== 'pending') return response()->json(['message' => 'Already processed'], 400);
 
         $withdrawal->status = 'approved';
@@ -117,14 +117,14 @@ class AdminController extends Controller
         return response()->json(['message' => 'Withdrawal approved']);
     }
 
-    public function rejectWithdrawal($id)
+    public function rejectPenarikan($id)
     {
-        $withdrawal = \App\Models\Withdrawal::findOrFail($id);
+        $withdrawal = \App\Models\PenarikanDana::findOrFail($id);
         if ($withdrawal->status !== 'pending') return response()->json(['message' => 'Already processed'], 400);
 
         $withdrawal->status = 'rejected';
         $withdrawal->save();
-        $withdrawal->user->increment('balance', $withdrawal->amount);
+        $withdrawal->user->increment('saldo', $withdrawal->amount);
         return response()->json(['message' => 'Withdrawal rejected']);
     }
 }

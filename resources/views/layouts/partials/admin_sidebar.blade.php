@@ -39,9 +39,9 @@
         <a href="{{ route('admin.payments') }}" class="sidebar-link {{ Request::is('admin/payments*') ? 'active' : '' }}">
             <i class="fa-solid fa-money-bill-transfer me-3"></i> Kelola Pembayaran
         </a>
-        <a href="{{ route('admin.withdrawals.index') }}" class="sidebar-link {{ Request::is('admin/withdrawals*') ? 'active' : '' }}">
+        <a href="{{ route('penarikan.index') }}" class="sidebar-link {{ Request::is('penarikan*') ? 'active' : '' }}">
             <i class="fa-solid fa-hand-holding-dollar me-3"></i> Persetujuan Dana
-            @php $countWithdraw = \App\Models\Withdrawal::where('status', 'pending')->count(); @endphp
+            @php $countWithdraw = \App\Models\PenarikanDana::where('status', 'pending')->count(); @endphp
             @if($countWithdraw > 0)
                 <span class="badge bg-danger ms-auto rounded-pill">{{ $countWithdraw }}</span>
             @endif

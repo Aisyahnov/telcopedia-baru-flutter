@@ -58,11 +58,11 @@
                             <td class="text-end pe-4">
                                 @if($w->status === 'pending')
                                     <div class="d-flex justify-content-end gap-2">
-                                        <form action="{{ route('admin.withdrawals.approve', $w->id) }}" method="POST">
+                                        <form action="{{ route('penarikan.approve', $w->id) }}" method="POST">
                                             @csrf
                                             <button class="btn btn-sm btn-success rounded-pill px-3 fw-bold">Approve</button>
                                         </form>
-                                        <form action="{{ route('admin.withdrawals.reject', $w->id) }}" method="POST">
+                                        <form action="{{ route('penarikan.reject', $w->id) }}" method="POST">
                                             @csrf
                                             <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">Reject</button>
                                         </form>

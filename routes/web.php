@@ -109,8 +109,8 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class.':seller'])->pr
     Route::post('/payments/{id}/approve', [SellerController::class, 'approvePayment'])->name('payments.approve');
     Route::post('/payments/{id}/reject', [SellerController::class, 'rejectPayment'])->name('payments.reject');
 
-    Route::get('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'sellerIndex'])->name('withdrawals.index');
-    Route::post('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'store'])->name('withdrawals.store');
+    Route::get('/penarikan', [\App\Http\Controllers\PenarikanController::class, 'sellerIndex'])->name('penarikan.index');
+    Route::post('/penarikan', [\App\Http\Controllers\PenarikanController::class, 'store'])->name('penarikan.store');
     
     Route::get('/chats', [ChatController::class, 'sellerIndex'])->name('chats');
 });
@@ -128,7 +128,7 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class.':admin'])->pre
 
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
     
-    Route::get('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'adminIndex'])->name('withdrawals.index');
-    Route::post('/withdrawals/{id}/approve', [\App\Http\Controllers\WithdrawalController::class, 'approve'])->name('withdrawals.approve');
-    Route::post('/withdrawals/{id}/reject', [\App\Http\Controllers\WithdrawalController::class, 'reject'])->name('withdrawals.reject');
+    Route::get('/penarikan', [\App\Http\Controllers\PenarikanController::class, 'adminIndex'])->name('penarikan.index');
+    Route::post('/penarikan/{id}/approve', [\App\Http\Controllers\PenarikanController::class, 'approve'])->name('penarikan.approve');
+    Route::post('/penarikan/{id}/reject', [\App\Http\Controllers\PenarikanController::class, 'reject'])->name('penarikan.reject');
 });

@@ -10,7 +10,7 @@ import 'dashboard_screen.dart';
 import 'products_screen.dart';
 import 'users_screen.dart';
 import 'payments_screen.dart';
-import 'withdrawals_screen.dart';
+import 'penarikan_screen.dart';
 
 class AdminVouchersScreen extends StatefulWidget {
   const AdminVouchersScreen({super.key});
@@ -60,7 +60,7 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
       case '/admin/users': screen = const AdminUsersScreen(); break;
       case '/admin/vouchers': return;
       case '/admin/payments': screen = const AdminPaymentsScreen(); break;
-      case '/admin/withdrawals': screen = const AdminWithdrawalsScreen(); break;
+      case '/admin/penarikan': screen = const AdminPenarikanDanaScreen(); break;
       default: return;
     }
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => screen));

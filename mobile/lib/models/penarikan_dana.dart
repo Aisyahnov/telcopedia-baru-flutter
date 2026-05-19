@@ -1,6 +1,6 @@
 import 'user.dart';
 
-class Withdrawal {
+class PenarikanDana {
   final int id;
   final int userId;
   final double amount;
@@ -11,7 +11,7 @@ class Withdrawal {
   final User? user;
   final DateTime createdAt;
 
-  Withdrawal({
+  PenarikanDana({
     required this.id,
     required this.userId,
     required this.amount,
@@ -23,8 +23,8 @@ class Withdrawal {
     required this.createdAt,
   });
 
-  factory Withdrawal.fromJson(Map<String, dynamic> json) {
-    return Withdrawal(
+  factory PenarikanDana.fromJson(Map<String, dynamic> json) {
+    return PenarikanDana(
       id: json['id'],
       userId: json['user_id'],
       amount: _toDouble(json['amount']),

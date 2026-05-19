@@ -59,7 +59,7 @@ class HomeController extends Controller
 
     public function categories()
     {
-        $categories = Category::whereNull('parent_id')->with('subcategories')->get();
+        $categories = Category::whereNull('parent_id')->get();
         return response()->json(['data' => $categories]);
     }
 

@@ -40,7 +40,7 @@ class SellerSidebar extends StatelessWidget {
 
                   const SizedBox(height: 20),
                   _buildSectionHeader('PENGATURAN'),
-                  _buildMenuItem(context, Icons.wallet_outlined, 'Saldo & Penarikan', '/seller/withdrawals'),
+                  _buildMenuItem(context, Icons.wallet_outlined, 'Saldo & Penarikan', '/seller/penarikan'),
                   _buildMenuItem(context, Icons.settings_outlined, 'Pengaturan Toko', '/seller/settings'),
                 ],
               ),

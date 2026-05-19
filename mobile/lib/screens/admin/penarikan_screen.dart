@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/withdrawal.dart';
+import '../../models/penarikan.dart';
 import '../../services/admin_service.dart';
 import '../../services/auth_service.dart';
 import '../../models/user.dart';
@@ -12,17 +12,17 @@ import 'users_screen.dart';
 import 'vouchers_screen.dart';
 import 'payments_screen.dart';
 
-class AdminWithdrawalsScreen extends StatefulWidget {
-  const AdminWithdrawalsScreen({super.key});
+class AdminPenarikanDanaScreen extends StatefulWidget {
+  const AdminPenarikanDanaScreen({super.key});
 
   @override
-  State<AdminWithdrawalsScreen> createState() => _AdminWithdrawalsScreenState();
+  State<AdminPenarikanDanaScreen> createState() => _AdminPenarikanDanaScreenState();
 }
 
-class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
+class _AdminPenarikanDanaScreenState extends State<AdminPenarikanDanaScreen> {
   final AdminService _adminService = AdminService();
   final AuthService _authService = AuthService();
-  List<Withdrawal> _withdrawals = [];
+  List<PenarikanDana> _penarikan = [];
   User? _user;
   bool _isLoading = true;
 
@@ -37,13 +37,13 @@ class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
     setState(() => _isLoading = true);
     try {
       final results = await Future.wait([
-        _adminService.getAllWithdrawals(),
+        _adminService.getAllPenarikanDanas(),
         _authService.getCurrentUser(),
       ]);
       
       if (mounted) {
         setState(() {
-          _withdrawals = results[0] as List<Withdrawal>? ?? [];
+          _penarikan = results[0] as List<PenarikanDana>? ?? [];
           _user = results[1] as User?;
           _isLoading = false;
         });
@@ -61,7 +61,7 @@ class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
       case '/admin/users': screen = const AdminUsersScreen(); break;
       case '/admin/vouchers': screen = const AdminVouchersScreen(); break;
       case '/admin/payments': screen = const AdminPaymentsScreen(); break;
-      case '/admin/withdrawals': return;
+      case '/admin/penarikan': return;
       default: return;
     }
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => screen));
@@ -81,8 +81,8 @@ class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
       ),
       drawer: AdminSidebar(
         user: _user,
-        currentRoute: '/admin/withdrawals',
-        pendingWithdrawals: _withdrawals.where((w) => w.status == 'pending').length,
+        currentRoute: '/admin/penarikan',
+        pendingPenarikanDana: _penarikan.where((w) => w.status == 'pending').length,
         onNavigate: _handleNavigation,
         onLogout: () async {
           await _authService.logout();
@@ -100,7 +100,7 @@ class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
                 children: [
                   _buildHero(),
                   const SizedBox(height: 25),
-                  _buildWithdrawalsList(currencyFormatter),
+                  _buildPenarikanDanasList(currencyFormatter),
                   const SizedBox(height: 50),
                 ],
               ),
@@ -125,8 +125,8 @@ class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
     );
   }
 
-  Widget _buildWithdrawalsList(NumberFormat formatter) {
-    if (_withdrawals.isEmpty) {
+  Widget _buildPenarikanDanasList(NumberFormat formatter) {
+    if (_penarikan.isEmpty) {
       return Center(
         child: Column(
           children: [
@@ -144,10 +144,10 @@ class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: _withdrawals.length,
+        itemCount: _penarikan.length,
         separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F1F1)),
         itemBuilder: (context, index) {
-          final w = _withdrawals[index];
+          final w = _penarikan[index];
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -252,9 +252,9 @@ class _AdminWithdrawalsScreenState extends State<AdminWithdrawalsScreen> {
   Future<void> _handleAction(int id, String action) async {
     bool success = false;
     if (action == 'approve') {
-      success = await _adminService.approveWithdrawal(id);
+      success = await _adminService.approvePenarikanDana(id);
     } else {
-      success = await _adminService.rejectWithdrawal(id);
+      success = await _adminService.rejectPenarikanDana(id);
     }
 
     if (success) {

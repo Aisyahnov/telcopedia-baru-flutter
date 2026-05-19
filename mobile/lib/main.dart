@@ -9,7 +9,7 @@ import 'screens/seller/dashboard_screen.dart';
 import 'screens/seller/products_screen.dart';
 import 'screens/seller/orders_screen.dart';
 import 'screens/seller/returns_screen.dart';
-import 'screens/seller/withdrawals_screen.dart';
+import 'screens/seller/penarikan_screen.dart';
 import 'screens/wishlist_screen.dart';
 import 'screens/voucher_screen.dart';
 import 'screens/account_screen.dart';
@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
           '/seller/orders': (context) => const SellerOrdersScreen(),
           '/seller/returns': (context) => const SellerReturnsScreen(),
           '/seller/chats': (context) => const ChatListScreen(),
-          '/seller/withdrawals': (context) => const SellerWithdrawalsScreen(),
+          '/seller/penarikan': (context) => const SellerPenarikanDanaScreen(),
           '/home': (context) => const HomeScreen(),
           '/cart': (context) => const CartScreen(),
           '/chat': (context) => const ChatListScreen(),

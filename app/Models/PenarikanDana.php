@@ -3,8 +3,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Withdrawal extends Model
+class PenarikanDana extends Model
 {
+    protected $table = 'penarikan_dana';
     protected $fillable = [
         'user_id',
         'amount',
