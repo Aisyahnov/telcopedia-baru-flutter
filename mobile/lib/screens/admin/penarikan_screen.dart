@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/penarikan.dart';
+import '../../models/penarikan_dana.dart';
 import '../../services/admin_service.dart';
 import '../../services/auth_service.dart';
 import '../../models/user.dart';

@@ -120,7 +120,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4 pt-3">
-                    <form action="{{ route('penarikan.store') }}" method="POST">
+                    <form action="{{ route('seller.penarikan.store') }}" method="POST">
                         @csrf
                         
                         <div class="bg-maroon-soft rounded-20 p-4 mb-4 text-center border border-maroon border-opacity-10">

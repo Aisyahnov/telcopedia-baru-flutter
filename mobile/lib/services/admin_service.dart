@@ -1,7 +1,7 @@
 import 'api_service.dart';
 import '../models/product.dart';
 import '../models/user.dart';
-import '../models/penarikan.dart';
+import '../models/penarikan_dana.dart';
 
 class AdminService {
   final ApiService _apiService = ApiService();

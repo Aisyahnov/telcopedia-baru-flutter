@@ -5,7 +5,7 @@ import '../models/product.dart';
 import '../models/category.dart';
 import '../models/order.dart';
 import '../models/product_return.dart';
-import '../models/penarikan.dart';
+import '../models/penarikan_dana.dart';
 
 class SellerService {
   final String baseUrl = 'http://127.0.0.1:8000/api';

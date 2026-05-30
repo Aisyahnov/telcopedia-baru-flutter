@@ -21,7 +21,7 @@ class User {
     required this.role,
     this.nim,
     this.photo,
-    this.saldo = 0.0,
+    this.balance = 0.0,
     this.penaltyPoints = 0,
     this.isBannedFromPosting = false,
     this.isVerified = false,
@@ -57,6 +57,8 @@ class User {
     if (value is String) return double.tryParse(value) ?? 0.0;
     return 0.0;
   }
+
+  double get saldo => balance;
 
   Map<String, dynamic> toJson() {
     return {

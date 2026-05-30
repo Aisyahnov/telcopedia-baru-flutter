@@ -1,10 +1,17 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // Ganti dengan IP local komputer Anda jika running di HP/Emulator
-  // Contoh: http://192.168.1.5:8000/api/
-  static const String baseUrl = "http://127.0.0.1:8000/api/";
+  // Gunakan 10.0.2.2 untuk Android emulator, 127.0.0.1 untuk iOS simulator / desktop.
+  // Jika menggunakan perangkat fisik, ganti dengan IP lokal komputer Anda.
+  static String get baseUrl {
+    if (kIsWeb) return "http://127.0.0.1:8000/api/";
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return "http://10.0.2.2:8000/api/";
+    }
+    return "http://127.0.0.1:8000/api/";
+  }
 
   final Dio _dio = Dio(
     BaseOptions(

@@ -6,7 +6,7 @@ class AdminSidebar extends StatelessWidget {
   final User? user;
   final String currentRoute;
   final int pendingProducts;
-  final int pendingPenarikanDanas;
+  final int pendingPenarikanDana;
   final Function(String) onNavigate;
   final VoidCallback onLogout;
 
@@ -15,7 +15,7 @@ class AdminSidebar extends StatelessWidget {
     required this.user,
     required this.currentRoute,
     this.pendingProducts = 0,
-    this.pendingPenarikanDanas = 0,
+    this.pendingPenarikanDana = 0,
     required this.onNavigate,
     required this.onLogout,
   });

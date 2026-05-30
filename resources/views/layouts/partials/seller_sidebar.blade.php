@@ -52,7 +52,7 @@
         <div class="px-3 mt-4 mb-2">
             <small class="x-small text-muted fw-bold ps-2" style="font-size: 0.6rem;">PENGATURAN</small>
         </div>
-        <a href="{{ route('penarikan.index') }}" class="sidebar-link {{ Request::is('penarikan*') ? 'active' : '' }}">
+        <a href="{{ route('seller.penarikan.index') }}" class="sidebar-link {{ Request::is('seller/penarikan*') ? 'active' : '' }}">
             <i class="fa-solid fa-wallet me-3"></i> Saldo & Penarikan
         </a>
         <a href="{{ route('profile.index') }}" class="sidebar-link {{ Request::is('profile*') ? 'active' : '' }}">
