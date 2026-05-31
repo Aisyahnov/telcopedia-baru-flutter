@@ -105,7 +105,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: notif.isRead ? Colors.white : Colors.grey.withOpacity(0.03),
+              color: notif.isRead ? Colors.white : Colors.grey.withValues(alpha: 0.03),
               border: Border(
                 bottom: BorderSide(color: Colors.grey.shade100),
                 left: notif.isRead 
@@ -187,7 +187,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: color, size: 20),

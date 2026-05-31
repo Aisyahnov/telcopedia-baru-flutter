@@ -146,13 +146,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: const Icon(Icons.check_circle, color: Colors.green, size: 24),
           ),
           const SizedBox(width: 15),
@@ -175,7 +175,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -290,12 +290,12 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
                     IconButton(
                       onPressed: () => _showProductDetail(p, formatter),
                       icon: const Icon(Icons.visibility_outlined, color: Colors.blue),
-                      style: IconButton.styleFrom(backgroundColor: Colors.blue.withOpacity(0.05)),
+                      style: IconButton.styleFrom(backgroundColor: Colors.blue.withValues(alpha: 0.05)),
                     ),
                     IconButton(
                       onPressed: () => _moderate(p.id, 'delete'),
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      style: IconButton.styleFrom(backgroundColor: Colors.red.withOpacity(0.05)),
+                      style: IconButton.styleFrom(backgroundColor: Colors.red.withValues(alpha: 0.05)),
                     ),
                   ],
                 ),
@@ -467,7 +467,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: color.withOpacity(0.5))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: color.withValues(alpha: 0.5))),
       child: Text(text, style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: color)),
     );
   }

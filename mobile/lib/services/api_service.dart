@@ -13,6 +13,15 @@ class ApiService {
     return "http://127.0.0.1:8000/api/";
   }
 
+  static String getImageUrl(String path) {
+    // Menghapus trailing slash dari baseUrl dan awalan slash dari path
+    String base = baseUrl.replaceAll('/api/', '');
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    return "$base/$path";
+  }
+
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: baseUrl,

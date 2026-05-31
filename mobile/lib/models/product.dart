@@ -1,4 +1,5 @@
 import 'user.dart';
+import '../services/api_service.dart';
 import 'category.dart';
 import 'product_image.dart';
 import 'review.dart';
@@ -70,7 +71,7 @@ class Product {
   static String _formatImageUrl(String? url) {
     if (url == null || url.isEmpty) return 'https://via.placeholder.com/150';
     if (url.startsWith('http')) return url;
-    return 'http://127.0.0.1:8000/api/storage/$url';
+    return ApiService.getImageUrl('storage/$url');
   }
 
   Map<String, dynamic> toJson() {

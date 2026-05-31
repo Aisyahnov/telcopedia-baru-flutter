@@ -32,11 +32,24 @@ class OrderService
         return Order::with(['items.product', 'reviews', 'returns'])->findOrFail($orderId);
     }
 
-    public function completeOrder($orderId)
+    public function completeOrder($orderId, $buyerId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = Order::where('id', $orderId)->where('user_id', $buyerId)->firstOrFail();
+        
+        if ($order->status !== 'processing' && $order->status !== 'delivered') {
+             throw new \Exception('Pesanan belum bisa diselesaikan');
+        }
+
         $order->status = 'completed';
         $order->save();
+
+        // Transfer dana pesanan ke saldo penjual
+        $firstItem = $order->items()->with('product')->first();
+        if ($firstItem && $firstItem->product) {
+            \App\Models\User::where('id', $firstItem->product->seller_id)
+                ->increment('saldo', $order->total_amount);
+        }
+
         return $order;
     }
 

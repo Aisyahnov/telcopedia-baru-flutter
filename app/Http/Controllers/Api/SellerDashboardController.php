@@ -62,4 +62,44 @@ class SellerDashboardController extends Controller
 
         return response()->json(['data' => $reviews]);
     }
+
+    public function penarikan(Request $request)
+    {
+        $sellerId = $request->user()->id;
+        $penarikan = \App\Models\PenarikanDana::where('user_id', $sellerId)->latest()->get();
+
+        return response()->json(['data' => $penarikan]);
+    }
+
+    public function requestPenarikan(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:10000',
+            'bank_name' => 'required|string',
+            'account_number' => 'required|string',
+            'account_name' => 'required|string',
+        ]);
+
+        $user = $request->user();
+
+        if ($user->saldo < $request->amount) {
+            return response()->json(['message' => 'Saldo tidak mencukupi'], 400);
+        }
+
+        $penarikan = \App\Models\PenarikanDana::create([
+            'user_id' => $user->id,
+            'amount' => $request->amount,
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number,
+            'account_name' => $request->account_name,
+            'status' => 'pending',
+        ]);
+
+        $user->decrement('saldo', $request->amount);
+
+        return response()->json([
+            'message' => 'Penarikan dana berhasil diajukan',
+            'data' => $penarikan
+        ], 201);
+    }
 }

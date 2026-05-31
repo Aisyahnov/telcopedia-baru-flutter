@@ -1,3 +1,4 @@
+import '../services/api_service.dart';
 import 'product.dart';
 import 'user.dart';
 
@@ -6,6 +7,7 @@ class ProductReturn {
   final int orderId;
   final int productId;
   final int userId;
+  final String tipeRetur;
   final String reason;
   final String? media;
   final String status;
@@ -19,6 +21,7 @@ class ProductReturn {
     required this.orderId,
     required this.productId,
     required this.userId,
+    required this.tipeRetur,
     required this.reason,
     this.media,
     required this.status,
@@ -34,6 +37,7 @@ class ProductReturn {
       orderId: json['order_id'],
       productId: json['product_id'],
       userId: json['user_id'],
+      tipeRetur: json['tipe_retur'] ?? 'tukar_barang',
       reason: json['reason'] ?? '',
       media: _formatImageUrl(json['media']),
       status: json['status'] ?? 'pending',
@@ -47,6 +51,6 @@ class ProductReturn {
   static String? _formatImageUrl(String? url) {
     if (url == null || url.isEmpty) return null;
     if (url.startsWith('http')) return url;
-    return 'http://127.0.0.1:8000/api/files/proxy?path=$url';
+    return ApiService.getImageUrl('files/proxy?path=$url');
   }
 }

@@ -1,4 +1,5 @@
 import 'product.dart';
+import '../services/api_service.dart';
 import 'user.dart';
 
 class Order {
@@ -58,7 +59,7 @@ class Order {
   static String? _formatImageUrl(String? url) {
     if (url == null || url.isEmpty) return null;
     if (url.startsWith('http')) return url;
-    return 'http://127.0.0.1:8000/api/files/proxy?path=$url';
+    return ApiService.getImageUrl('files/proxy?path=$url');
   }
 }
 

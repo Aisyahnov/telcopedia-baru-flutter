@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -25,7 +26,7 @@ class BuyerDrawer extends StatelessWidget {
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               backgroundImage: user?.photo != null
-                  ? NetworkImage('http://10.0.2.2:8000/storage/${user!.photo}')
+                  ? NetworkImage(ApiService.getImageUrl('storage/${user!.photo}'))
                   : NetworkImage('https://ui-avatars.com/api/?name=${Uri.encodeComponent(user?.name ?? "")}&background=fff&color=9F1521&bold=true') as ImageProvider,
             ),
             accountName: Text(
@@ -35,7 +36,7 @@ class BuyerDrawer extends StatelessWidget {
             accountEmail: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Text(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import '../models/product.dart';
 import '../models/category.dart';
 import 'api_service.dart';
@@ -18,7 +19,7 @@ class ProductService {
       }
       return [];
     } catch (e) {
-      print('Error fetching products: $e');
+      debugPrint('Error fetching products: $e');
       return [];
     }
   }

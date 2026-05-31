@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../models/user.dart';
 import '../../widgets/seller_sidebar.dart';
-import '../../providers/auth_provider.dart';
-import 'package:provider/provider.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -73,7 +72,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         onNavigate: _handleNavigation,
         onLogout: () async {
           await _authService.logout();
-          if (mounted) Navigator.pushReplacementNamed(context, '/login');
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
         },
       ),
       body: _isLoading 
@@ -141,14 +141,14 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.red.withOpacity(0.1)),
+        border: Border.all(color: Colors.red.withValues(alpha: 0.1)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: const Icon(Icons.block, color: Colors.red, size: 24),
           ),
           const SizedBox(width: 15),
@@ -206,7 +206,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         border: Border(bottom: BorderSide(color: color, width: 3)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +231,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +309,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                     barWidth: 4,
                     isStrokeCapRound: true,
                     dotData: const FlDotData(show: true),
-                    belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [const Color(0xFF9F1521).withOpacity(0.2), const Color(0xFF9F1521).withOpacity(0.0)])),
+                    belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [const Color(0xFF9F1521).withValues(alpha: 0.2), const Color(0xFF9F1521).withValues(alpha: 0.0)])),
                   ),
                 ],
               ),

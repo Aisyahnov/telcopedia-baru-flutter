@@ -144,6 +144,10 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\CheckRole::class.':selle
     Route::get('chat/list', [SellerDashboardController::class, 'chatList']);
     Route::get('chats', [ApiChatController::class, 'sellerChats']);
     Route::get('reviews', [SellerDashboardController::class, 'reviews']);
+
+    // Penarikan Dana
+    Route::get('penarikan', [SellerDashboardController::class, 'penarikan']);
+    Route::post('penarikan', [SellerDashboardController::class, 'requestPenarikan']);
 });
 
 /*

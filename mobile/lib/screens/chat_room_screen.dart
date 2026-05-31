@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -139,7 +140,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             CircleAvatar(
               radius: 18,
               backgroundImage: partner?.photo != null
-                  ? NetworkImage('http://10.0.2.2:8000/storage/${partner!.photo}')
+                  ? NetworkImage(ApiService.getImageUrl('storage/${partner!.photo}'))
                   : null,
               child: partner?.photo == null ? const Icon(Icons.person) : null,
             ),
@@ -186,13 +187,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)],
       ),
       child: Row(
         children: [
           Container(
             width: 45, height: 45,
-            decoration: BoxDecoration(color: const Color(0xFF9F1521).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: const Color(0xFF9F1521).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
             child: const Icon(Icons.shopping_bag_outlined, color: Color(0xFF9F1521)),
           ),
           const SizedBox(width: 12),

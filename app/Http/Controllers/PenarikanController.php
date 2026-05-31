@@ -10,7 +10,7 @@ class PenarikanController extends Controller
     public function sellerIndex(Request $request)
     {
         $withdrawals = PenarikanDana::where('user_id', $request->user()->id)->latest()->get();
-        return view('seller.withdrawals.index', compact('withdrawals'));
+        return view('seller.penarikan.index', compact('withdrawals'));
     }
 
     public function store(Request $request)
@@ -56,7 +56,7 @@ class PenarikanController extends Controller
     public function adminIndex()
     {
         $withdrawals = PenarikanDana::with('user')->latest()->get();
-        return view('admin.withdrawals.index', compact('withdrawals'));
+        return view('admin.penarikan.index', compact('withdrawals'));
     }
 
     public function approve($id)

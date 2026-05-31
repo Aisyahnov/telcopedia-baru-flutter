@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../services/product_service.dart';
-import '../services/auth_service.dart';
 import '../models/product.dart';
-import '../providers/auth_provider.dart';
-
 import 'wishlist_screen.dart';
 import 'order_history_screen.dart';
-import 'chat_list_screen.dart';
-import 'chat_room_screen.dart';
 import 'category_screen.dart';
 import 'account_screen.dart';
-import '../models/chat.dart';
 import '../services/notification_service.dart';
 import 'notification_screen.dart';
 
@@ -26,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ProductService _productService = ProductService();
-  final AuthService _authService = AuthService();
   final NotificationService _notificationService = NotificationService();
   List<Product> _products = [];
   bool _isLoading = true;
@@ -99,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       automaticallyImplyLeading: false, // No sidebar
       iconTheme: const IconThemeData(color: Colors.black87),
       title: Image.network(
-        'http://127.0.0.1:8000/images/logo.png',
+        ApiService.getImageUrl('images/logo.png'),
         height: 35,
         errorBuilder: (c, e, s) => Text(
           'Telcopedia',
@@ -251,21 +244,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProfileIcon(BuildContext context) {
-    final user = Provider.of<AuthProvider>(context).user;
-    return GestureDetector(
-      onTap: () => Scaffold.of(context).openDrawer(),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 15, left: 5),
-        child: CircleAvatar(
-          radius: 16,
-          backgroundImage: user?.photo != null
-              ? NetworkImage('http://10.0.2.2:8000/storage/${user!.photo}')
-              : NetworkImage('https://ui-avatars.com/api/?name=${Uri.encodeComponent(user?.name ?? "")}&background=9F1521&color=fff&bold=true') as ImageProvider,
-        ),
-      ),
-    );
-  }
 
   Widget _buildHero() {
     return Container(
@@ -277,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
         border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -298,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF9F1521).withOpacity(0.1),
+                          color: const Color(0xFF9F1521).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Text(
@@ -451,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
           border: Border.all(color: const Color(0xFFF0F0F0)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -478,7 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Text(
@@ -550,7 +528,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          p.seller?.name?.split(' ')[0] ?? 'Seller',
+                          p.seller?.name.split(' ')[0] ?? 'Seller',
                           style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -674,7 +652,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 5),
                 Text(
                   'Ubah barang lama kamu menjadi uang tambahan sekarang!',
-                  style: GoogleFonts.plusJakartaSans(color: Colors.white.withOpacity(0.5), fontSize: 11),
+                  style: GoogleFonts.plusJakartaSans(color: Colors.white.withValues(alpha: 0.5), fontSize: 11),
                 ),
               ],
             ),

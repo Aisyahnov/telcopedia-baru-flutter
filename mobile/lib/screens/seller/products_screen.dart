@@ -71,7 +71,8 @@ class _SellerProductsScreenState extends State<SellerProductsScreen> {
 
     if (confirm == true) {
       final success = await _sellerService.deleteProduct(p.id);
-      if (success && mounted) {
+      if (!mounted) return;
+      if (success) {
         setState(() => _successMessage = 'Produk berhasil dihapus!');
         _loadData();
         Future.delayed(const Duration(seconds: 3), () {
@@ -99,7 +100,8 @@ class _SellerProductsScreenState extends State<SellerProductsScreen> {
         onNavigate: _handleNavigation,
         onLogout: () async {
           await _authService.logout();
-          if (mounted) Navigator.pushReplacementNamed(context, '/login');
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
         },
       ),
       body: _isLoading 
@@ -169,7 +171,7 @@ class _SellerProductsScreenState extends State<SellerProductsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.red.withOpacity(0.1))),
+      decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.red.withValues(alpha: 0.1))),
       child: Row(
         children: [
           const Icon(Icons.info_outline, color: Colors.red),
@@ -189,7 +191,7 @@ class _SellerProductsScreenState extends State<SellerProductsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.green.withOpacity(0.1))),
+      decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.green.withValues(alpha: 0.1))),
       child: Row(
         children: [
           const Icon(Icons.check_circle_outline, color: Colors.green),
@@ -220,7 +222,7 @@ class _SellerProductsScreenState extends State<SellerProductsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -264,7 +266,7 @@ class _SellerProductsScreenState extends State<SellerProductsScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: const Color(0xFF9F1521).withOpacity(0.05), borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(color: const Color(0xFF9F1521).withValues(alpha: 0.05), borderRadius: BorderRadius.circular(4)),
                       child: Text(p.condition.toUpperCase(), style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: const Color(0xFF9F1521))),
                     ),
                     if (p.status == 'pending') ...[
@@ -313,7 +315,7 @@ class _SellerProductsScreenState extends State<SellerProductsScreen> {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)]),
+        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)]),
         child: Icon(icon, size: 16, color: color),
       ),
     );

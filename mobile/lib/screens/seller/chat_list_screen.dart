@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../models/chat.dart';
 import '../../models/user.dart';
-import '../../services/chat_service.dart';
+import '../../services/seller_service.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/seller_sidebar.dart';
+import '../../models/product.dart';
 import '../../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-
 class SellerChatListScreen extends StatefulWidget {
   const SellerChatListScreen({super.key});
 
@@ -68,7 +67,8 @@ class _SellerChatListScreenState extends State<SellerChatListScreen> {
         onNavigate: _handleNavigation,
         onLogout: () async {
           await _authService.logout();
-          if (mounted) Navigator.pushReplacementNamed(context, '/login');
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
         },
       ),
       body: _isLoading 
@@ -111,7 +111,7 @@ class _SellerChatListScreenState extends State<SellerChatListScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         children: [
@@ -174,8 +174,6 @@ class _SellerChatListScreenState extends State<SellerChatListScreen> {
           user1Id: _user!.id, 
           user2Id: otherUser['id'],
           productId: product['id'],
-          updatedAt: DateTime.parse(chat['updated_at']),
-          createdAt: DateTime.now(),
           user1: _user,
           user2: User.fromJson(otherUser),
           product: Product.fromJson(product),
@@ -193,7 +191,7 @@ class _SellerChatListScreenState extends State<SellerChatListScreen> {
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor: const Color(0xFF9F1521).withOpacity(0.1),
+              backgroundColor: const Color(0xFF9F1521).withValues(alpha: 0.1),
               child: Text(
                 otherUser['name']?[0].toUpperCase() ?? 'U',
                 style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF9F1521)),

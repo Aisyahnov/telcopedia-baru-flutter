@@ -3,6 +3,7 @@ import '../../models/order.dart';
 import '../../models/user.dart';
 import '../../services/seller_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/api_service.dart';
 import '../../widgets/seller_sidebar.dart';
 import '../../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
@@ -122,7 +123,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -162,7 +163,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(radius: 12, backgroundColor: const Color(0xFF9F1521).withOpacity(0.1), child: const Icon(Icons.person_outline, size: 14, color: Color(0xFF9F1521))),
+                  CircleAvatar(radius: 12, backgroundColor: const Color(0xFF9F1521).withValues(alpha: 0.1), child: const Icon(Icons.person_outline, size: 14, color: Color(0xFF9F1521))),
                   const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +173,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                         children: [
                           Icon(order.paymentMethod == 'cod' ? Icons.handshake_outlined : Icons.account_balance_outlined, size: 10, color: order.paymentMethod == 'cod' ? Colors.green : Colors.blue),
                           const SizedBox(width: 4),
-                          Text(order.paymentMethod?.toUpperCase() ?? '', style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.w900, color: order.paymentMethod == 'cod' ? Colors.green : Colors.blue)),
+                          Text(order.paymentMethod.toUpperCase(), style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.w900, color: order.paymentMethod == 'cod' ? Colors.green : Colors.blue)),
                         ],
                       ),
                     ],
@@ -239,7 +240,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withOpacity(0.3))),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: color)),
     );
   }
@@ -300,7 +301,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                   children: [
                     const Icon(Icons.location_on, color: Color(0xFF9F1521), size: 16),
                     const SizedBox(width: 10),
-                    Expanded(child: Text(order.shippingAddress ?? 'Tidak ada alamat', style: GoogleFonts.plusJakartaSans(fontSize: 12))),
+                    Expanded(child: Text(order.shippingAddress, style: GoogleFonts.plusJakartaSans(fontSize: 12))),
                   ],
                 ),
               ),
@@ -314,7 +315,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                     children: [
                       Text('METODE PEMBAYARAN', style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.grey)),
                       const SizedBox(height: 4),
-                      Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(6)), child: Text(order.paymentMethod?.toUpperCase() ?? '', style: GoogleFonts.plusJakartaSans(fontSize: 8, color: Colors.white, fontWeight: FontWeight.w900))),
+                      Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(6)), child: Text(order.paymentMethod.toUpperCase(), style: GoogleFonts.plusJakartaSans(fontSize: 8, color: Colors.white, fontWeight: FontWeight.w900))),
                     ],
                   ),
                   Column(
@@ -334,7 +335,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: Image.network(
-                    order.paymentProof!,
+                    ApiService.getImageUrl('storage/${order.paymentProof}'),
                     width: double.infinity,
                     height: 200,
                     fit: BoxFit.cover,
@@ -352,7 +353,8 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           final success = await _sellerService.approvePayment(order.id);
-                          if (success && mounted) {
+                          if (!mounted) return;
+                          if (success) {
                             Navigator.pop(context);
                             _loadData();
                           }
@@ -366,7 +368,8 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                       child: OutlinedButton(
                         onPressed: () async {
                           final success = await _sellerService.rejectPayment(order.id);
-                          if (success && mounted) {
+                          if (!mounted) return;
+                          if (success) {
                             Navigator.pop(context);
                             _loadData();
                           }
@@ -395,7 +398,8 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                         child: ElevatedButton(
                           onPressed: () async {
                             final success = await _sellerService.updateTracking(order.id, trackingController.text);
-                            if (success && mounted) {
+                            if (!mounted) return;
+                            if (success) {
                               Navigator.pop(context);
                               _loadData();
                             }
@@ -409,7 +413,8 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                         child: TextButton(
                           onPressed: () async {
                             final success = await _sellerService.rejectPayment(order.id);
-                            if (success && mounted) {
+                            if (!mounted) return;
+                            if (success) {
                               Navigator.pop(context);
                               _loadData();
                             }

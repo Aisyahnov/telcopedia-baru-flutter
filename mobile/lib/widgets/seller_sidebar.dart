@@ -74,7 +74,7 @@ class SellerSidebar extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: const Color(0xFFF1F1F1)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
             ),
             child: Row(
               children: [
@@ -126,7 +126,7 @@ class SellerSidebar extends StatelessWidget {
         title: Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: isActive ? FontWeight.w800 : FontWeight.w600, color: isActive ? const Color(0xFF9F1521) : Colors.grey.shade700)),
         trailing: isActive ? Container(width: 4, height: 4, decoration: const BoxDecoration(color: Color(0xFF9F1521), shape: BoxShape.circle)) : null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        tileColor: isActive ? const Color(0xFF9F1521).withOpacity(0.05) : Colors.transparent,
+        tileColor: isActive ? const Color(0xFF9F1521).withValues(alpha: 0.05) : Colors.transparent,
         dense: true,
       ),
     );

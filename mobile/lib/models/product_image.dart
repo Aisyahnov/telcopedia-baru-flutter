@@ -1,3 +1,5 @@
+import '../services/api_service.dart';
+
 class ProductImage {
   final int id;
   final int productId;
@@ -20,7 +22,7 @@ class ProductImage {
   static String _formatImageUrl(String? url) {
     if (url == null || url.isEmpty) return '';
     if (url.startsWith('http')) return url;
-    return 'http://127.0.0.1:8000/api/storage/$url';
+    return ApiService.getImageUrl('storage/$url');
   }
 
   Map<String, dynamic> toJson() {

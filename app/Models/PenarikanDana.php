@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PenarikanDana extends Model
 {
-    protected $table = 'penarikan_dana';
+    protected $table = 'payouts';
     protected $fillable = [
         'user_id',
         'amount',

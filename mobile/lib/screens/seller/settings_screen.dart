@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../services/api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'dart:io';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
-import '../../providers/auth_provider.dart';
 import '../../widgets/seller_sidebar.dart';
 
 class SellerSettingsScreen extends StatefulWidget {
@@ -172,7 +171,8 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
         },
         onLogout: () async {
           await _authService.logout();
-          if (mounted) Navigator.pushReplacementNamed(context, '/login');
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
         },
       ),
       body: _isLoading 
@@ -207,13 +207,13 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 4),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 15)],
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 15)],
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: _avatarFile != null
                             ? (kIsWeb ? NetworkImage(_avatarFile!.path) : FileImage(File(_avatarFile!.path))) as ImageProvider
                             : (_user?.photo != null 
-                                ? NetworkImage('http://10.0.2.2:8000/storage/${_user!.photo}')
+                                ? NetworkImage(ApiService.getImageUrl('storage/${_user!.photo}'))
                                 : NetworkImage('https://ui-avatars.com/api/?name=${Uri.encodeComponent(_user?.name ?? "")}&background=9F1521&color=fff&size=200') as ImageProvider),
                       ),
                     ),
@@ -263,7 +263,7 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.grey.shade200),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10)],
                 ),
                 child: _ktmFile != null 
                   ? ClipRRect(
@@ -273,7 +273,7 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
                         : Image.network(_ktmFile!.path, fit: BoxFit.cover)
                     )
                   : (_user?.ktm != null 
-                      ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network('http://127.0.0.1:8000/api/storage/${_user!.ktm}', fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.contact_page_outlined, size: 40, color: Colors.grey)))
+                      ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network(ApiService.getImageUrl('api/storage/${_user!.ktm}'), fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.contact_page_outlined, size: 40, color: Colors.grey)))
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -365,7 +365,7 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF9F1521).withOpacity(0.1),
+            color: const Color(0xFF9F1521).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: const Color(0xFF9F1521), size: 20),
@@ -392,7 +392,7 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
       style: GoogleFonts.plusJakartaSans(fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, size: 20, color: const Color(0xFF9F1521).withOpacity(0.7)),
+        prefixIcon: Icon(icon, size: 20, color: const Color(0xFF9F1521).withValues(alpha: 0.7)),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),

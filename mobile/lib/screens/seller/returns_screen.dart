@@ -67,7 +67,8 @@ class _SellerReturnsScreenState extends State<SellerReturnsScreen> {
         onNavigate: _handleNavigation,
         onLogout: () async {
           await _authService.logout();
-          if (mounted) Navigator.pushReplacementNamed(context, '/login');
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
         },
       ),
       body: _isLoading 
@@ -121,7 +122,7 @@ class _SellerReturnsScreenState extends State<SellerReturnsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -228,7 +229,7 @@ class _SellerReturnsScreenState extends State<SellerReturnsScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withOpacity(0.3))),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: color)),
     );
   }
@@ -287,6 +288,22 @@ class _SellerReturnsScreenState extends State<SellerReturnsScreen> {
                 ],
               ),
               
+              const SizedBox(height: 15),
+              Text('Jenis Pengembalian', style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(color: ret.tipeRetur == 'kembali_dana' ? Colors.blue.shade50 : Colors.purple.shade50, borderRadius: BorderRadius.circular(8)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(ret.tipeRetur == 'kembali_dana' ? Icons.account_balance_wallet : Icons.autorenew, size: 14, color: ret.tipeRetur == 'kembali_dana' ? Colors.blue : Colors.purple),
+                    const SizedBox(width: 8),
+                    Text(ret.tipeRetur == 'kembali_dana' ? 'KEMBALI DANA (REFUND)' : 'TUKAR BARANG', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: ret.tipeRetur == 'kembali_dana' ? Colors.blue : Colors.purple)),
+                  ],
+                ),
+              ),
+              
               const SizedBox(height: 25),
               Text('Alasan Pengembalian', style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.grey)),
               const SizedBox(height: 8),
@@ -328,7 +345,8 @@ class _SellerReturnsScreenState extends State<SellerReturnsScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           final success = await _sellerService.approveReturn(ret.id);
-                          if (success && mounted) {
+                          if (!mounted) return;
+                          if (success) {
                             Navigator.pop(context);
                             _loadData();
                           }
@@ -342,7 +360,8 @@ class _SellerReturnsScreenState extends State<SellerReturnsScreen> {
                       child: OutlinedButton(
                         onPressed: () async {
                           final success = await _sellerService.rejectReturn(ret.id);
-                          if (success && mounted) {
+                          if (!mounted) return;
+                          if (success) {
                             Navigator.pop(context);
                             _loadData();
                           }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -95,7 +96,7 @@ class AccountScreen extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 37,
                   backgroundImage: user?.photo != null
-                      ? NetworkImage('http://127.0.0.1:8000/api/storage/${user!.photo}')
+                      ? NetworkImage(ApiService.getImageUrl('api/storage/${user!.photo}'))
                       : NetworkImage('https://ui-avatars.com/api/?name=${Uri.encodeComponent(user?.name ?? "S")}&background=9F1521&color=fff&bold=true') as ImageProvider,
                 ),
               ),
@@ -130,7 +131,7 @@ class AccountScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

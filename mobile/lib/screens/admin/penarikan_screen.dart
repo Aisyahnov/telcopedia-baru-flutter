@@ -131,7 +131,7 @@ class _AdminPenarikanDanaScreenState extends State<AdminPenarikanDanaScreen> {
         child: Column(
           children: [
             const SizedBox(height: 50),
-            Icon(Icons.account_balance_outlined, size: 80, color: Colors.grey.withOpacity(0.2)),
+            Icon(Icons.account_balance_outlined, size: 80, color: Colors.grey.withValues(alpha: 0.2)),
             const SizedBox(height: 20),
             Text('Belum ada permintaan penarikan dana.', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.grey)),
           ],
@@ -140,7 +140,7 @@ class _AdminPenarikanDanaScreenState extends State<AdminPenarikanDanaScreen> {
     }
 
     return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))]),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -244,7 +244,7 @@ class _AdminPenarikanDanaScreenState extends State<AdminPenarikanDanaScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: color.withOpacity(0.5))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: color.withValues(alpha: 0.5))),
       child: Text(text, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: color)),
     );
   }

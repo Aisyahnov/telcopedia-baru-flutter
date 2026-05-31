@@ -114,7 +114,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            CircleAvatar(radius: 16, backgroundColor: const Color(0xFF9F1521).withOpacity(0.1), child: const Icon(Icons.person, size: 18, color: Color(0xFF9F1521))),
+            CircleAvatar(radius: 16, backgroundColor: const Color(0xFF9F1521).withValues(alpha: 0.1), child: const Icon(Icons.person, size: 18, color: Color(0xFF9F1521))),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +154,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     return Container(
       margin: const EdgeInsets.all(15),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
       child: Row(
         children: [
           ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(p.imageUrl ?? '', width: 40, height: 40, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(width: 40, height: 40, color: Colors.grey.shade100))),
@@ -193,14 +193,14 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               decoration: BoxDecoration(
                 color: isMe ? const Color(0xFF9F1521) : Colors.white,
                 borderRadius: BorderRadius.only(topLeft: const Radius.circular(15), topRight: const Radius.circular(15), bottomLeft: Radius.circular(isMe ? 15 : 4), bottomRight: Radius.circular(isMe ? 4 : 15)),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5, offset: const Offset(0, 2))],
               ),
               child: Column(
                 crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   Text(msg.message, style: GoogleFonts.plusJakartaSans(fontSize: 13, color: isMe ? Colors.white : const Color(0xFF1A1A1A), height: 1.4)),
                   const SizedBox(height: 4),
-                  Text(DateFormat('HH:mm').format(msg.createdAt), style: GoogleFonts.plusJakartaSans(fontSize: 8, color: isMe ? Colors.white.withOpacity(0.7) : Colors.grey)),
+                  Text(DateFormat('HH:mm').format(msg.createdAt), style: GoogleFonts.plusJakartaSans(fontSize: 8, color: isMe ? Colors.white.withValues(alpha: 0.7) : Colors.grey)),
                 ],
               ),
             ),

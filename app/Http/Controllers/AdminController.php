@@ -30,7 +30,7 @@ class AdminController extends Controller
                 $subtotal = $order->items->sum(fn($i) => $i->price * $i->quantity);
                 return $subtotal * 0.05;
             }),
-            'pending_withdrawals' => \App\Models\Withdrawal::where('status', 'pending')->count(),
+            'pending_withdrawals' => \App\Models\PenarikanDana::where('status', 'pending')->count(),
         ];
         return view('admin.dashboard', compact('stats'));
     }

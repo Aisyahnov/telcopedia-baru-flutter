@@ -66,11 +66,14 @@ class OrderController extends Controller
         return response()->json(['data' => $order, 'message' => 'Payment approved and order is being processed']);
     }
 
-    public function rejectPayment($id)
+    public function rejectPayment(Request $request, $id)
     {
-        $order = \App\Models\Order::findOrFail($id);
-        $order->update(['status' => 'cancelled']);
-        return response()->json(['data' => $order, 'message' => 'Payment rejected and order cancelled']);
+        try {
+            $order = $this->orderService->cancelOrder($id, $request->user()->id);
+            return response()->json(['data' => $order, 'message' => 'Payment rejected and order cancelled, stock returned.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 
     public function completeOrder(Request $request, $orderId)
@@ -108,6 +111,7 @@ class OrderController extends Controller
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'product_id' => 'required|exists:products,id',
+            'tipe_retur' => 'required|in:tukar_barang,kembali_dana',
             'reason' => 'required|string',
             'media' => 'nullable|file|max:10240',
         ]);
@@ -118,6 +122,7 @@ class OrderController extends Controller
             'user_id' => $request->user()->id,
             'order_id' => $request->order_id,
             'product_id' => $request->product_id,
+            'tipe_retur' => $request->tipe_retur,
             'reason' => $request->reason,
             'media' => $path,
             'status' => 'pending',
@@ -137,11 +142,44 @@ class OrderController extends Controller
 
     public function approveReturn($id)
     {
-        $return = \App\Models\ProductReturn::findOrFail($id);
+        $return = \App\Models\ProductReturn::with(['order.items.product', 'user'])->findOrFail($id);
+        
+        if ($return->status !== 'pending') {
+            return response()->json(['message' => 'Status retur tidak dapat diubah.'], 400);
+        }
+
         $return->update(['status' => 'approved']);
         
-        // Update status order juga
-        $return->order->update(['status' => 'returned']);
+        if ($return->order->status !== 'returned') {
+            $return->order->update(['status' => 'returned']);
+            
+            if ($return->tipe_retur === 'tukar_barang') {
+                // Kembalikan stok produk jika tipe tukar barang (karena pembeli memulangkan fisik barang)
+                foreach ($return->order->items as $item) {
+                    if ($item->product) {
+                        $item->product->increment('stock', $item->quantity);
+                    }
+                }
+            }
+        }
+
+        if ($return->tipe_retur === 'kembali_dana') {
+            $orderItem = $return->order->items->where('product_id', $return->product_id)->first();
+            if ($orderItem) {
+                $refundAmount = $orderItem->price * $orderItem->quantity;
+                
+                // Refund ke pembeli
+                $return->user->increment('saldo', $refundAmount);
+
+                // Jika pesanan sudah selesai, tarik kembali saldo penjual
+                if ($return->order->status === 'completed') {
+                    $seller = $orderItem->product->seller ?? \App\Models\User::find($orderItem->product->seller_id);
+                    if ($seller) {
+                        $seller->decrement('saldo', $refundAmount);
+                    }
+                }
+            }
+        }
         
         return response()->json(['data' => $return, 'message' => 'Return request approved']);
     }

@@ -134,9 +134,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       children: [
         _buildStatCard('TOTAL USER', (_stats['total_users'] ?? 0).toString(), Icons.people_outline, Colors.grey.shade800, Colors.grey.shade100),
         const SizedBox(height: 15),
-        _buildStatCard('REVENUE ADMIN', formatter.format(_stats['total_revenue'] ?? 0), Icons.monetization_on_outlined, const Color(0xFF9F1521), const Color(0xFF9F1521).withOpacity(0.05)),
+        _buildStatCard('REVENUE ADMIN', formatter.format(_stats['total_revenue'] ?? 0), Icons.monetization_on_outlined, const Color(0xFF9F1521), const Color(0xFF9F1521).withValues(alpha: 0.05)),
         const SizedBox(height: 15),
-        _buildStatCard('TOTAL PRODUK', (_stats['total_products'] ?? 0).toString(), Icons.inventory_2_outlined, Colors.green, Colors.green.withOpacity(0.05)),
+        _buildStatCard('TOTAL PRODUK', (_stats['total_products'] ?? 0).toString(), Icons.inventory_2_outlined, Colors.green, Colors.green.withValues(alpha: 0.05)),
       ],
     );
   }
@@ -148,7 +148,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         border: Border(bottom: BorderSide(color: color, width: 3)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Row(
         children: [
@@ -171,7 +171,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildChartCard() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

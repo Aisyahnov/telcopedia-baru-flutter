@@ -155,7 +155,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   setState(() => _selectedSubCategoryId = null);
                   _loadProducts(_selectedCategoryId!);
                 },
-                backgroundColor: isSelected ? const Color(0xFF9F1521).withOpacity(0.1) : Colors.transparent,
+                backgroundColor: isSelected ? const Color(0xFF9F1521).withValues(alpha: 0.1) : Colors.transparent,
                 labelStyle: GoogleFonts.plusJakartaSans(
                   color: isSelected ? const Color(0xFF9F1521) : Colors.grey,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -175,7 +175,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 setState(() => _selectedSubCategoryId = sub.id);
                 _loadProducts(sub.id);
               },
-              backgroundColor: isSelected ? const Color(0xFF9F1521).withOpacity(0.1) : Colors.transparent,
+              backgroundColor: isSelected ? const Color(0xFF9F1521).withValues(alpha: 0.1) : Colors.transparent,
               labelStyle: GoogleFonts.plusJakartaSans(
                 color: isSelected ? const Color(0xFF9F1521) : Colors.grey,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -252,7 +252,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Text(

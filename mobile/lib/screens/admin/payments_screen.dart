@@ -155,7 +155,7 @@ class _AdminPaymentsScreenState extends State<AdminPaymentsScreen> {
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
         border: isMaroon ? const Border(left: BorderSide(color: Color(0xFF9F1521), width: 4)) : null,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +174,7 @@ class _AdminPaymentsScreenState extends State<AdminPaymentsScreen> {
         child: Column(
           children: [
             const SizedBox(height: 50),
-            Icon(Icons.receipt_long_outlined, size: 80, color: Colors.grey.withOpacity(0.2)),
+            Icon(Icons.receipt_long_outlined, size: 80, color: Colors.grey.withValues(alpha: 0.2)),
             const SizedBox(height: 20),
             Text('Belum ada transaksi di Telcopedia.', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.grey)),
           ],
@@ -186,7 +186,7 @@ class _AdminPaymentsScreenState extends State<AdminPaymentsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -253,7 +253,7 @@ class _AdminPaymentsScreenState extends State<AdminPaymentsScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: color.withOpacity(0.5))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: color.withValues(alpha: 0.5))),
       child: Text(text, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: color)),
     );
   }
@@ -263,9 +263,9 @@ class _AdminPaymentsScreenState extends State<AdminPaymentsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.05),
+        color: Colors.amber.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.amber.withOpacity(0.5), style: BorderStyle.solid),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.5), style: BorderStyle.solid),
       ),
       child: Row(
         children: [

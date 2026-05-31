@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -117,7 +118,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> _shareWhatsApp() async {
     if (_product == null) return;
-    final String text = 'Cek barang keren ini di Telcopedia: ${_product!.name} - http://127.0.0.1:8000/product/${_product!.id}';
+    final String text = 'Cek barang keren ini di Telcopedia: ${_product!.name} - ${ApiService.getImageUrl("product/${_product!.id}")}';
     final Uri url = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(text)}');
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
@@ -126,7 +127,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   void _copyLink() {
     if (_product == null) return;
-    Clipboard.setData(ClipboardData(text: 'http://127.0.0.1:8000/product/${_product!.id}'));
+    Clipboard.setData(ClipboardData(text: ApiService.getImageUrl('product/${_product!.id}')));
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link produk berhasil disalin!')));
   }
 
@@ -414,7 +415,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFEEEEEE)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -608,7 +609,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             const SizedBox(width: 15),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: const Color(0xFF9F1521).withOpacity(0.1), borderRadius: BorderRadius.circular(100)),
+              decoration: BoxDecoration(color: const Color(0xFF9F1521).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(100)),
               child: Text('${_product!.reviews.length} Review', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF9F1521))),
             ),
           ],

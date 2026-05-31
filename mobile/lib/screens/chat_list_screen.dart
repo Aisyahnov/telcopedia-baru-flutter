@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -80,9 +81,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         },
                         leading: CircleAvatar(
                           radius: 28,
-                          backgroundColor: const Color(0xFF9F1521).withOpacity(0.1),
+                          backgroundColor: const Color(0xFF9F1521).withValues(alpha: 0.1),
                           backgroundImage: partner?.photo != null
-                              ? NetworkImage('http://10.0.2.2:8000/storage/${partner!.photo}')
+                              ? NetworkImage(ApiService.getImageUrl('storage/${partner!.photo}'))
                               : null,
                           child: partner?.photo == null
                               ? const Icon(Icons.person, color: Color(0xFF9F1521))

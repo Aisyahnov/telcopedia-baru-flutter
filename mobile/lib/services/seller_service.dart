@@ -1,258 +1,205 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import '../models/product.dart';
 import '../models/category.dart';
 import '../models/order.dart';
 import '../models/product_return.dart';
 import '../models/penarikan_dana.dart';
+import 'api_service.dart';
 
 class SellerService {
-  final String baseUrl = 'http://127.0.0.1:8000/api';
-
-  Future<String?> _getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
+  final Dio _dio = ApiService().dio;
 
   Future<Map<String, dynamic>?> getDashboardStats() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/seller/dashboard'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body)['data'];
+    try {
+      final response = await _dio.get('seller/dashboard');
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      }
+    } catch (e) {
+      // Handle error
     }
     return null;
   }
 
   Future<List<dynamic>> getSellerReviews() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/seller/reviews'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body)['data'];
+    try {
+      final response = await _dio.get('seller/reviews');
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      }
+    } catch (e) {
+      // Handle error
     }
     return [];
   }
 
   Future<List<Product>> getMyProducts() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/seller/products'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body)['data'];
-      return data.map((json) => Product.fromJson(json)).toList();
+    try {
+      final response = await _dio.get('seller/products');
+      if (response.statusCode == 200) {
+        final List data = response.data['data'];
+        return data.map((json) => Product.fromJson(json)).toList();
+      }
+    } catch (e) {
+      // Handle error
     }
     return [];
   }
 
   Future<List<Order>> getMyOrders() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/seller/orders'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body)['data'];
-      return data.map((json) => Order.fromJson(json)).toList();
+    try {
+      final response = await _dio.get('seller/orders');
+      if (response.statusCode == 200) {
+        final List data = response.data['data'];
+        return data.map((json) => Order.fromJson(json)).toList();
+      }
+    } catch (e) {
+      // Handle error
     }
     return [];
   }
 
   Future<List<dynamic>> getSellerChats() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/seller/chats'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body)['data'];
+    try {
+      final response = await _dio.get('seller/chats');
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      }
+    } catch (e) {
+      // Handle error
     }
     return [];
   }
 
   Future<bool> approvePayment(int orderId) async {
-    final token = await _getToken();
-    final response = await http.post(
-      Uri.parse('$baseUrl/seller/orders/$orderId/approve'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-    return response.statusCode == 200;
+    try {
+      final response = await _dio.post('seller/orders/$orderId/approve');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> rejectPayment(int orderId) async {
-    final token = await _getToken();
-    final response = await http.post(
-      Uri.parse('$baseUrl/seller/orders/$orderId/reject'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-    return response.statusCode == 200;
+    try {
+      final response = await _dio.post('seller/orders/$orderId/reject');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<List<ProductReturn>> getMyReturns() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/seller/returns'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body)['data'];
-      return data.map((json) => ProductReturn.fromJson(json)).toList();
+    try {
+      final response = await _dio.get('seller/returns');
+      if (response.statusCode == 200) {
+        final List data = response.data['data'];
+        return data.map((json) => ProductReturn.fromJson(json)).toList();
+      }
+    } catch (e) {
+      // Handle error
     }
     return [];
   }
 
   Future<bool> approveReturn(int returnId) async {
-    final token = await _getToken();
-    final response = await http.post(
-      Uri.parse('$baseUrl/seller/returns/$returnId/approve'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-    return response.statusCode == 200;
+    try {
+      final response = await _dio.post('seller/returns/$returnId/approve');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> rejectReturn(int returnId) async {
-    final token = await _getToken();
-    final response = await http.post(
-      Uri.parse('$baseUrl/seller/returns/$returnId/reject'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-    return response.statusCode == 200;
+    try {
+      final response = await _dio.post('seller/returns/$returnId/reject');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> updateTracking(int orderId, String trackingNumber) async {
-    final token = await _getToken();
-    final response = await http.put(
-      Uri.parse('$baseUrl/seller/orders/$orderId/tracking'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'tracking_number': trackingNumber}),
-    );
-    return response.statusCode == 200;
+    try {
+      final response = await _dio.put(
+        'seller/orders/$orderId/tracking',
+        data: {'tracking_number': trackingNumber},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<List<PenarikanDana>> getPenarikanDanas() async {
-    final token = await _getToken();
-    final response = await http.get(
-      Uri.parse('$baseUrl/seller/penarikan'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body)['data'];
-      return data.map((json) => PenarikanDana.fromJson(json)).toList();
+    try {
+      final response = await _dio.get('seller/penarikan');
+      if (response.statusCode == 200) {
+        final List data = response.data['data'];
+        return data.map((json) => PenarikanDana.fromJson(json)).toList();
+      }
+    } catch (e) {
+      // Handle error
     }
     return [];
   }
 
   Future<bool> requestPenarikanDana(Map<String, dynamic> data) async {
-    final token = await _getToken();
-    final response = await http.post(
-      Uri.parse('$baseUrl/seller/penarikan'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(data),
-    );
-    return response.statusCode == 201 || response.statusCode == 200;
+    try {
+      final response = await _dio.post(
+        'seller/penarikan',
+        data: data,
+      );
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<List<Category>> getCategories() async {
-    final response = await http.get(Uri.parse('$baseUrl/categories'));
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body)['data'];
-      return data.map((json) => Category.fromJson(json)).toList();
+    try {
+      final response = await _dio.get('categories');
+      if (response.statusCode == 200) {
+        final List data = response.data['data'];
+        return data.map((json) => Category.fromJson(json)).toList();
+      }
+    } catch (e) {
+      // Handle error
     }
     return [];
   }
 
   Future<bool> storeProduct(Map<String, dynamic> data) async {
-    final token = await _getToken();
-    final response = await http.post(
-      Uri.parse('$baseUrl/seller/products'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(data),
-    );
-    return response.statusCode == 201 || response.statusCode == 200;
+    try {
+      final response = await _dio.post(
+        'seller/products',
+        data: data,
+      );
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> updateProduct(int id, Map<String, dynamic> data) async {
-    final token = await _getToken();
-    final response = await http.put(
-      Uri.parse('$baseUrl/seller/products/$id'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(data),
-    );
-    return response.statusCode == 200;
+    try {
+      final response = await _dio.put(
+        'seller/products/$id',
+        data: data,
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> deleteProduct(int id) async {
-    final token = await _getToken();
-    final response = await http.delete(
-      Uri.parse('$baseUrl/seller/products/$id'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-    return response.statusCode == 200;
+    try {
+      final response = await _dio.delete('seller/products/$id');
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 }

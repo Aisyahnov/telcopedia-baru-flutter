@@ -130,7 +130,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -178,7 +178,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         onTap: () => _handleBan(u.id),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.red.shade300), boxShadow: [BoxShadow(color: Colors.red.withOpacity(0.1), blurRadius: 4)]),
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.red.shade300), boxShadow: [BoxShadow(color: Colors.red.withValues(alpha: 0.1), blurRadius: 4)]),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -209,11 +209,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     Color bg = Colors.green.shade50;
     Color text = Colors.green;
     if (role == 'admin') { bg = Colors.black; text = Colors.white; }
-    else if (role == 'seller') { bg = const Color(0xFF9F1521).withOpacity(0.05); text = const Color(0xFF9F1521); }
+    else if (role == 'seller') { bg = const Color(0xFF9F1521).withValues(alpha: 0.05); text = const Color(0xFF9F1521); }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20), border: role == 'admin' ? null : Border.all(color: text.withOpacity(0.5))),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20), border: role == 'admin' ? null : Border.all(color: text.withValues(alpha: 0.5))),
       child: Text(role.toUpperCase(), style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: text)),
     );
   }

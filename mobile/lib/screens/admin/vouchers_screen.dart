@@ -154,7 +154,7 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +235,7 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
         child: Column(
           children: [
             const SizedBox(height: 30),
-            Icon(Icons.confirmation_number_outlined, size: 60, color: Colors.grey.withOpacity(0.2)),
+            Icon(Icons.confirmation_number_outlined, size: 60, color: Colors.grey.withValues(alpha: 0.2)),
             const SizedBox(height: 10),
             Text('Belum ada promo aktif.', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.grey.shade400)),
           ],
@@ -244,7 +244,7 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
     }
 
     return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))]),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -256,7 +256,7 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.orange.withOpacity(0.5))),
+              decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.orange.withValues(alpha: 0.5))),
               child: Text(v.code, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w900, color: Colors.orange, fontSize: 13)),
             ),
             title: Text(formatter.format(v.discountAmount), style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 15, color: const Color(0xFF9F1521))),

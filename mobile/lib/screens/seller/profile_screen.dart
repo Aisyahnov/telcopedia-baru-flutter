@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/api_service.dart';
 import '../../models/product.dart';
 import '../../models/user.dart';
 import '../../models/review.dart';
@@ -9,8 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/seller_sidebar.dart';
 import '../../providers/auth_provider.dart';
-import 'package:provider/provider.dart';
-
 class SellerProfileScreen extends StatefulWidget {
   final int sellerId;
   const SellerProfileScreen({super.key, required this.sellerId});
@@ -107,7 +106,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                     radius: 40,
                     backgroundImage: NetworkImage(
                       _currentUser?.photo != null 
-                      ? 'http://127.0.0.1:8000/storage/${_currentUser!.photo}' 
+                      ? ApiService.getImageUrl('storage/${_currentUser!.photo}')
                       : 'https://ui-avatars.com/api/?name=${_currentUser?.name ?? "User"}&background=f0f0f0&color=9F1521&bold=true'
                     ),
                   ),
@@ -157,7 +156,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                   'name': nameController.text,
                   'nim': nimController.text,
                 });
-                if (success && mounted) {
+                if (!mounted) return;
+                if (success) {
                   Navigator.pop(context);
                   _loadProfile();
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profil berhasil diperbarui!')));
@@ -187,7 +187,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
             onNavigate: _handleNavigation,
             onLogout: () async {
               await _authService.logout();
-              if (mounted) Navigator.pushReplacementNamed(context, '/login');
+              if (!mounted) return;
+              Navigator.pushReplacementNamed(context, '/login');
             },
           )
         : null,
@@ -237,7 +238,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 5))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 5))],
       ),
       child: Column(
         children: [
@@ -249,11 +250,11 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                   Container(
                     width: 80,
                     height: 80,
-                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
+                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)]),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(40),
                       child: Image.network(
-                        _seller?.photo != null ? 'http://127.0.0.1:8000/storage/${_seller!.photo}' : 'https://ui-avatars.com/api/?name=${_seller?.name ?? "User"}&background=f0f0f0&color=9F1521&bold=true',
+                        _seller?.photo != null ? ApiService.getImageUrl('storage/${_seller!.photo}') : 'https://ui-avatars.com/api/?name=${_seller?.name ?? "User"}&background=f0f0f0&color=9F1521&bold=true',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -418,7 +419,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: const Color(0xFFF0F0F0)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +437,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                   right: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(20)),
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.9), borderRadius: BorderRadius.circular(20)),
                     child: Text(p.category?.name ?? 'Umum', style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: const Color(0xFF9F1521))),
                   ),
                 ),

@@ -69,7 +69,8 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
         onNavigate: _handleNavigation,
         onLogout: () async {
           await _authService.logout();
-          if (mounted) Navigator.pushReplacementNamed(context, '/login');
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
         },
       ),
       body: _isLoading 
@@ -115,7 +116,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: const Border(left: BorderSide(color: Color(0xFF9F1521), width: 5)),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5))],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,7 +133,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
               ),
               Container(
                 padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(color: const Color(0xFF9F1521).withOpacity(0.05), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: const Color(0xFF9F1521).withValues(alpha: 0.05), shape: BoxShape.circle),
                 child: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF9F1521), size: 30),
               ),
             ],
@@ -150,7 +151,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
               backgroundColor: const Color(0xFF9F1521),
               foregroundColor: Colors.white,
               elevation: 5,
-              shadowColor: const Color(0xFF9F1521).withOpacity(0.3),
+              shadowColor: const Color(0xFF9F1521).withValues(alpha: 0.3),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             ),
           ),
@@ -179,7 +180,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -253,7 +254,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withOpacity(0.3))),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: color)),
     );
   }
@@ -287,7 +288,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(color: const Color(0xFF9F1521).withOpacity(0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFF9F1521).withOpacity(0.1))),
+                  decoration: BoxDecoration(color: const Color(0xFF9F1521).withValues(alpha: 0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFF9F1521).withValues(alpha: 0.1))),
                   child: Column(
                     children: [
                       Text('SALDO ANDA SAAT INI', style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.bold, color: const Color(0xFF9F1521))),
@@ -371,7 +372,8 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
                         'account_number': numberController.text,
                         'account_name': nameController.text,
                       });
-                      if (success && mounted) {
+                      if (!mounted) return;
+                      if (success) {
                         Navigator.pop(context);
                         _loadData();
                       } else {
