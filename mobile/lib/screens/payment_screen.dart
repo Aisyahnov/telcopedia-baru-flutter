@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -159,7 +160,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           IconButton(
             icon: const Icon(Icons.copy, size: 18, color: Colors.grey),
             onPressed: () {
-              // Copy to clipboard logic
+              Clipboard.setData(ClipboardData(text: number));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Nomor rekening $name disalin!')));
             },
           ),
         ],

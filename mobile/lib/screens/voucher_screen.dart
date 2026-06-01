@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
@@ -133,6 +134,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
             bottom: 15,
             child: ElevatedButton(
               onPressed: () {
+                Clipboard.setData(ClipboardData(text: voucher['code'].toString()));
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kode voucher disalin! Gunakan di keranjang.')));
               },
               style: ElevatedButton.styleFrom(
