@@ -33,8 +33,8 @@ class CheckoutController extends Controller
 
             $subtotal = $items->sum(fn($i) => $i->quantity * $i->product->price);
             $adminFee = $subtotal * 0.05;
-            $discount = 0; 
-            $total = $subtotal + $adminFee;
+            $discount = $cart->voucher ? $cart->voucher->discount_amount : 0; 
+            $total = max(0, $subtotal + $adminFee - $discount);
         } elseif ($cartItemIds) {
             // Filter item terpilih dari keranjang
             $selectedIds = explode(',', $cartItemIds);
@@ -46,7 +46,7 @@ class CheckoutController extends Controller
             
             $subtotal = $items->sum(fn($i) => $i->quantity * $i->product->price);
             $adminFee = $subtotal * 0.05;
-            $discount = $cart->voucher ? $this->cartService->calculateDiscount($subtotal, $cart->voucher) : 0;
+            $discount = $cart->voucher ? $cart->voucher->discount_amount : 0;
             $total = $subtotal + $adminFee - $discount;
         } else {
             // Checkout seluruh isi keranjang
@@ -85,6 +85,10 @@ class CheckoutController extends Controller
                 $request->input('buy_now_product_id'),
                 $request->input('cart_item_ids')
             );
+
+            if ($request->input('payment_method') === 'transfer') {
+                return redirect()->route('checkout.upload', ['orderId' => $order->id]);
+            }
 
             return view('checkout.success', compact('order'));
         } catch (\Exception $e) {

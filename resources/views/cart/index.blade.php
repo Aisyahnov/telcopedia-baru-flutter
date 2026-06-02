@@ -127,10 +127,34 @@
                     <span class="text-muted small">Biaya Pengiriman</span>
                     <span class="text-success fw-bold small">GRATIS COD</span>
                 </div>
+
+                <!-- VOUCHER FORM -->
+                <div class="mb-3">
+                    <label class="small text-muted mb-1">Makin hemat pakai promo!</label>
+                    <form action="{{ route('cart.voucher') }}" method="POST" class="d-flex gap-2">
+                        @csrf
+                        <input type="text" name="code" class="form-control form-control-sm" placeholder="Masukkan Kode Voucher" required>
+                        <button type="submit" class="btn btn-sm btn-outline-danger px-3">Gunakan</button>
+                    </form>
+                </div>
+
+                @if($discount > 0)
+                <div class="d-flex justify-content-between mb-2 align-items-center">
+                    <span class="text-muted small">Diskon Voucher</span>
+                    <div class="text-end">
+                        <span class="fw-bold text-success d-block">- Rp <span id="summary-discount">{{ number_format($discount ?? 0, 0, ',', '.') }}</span></span>
+                        <form action="{{ route('cart.voucher.remove') }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-link p-0 text-danger small text-decoration-none" style="font-size: 11px;">Hapus Voucher</button>
+                        </form>
+                    </div>
+                </div>
+                @endif
                 
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
                     <span class="fw-bold fs-5">Total Bayar</span>
-                    <span class="fw-bold fs-4 text-maroon" id="summary-total">Rp 0</span>
+                    <span class="fw-bold fs-4 text-maroon" id="summary-total" data-discount="{{ $discount }}">Rp 0</span>
                 </div>
 
                 <form action="{{ route('checkout.index') }}" method="GET" id="checkout-form">
@@ -183,7 +207,8 @@
             });
 
             const adminFee = subtotal * 0.05;
-            const total = subtotal + adminFee;
+            const discount = parseFloat(summaryTotal.dataset.discount || 0);
+            const total = Math.max(0, subtotal + adminFee - discount);
 
             // Update UI
             summaryItemCount.innerText = count;

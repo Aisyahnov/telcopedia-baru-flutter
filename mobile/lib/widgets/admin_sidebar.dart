@@ -133,7 +133,25 @@ class AdminSidebar extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFF1F1F1)))),
       child: TextButton.icon(
-        onPressed: onLogout,
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Keluar Akun', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+              content: Text('Apakah Anda yakin ingin keluar?', style: GoogleFonts.plusJakartaSans()),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onLogout();
+                  },
+                  child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+          );
+        },
         icon: const Icon(Icons.logout, size: 18, color: Colors.red),
         label: Text('Keluar Akun', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red)),
         style: TextButton.styleFrom(alignment: Alignment.centerLeft),

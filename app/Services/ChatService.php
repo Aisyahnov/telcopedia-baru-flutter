@@ -12,23 +12,23 @@ class ChatService
      */
     public function getOrCreateRoom($buyerId, $sellerId, $productId)
     {
-        // Cari room yang sudah ada antara kedua user ini (tanpa filter produk dulu)
-        $chat = Chat::where(function ($q) use ($buyerId, $sellerId) {
+        $query = Chat::where(function ($q) use ($buyerId, $sellerId) {
                 $q->where(function ($sq) use ($buyerId, $sellerId) {
                     $sq->where('user1_id', $buyerId)->where('user2_id', $sellerId);
                 })->orWhere(function ($sq) use ($buyerId, $sellerId) {
                     $sq->where('user1_id', $sellerId)->where('user2_id', $buyerId);
                 });
-            })
-            ->first();
+            });
 
-        if ($chat) {
-            // Jika room sudah ada, tapi produk yang dibahas berbeda, kita update konteks produknya
-            if ($productId && $chat->product_id != $productId) {
-                $chat->update(['product_id' => $productId]);
-            }
+        if ($productId) {
+            $query->where('product_id', $productId);
         } else {
-            // Jika benar-benar belum ada percakapan, buat baru
+            $query->whereNull('product_id');
+        }
+
+        $chat = $query->first();
+
+        if (!$chat) {
             $chat = Chat::create([
                 'user1_id' => $buyerId,
                 'user2_id' => $sellerId,

@@ -150,6 +150,14 @@
                                                                 </div>
 
                                                                 <div class="mb-4">
+                                                                    <label class="form-label fw-bold small">Jenis Pengembalian</label>
+                                                                    <select class="form-select bg-light border-0" name="tipe_retur" required>
+                                                                        <option value="tukar_barang">Tukar Barang</option>
+                                                                        <option value="kembali_dana">Pengembalian Dana (Refund)</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="mb-4">
                                                                     <label class="form-label fw-bold small">Alasan Pengembalian</label>
                                                                     <textarea class="form-control bg-light border-0" name="reason" rows="3" placeholder="Contoh: Barang cacat, tidak sesuai deskripsi, dll." required maxlength="1000"></textarea>
                                                                     <div class="form-text text-muted small">Mohon jelaskan komplain Anda secara detail agar mempermudah penjual memproses.</div>

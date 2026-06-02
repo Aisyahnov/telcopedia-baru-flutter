@@ -31,7 +31,7 @@
                     $seller = $order->items->first()->product->seller;
                 @endphp
 
-                <a href="{{ route('chat.show', ['user' => $seller->id]) }}?product_id={{ $order->items->first()->product_id }}" class="btn btn-maroon w-100 py-2 rounded-pill mb-2">
+                <a href="{{ route('chat.start_seller', ['seller_id' => $seller->id]) }}?product_id={{ $order->items->first()->product_id }}" class="btn btn-maroon w-100 py-2 rounded-pill mb-2">
                     <i class="fa-solid fa-comments me-2"></i> Chat Seller Sekarang
                 </a>
                 <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary w-100 py-2 rounded-pill">

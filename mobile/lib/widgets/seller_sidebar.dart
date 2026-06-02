@@ -142,7 +142,25 @@ class SellerSidebar extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          onPressed: onLogout,
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Keluar Akun', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+              content: Text('Apakah Anda yakin ingin keluar?', style: GoogleFonts.plusJakartaSans()),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onLogout();
+                  },
+                  child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+          );
+        },
           icon: const Icon(Icons.logout, size: 16),
           label: const Text('KELUAR'),
           style: ElevatedButton.styleFrom(

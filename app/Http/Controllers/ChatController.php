@@ -60,6 +60,13 @@ class ChatController extends Controller
             return back()->with('error', 'Anda tidak bisa chat diri sendiri.');
         }
 
+        $productId = $request->query('product_id');
+
+        if ($productId) {
+            $chat = $this->chatService->getOrCreateRoom($request->user()->id, $sellerId, $productId);
+            return redirect()->route('chat.room', $chat->id);
+        }
+
         // Cari apakah sudah ada chat antara mereka (apapun produknya)
         $existingChat = Chat::where(function($q) use($request, $sellerId) {
             $q->where('user1_id', $request->user()->id)->where('user2_id', $sellerId);

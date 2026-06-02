@@ -107,9 +107,25 @@ class BuyerDrawer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20),
             child: OutlinedButton(
-              onPressed: () async {
-                await authService.logout();
-                if (context.mounted) Navigator.pushReplacementNamed(context, '/login');
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Keluar Akun', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                    content: Text('Apakah Anda yakin ingin keluar?', style: GoogleFonts.plusJakartaSans()),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context); // close dialog
+                          await authService.logout();
+                          if (context.mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                        },
+                        child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF9F1521)),
