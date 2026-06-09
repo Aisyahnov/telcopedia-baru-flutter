@@ -10,6 +10,7 @@ import 'category_screen.dart';
 import 'account_screen.dart';
 import '../services/notification_service.dart';
 import 'notification_screen.dart';
+import 'chatbot_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ProductService _productService = ProductService();
   final NotificationService _notificationService = NotificationService();
   List<Product> _products = [];
+  List<Product> _recommendedProducts = [];
   bool _isLoading = true;
   int _unreadNotifCount = 0;
   final TextEditingController _searchController = TextEditingController();
@@ -42,10 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadProducts() async {
-    final products = await _productService.getProducts(keyword: _searchController.text);
+    final data = await _productService.getHomeData(keyword: _searchController.text);
     if (mounted) {
       setState(() {
-        _products = products;
+        _products = data['products'] ?? [];
+        _recommendedProducts = data['recommended'] ?? [];
         _isLoading = false;
       });
     }
@@ -65,6 +68,14 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xFFFCFCFC),
       appBar: _currentIndex == 0 ? _buildAppBar() : null,
       body: tabs[_currentIndex],
+      floatingActionButton: _currentIndex == 0 ? FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatbotScreen()));
+        },
+        backgroundColor: const Color(0xFF9F1521),
+        elevation: 4,
+        child: const Icon(Icons.smart_toy, color: Colors.white),
+      ) : null,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
@@ -165,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _buildHero(),
             _buildUSP(),
+            if (_recommendedProducts.isNotEmpty) _buildRecommendationSection(),
             _buildProductSection(),
             _buildTestimonials(),
             _buildSellerCTA(),
@@ -358,6 +370,49 @@ class _HomeScreenState extends State<HomeScreen> {
             desc,
             textAlign: TextAlign.center,
             style: GoogleFonts.plusJakartaSans(color: Colors.grey, fontSize: 9),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecommendationSection() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+              children: const [
+                TextSpan(text: 'Rekomendasi Spesial '),
+                TextSpan(text: 'Untukmu', style: TextStyle(color: Color(0xFF9F1521))),
+              ],
+            ),
+          ),
+          Text(
+            'Berdasarkan aktivitas dan produk populer',
+            style: GoogleFonts.plusJakartaSans(color: Colors.grey, fontSize: 11),
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            height: 250,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _recommendedProducts.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: 160,
+                  margin: const EdgeInsets.only(right: 15, bottom: 5),
+                  child: _buildPremiumProductCard(_recommendedProducts[index]),
+                );
+              },
+            ),
           ),
         ],
       ),

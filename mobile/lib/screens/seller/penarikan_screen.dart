@@ -8,6 +8,8 @@ import '../../providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+import '../../utils/currency_formatter.dart';
 
 class SellerPenarikanDanaScreen extends StatefulWidget {
   const SellerPenarikanDanaScreen({super.key});
@@ -303,6 +305,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
                 TextField(
                   controller: amountController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [CurrencyInputFormatter()],
                   decoration: InputDecoration(prefixText: 'Rp ', filled: true, fillColor: Colors.grey.shade50, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none)),
                 ),
                 const SizedBox(height: 20),
@@ -367,7 +370,7 @@ class _SellerPenarikanDanaScreenState extends State<SellerPenarikanDanaScreen> {
                     onPressed: isSubmitting ? null : () async {
                       setModalState(() => isSubmitting = true);
                       final success = await _sellerService.requestPenarikanDana({
-                        'amount': double.parse(amountController.text),
+                        'amount': double.parse(amountController.text.replaceAll('.', '')),
                         'bank_name': bankController.text,
                         'account_number': numberController.text,
                         'account_name': nameController.text,

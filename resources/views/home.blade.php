@@ -157,6 +157,59 @@
 
 <!-- MAIN CONTAINER -->
 <div class="container py-4">
+    @if(isset($recommendedProducts) && $recommendedProducts->isNotEmpty())
+    <!-- REKOMENDASI SECTION -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h5 class="fw-800 text-dark mb-0">
+                Rekomendasi Spesial <span class="text-maroon">Untukmu</span>
+            </h5>
+            <p class="text-muted small mb-0 mt-1">Berdasarkan aktivitas dan produk populer.</p>
+        </div>
+    </div>
+    
+    <div class="row g-3 mb-5">
+        @foreach($recommendedProducts as $p)
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="product-card-premium" style="border: 1px solid var(--telco-maroon-soft);">
+                    <div class="pc-img-wrapper">
+                        <img src="{{ $p->image_url }}" alt="{{ $p->name }}">
+                        <span class="pc-badge"><i class="fa-solid fa-sparkles text-warning me-1"></i> {{ optional($p->category)->name }}</span>
+                    </div>
+                    <div class="pc-body">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-muted" style="font-size: 0.6rem;">{{ strtoupper($p->condition) }}</span>
+                            @if($p->reviews->count() > 0)
+                                <div class="text-warning" style="font-size: 0.7rem;"><i class="fa fa-star me-1"></i>{{ number_format($p->reviews->avg('rating'), 1) }}</div>
+                            @endif
+                        </div>
+                        <h6 class="pc-title">
+                            <a href="{{ route('product.show', $p->id) }}" class="text-decoration-none text-dark stretched-link">{{ $p->name }}</a>
+                        </h6>
+                        <div class="pc-price">Rp {{ number_format($p->price, 0, ',', '.') }}</div>
+                        
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(optional($p->seller)->name ?? 'S') }}&background=F8F9FA&color=9F1521" class="rounded-circle me-1" width="20" height="20">
+                                <span class="text-dark fw-bold" style="font-size: 0.7rem;">{{ explode(' ', optional($p->seller)->name ?? 'Seller')[0] }}</span>
+                            </div>
+                            <div class="d-flex gap-1" style="position: relative; z-index: 2;">
+                                <form action="{{ route('cart.add') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $p->id }}">
+                                    <button class="btn btn-maroon btn-sm rounded-circle p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa fa-cart-plus" style="font-size: 0.6rem;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+    @endif
+
     <!-- PRODUCTS GRID -->
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>

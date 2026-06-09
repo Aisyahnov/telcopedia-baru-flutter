@@ -71,4 +71,56 @@ class ProductService
         $product = Product::where('id', $productId)->where('seller_id', $sellerId)->firstOrFail();
         return $product->delete();
     }
+
+    public function getRecommendedProducts($userId = null, $limit = 8)
+    {
+        $bannedSellerIds = \App\Models\User::where('role', 'seller')->get()
+            ->filter(function($user) { return $user->is_banned_from_posting ?? false; })
+            ->pluck('id');
+
+        $baseQuery = Product::where('status', 'approved')
+            ->whereNotIn('seller_id', $bannedSellerIds)
+            ->with('category', 'seller', 'images');
+
+        if ($userId) {
+            $topCategories = \App\Models\ProductView::where('user_id', $userId)
+                ->join('products', 'product_views.product_id', '=', 'products.id')
+                ->select('products.category_id', \Illuminate\Support\Facades\DB::raw('count(*) as view_count'))
+                ->groupBy('products.category_id')
+                ->orderByDesc('view_count')
+                ->limit(3)
+                ->pluck('category_id');
+
+            if ($topCategories->isNotEmpty()) {
+                $recommended = (clone $baseQuery)->whereIn('category_id', $topCategories)
+                    ->inRandomOrder()
+                    ->take($limit)
+                    ->get();
+
+                if ($recommended->count() < $limit) {
+                    $fallback = (clone $baseQuery)->whereNotIn('id', $recommended->pluck('id'))
+                        ->inRandomOrder()
+                        ->take($limit - $recommended->count())
+                        ->get();
+                    $recommended = $recommended->concat($fallback);
+                }
+                return $recommended;
+            }
+        }
+
+        $topGlobalProductIds = \App\Models\ProductView::select('product_id', \Illuminate\Support\Facades\DB::raw('count(*) as view_count'))
+            ->groupBy('product_id')
+            ->orderByDesc('view_count')
+            ->limit($limit * 2)
+            ->pluck('product_id');
+
+        if ($topGlobalProductIds->isNotEmpty()) {
+            return (clone $baseQuery)->whereIn('id', $topGlobalProductIds)
+                ->inRandomOrder()
+                ->take($limit)
+                ->get();
+        }
+
+        return (clone $baseQuery)->inRandomOrder()->take($limit)->get();
+    }
 }

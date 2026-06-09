@@ -6,16 +6,16 @@ use App\Models\Order;
 
 class OrderService
 {
-    public function getBuyerOrders($userId)
+    public function getBuyerOrders($userId, $perPage = 5)
     {
-        return Order::where('user_id', $userId)->with('items.product')->latest()->get();
+        return Order::where('user_id', $userId)->with(['items.product', 'reviews', 'returns'])->latest()->paginate($perPage);
     }
 
-    public function getSellerOrders($sellerId)
+    public function getSellerOrders($sellerId, $perPage = 5)
     {
         return Order::whereHas('items.product', function ($query) use ($sellerId) {
             $query->where('seller_id', $sellerId);
-        })->with('items.product')->latest()->get();
+        })->with('items.product')->latest()->paginate($perPage);
     }
 
     public function uploadPaymentProof($orderId, $userId, $proofPath)

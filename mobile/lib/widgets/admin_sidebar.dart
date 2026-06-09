@@ -45,7 +45,7 @@ class AdminSidebar extends StatelessWidget {
                 ],
               ),
             ),
-            _buildFooter(),
+            _buildFooter(context),
           ],
         ),
       ),
@@ -128,7 +128,7 @@ class AdminSidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFF1F1F1)))),

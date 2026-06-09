@@ -17,6 +17,8 @@ class Order {
   final List<OrderItem> items;
   final DateTime createdAt;
   final User? user;
+  final List<dynamic>? reviews;
+  final List<dynamic>? returns;
 
   Order({
     required this.id,
@@ -33,6 +35,8 @@ class Order {
     required this.items,
     required this.createdAt,
     this.user,
+    this.reviews,
+    this.returns,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -53,6 +57,8 @@ class Order {
         : [],
       createdAt: DateTime.parse(json['created_at']),
       user: json['user'] != null ? User.fromJson(json['user']) : null,
+      reviews: json['reviews'] as List<dynamic>?,
+      returns: json['returns'] as List<dynamic>?,
     );
   }
 

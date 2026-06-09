@@ -7,11 +7,12 @@ import '../models/order.dart';
 class OrderService {
   final ApiService _apiService = ApiService();
 
-  Future<List<Order>> getBuyerOrders() async {
+  Future<List<Order>> getBuyerOrders({int page = 1}) async {
     try {
-      final response = await _apiService.dio.get('orders');
+      final response = await _apiService.dio.get('orders?page=$page');
       if (response.statusCode == 200) {
-        final List data = response.data['data'];
+        // Because backend now uses paginate(), the items are in data['data']['data']
+        final List data = response.data['data']['data'] ?? response.data['data'];
         return data.map((json) => Order.fromJson(json)).toList();
       }
       return [];

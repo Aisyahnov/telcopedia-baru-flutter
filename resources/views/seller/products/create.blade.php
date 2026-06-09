@@ -104,7 +104,7 @@
                                         <label class="form-label">Harga Jual</label>
                                         <div class="input-group shadow-sm">
                                             <span class="input-group-text border-0 bg-light text-muted">Rp</span>
-                                            <input type="number" class="form-control border-0 bg-light" name="price" value="{{ old('price') }}" placeholder="0" min="500" required>
+                                            <input type="text" class="form-control border-0 bg-light" name="price" value="{{ old('price') }}" placeholder="0" required oninput="formatCurrency(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -226,5 +226,26 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    function formatCurrency(input) {
+        // Hapus semua karakter selain angka
+        let value = input.value.replace(/\D/g, '');
+        if (value !== '') {
+            // Ubah format dengan pemisah ribuan titik
+            input.value = parseInt(value, 10).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        } else {
+            input.value = '';
+        }
+    }
+
+    // Hapus titik sebelum submit form
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            let priceInput = this.querySelector('input[name="price"]');
+            if (priceInput) {
+                priceInput.value = priceInput.value.replace(/\./g, '');
+            }
+        });
+    });
 </script>
 @endsection

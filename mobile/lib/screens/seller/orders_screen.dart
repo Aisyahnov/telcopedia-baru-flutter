@@ -23,21 +23,57 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
   List<Order> _orders = [];
   User? _user;
   bool _isLoading = true;
+  bool _isFetchingMore = false;
+  int _currentPage = 1;
+  bool _hasMore = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 50) {
+      if (!_isLoading && !_isFetchingMore && _hasMore) {
+        _loadMoreData();
+      }
+    }
   }
 
   Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    _currentPage = 1;
+    _hasMore = true;
     final user = await _authService.getCurrentUser();
-    final orders = await _sellerService.getMyOrders();
+    final orders = await _sellerService.getMyOrders(page: _currentPage);
     if (mounted) {
       setState(() {
         _user = user;
         _orders = orders;
         _isLoading = false;
+        if (orders.length < 5) _hasMore = false;
+      });
+    }
+  }
+
+  Future<void> _loadMoreData() async {
+    setState(() => _isFetchingMore = true);
+    _currentPage++;
+    final moreOrders = await _sellerService.getMyOrders(page: _currentPage);
+    if (mounted) {
+      setState(() {
+        _orders.addAll(moreOrders);
+        _isFetchingMore = false;
+        if (moreOrders.length < 5) _hasMore = false;
       });
     }
   }
@@ -78,6 +114,7 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
         : RefreshIndicator(
             onRefresh: _loadData,
             child: SingleChildScrollView(
+              controller: _scrollController,
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,6 +122,8 @@ class _SellerOrdersScreenState extends State<SellerOrdersScreen> {
                   _buildHeader(),
                   const SizedBox(height: 25),
                   _buildOrdersList(currencyFormatter),
+                  if (_isFetchingMore) 
+                    const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFF9F1521)))),
                   const SizedBox(height: 50),
                 ],
               ),

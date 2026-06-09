@@ -26,7 +26,12 @@ class HomeController extends Controller
         $categoryId = $request->query('category_id');
 
         $products = $this->productService->searchProducts($keyword, $categoryId);
-        return response()->json(['data' => $products]);
+        $recommendedProducts = $this->productService->getRecommendedProducts(auth('sanctum')->id());
+        
+        return response()->json([
+            'data' => $products,
+            'recommended_products' => $recommendedProducts
+        ]);
     }
 
     public function showProduct(Request $request, $id)
@@ -35,6 +40,11 @@ class HomeController extends Controller
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
+
+        \App\Models\ProductView::create([
+            'user_id' => auth('sanctum')->id(),
+            'product_id' => $product->id,
+        ]);
 
         $relatedProducts = \App\Models\Product::where('category_id', $product->category_id)
             ->where('id', '!=', $id)

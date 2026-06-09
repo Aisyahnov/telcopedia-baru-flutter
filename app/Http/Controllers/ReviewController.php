@@ -44,6 +44,16 @@ class ReviewController extends Controller
             return back()->with('error', 'Anda sudah memberikan ulasan untuk produk ini pada pesanan yang sama.');
         }
 
+        // Prevent review if product has been returned
+        $existingReturn = \App\Models\ProductReturn::where('order_id', $order->id)
+            ->where('product_id', $request->product_id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($existingReturn) {
+            return back()->with('error', 'Anda tidak dapat memberikan ulasan karena Anda telah mengajukan pengembalian untuk produk ini.');
+        }
+
         $mediaPath = null;
         if ($request->hasFile('media')) {
             $mediaPath = $request->file('media')->store('reviews', 'public');

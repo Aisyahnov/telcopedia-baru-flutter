@@ -17,19 +17,55 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   final OrderService _orderService = OrderService();
   List<Order> _orders = [];
   bool _isLoading = true;
+  bool _isFetchingMore = false;
+  int _currentPage = 1;
+  bool _hasMore = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _loadOrders();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 50) {
+      if (!_isLoading && !_isFetchingMore && _hasMore) {
+        _loadMoreOrders();
+      }
+    }
   }
 
   Future<void> _loadOrders() async {
-    final orders = await _orderService.getBuyerOrders();
+    setState(() => _isLoading = true);
+    _currentPage = 1;
+    _hasMore = true;
+    final orders = await _orderService.getBuyerOrders(page: _currentPage);
     if (mounted) {
       setState(() {
         _orders = orders;
         _isLoading = false;
+        if (orders.length < 5) _hasMore = false;
+      });
+    }
+  }
+
+  Future<void> _loadMoreOrders() async {
+    setState(() => _isFetchingMore = true);
+    _currentPage++;
+    final moreOrders = await _orderService.getBuyerOrders(page: _currentPage);
+    if (mounted) {
+      setState(() {
+        _orders.addAll(moreOrders);
+        _isFetchingMore = false;
+        if (moreOrders.length < 5) _hasMore = false;
       });
     }
   }
@@ -104,9 +140,18 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   Widget _buildOrderList() {
     return ListView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.all(15),
-      itemCount: _orders.length,
-      itemBuilder: (context, index) => _buildOrderCard(_orders[index]),
+      itemCount: _orders.length + (_hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == _orders.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator(color: Color(0xFF9F1521))),
+          );
+        }
+        return _buildOrderCard(_orders[index]);
+      },
     );
   }
 
@@ -201,6 +246,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       separatorBuilder: (c, i) => Divider(height: 1, color: Colors.grey.shade100),
       itemBuilder: (context, index) {
         final item = order.items[index];
+        bool hasReturned = order.returns?.any((r) => r['product_id'] == item.productId) ?? false;
+        bool hasReviewed = order.reviews?.any((r) => r['product_id'] == item.productId) ?? false;
+
         return Padding(
           padding: const EdgeInsets.all(15),
           child: Column(
@@ -229,10 +277,37 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      _buildActionBtn('Retur', Colors.grey.shade100, Colors.black87, () => _showReturnDialog(order, item)),
+                      if (hasReturned)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(100), border: Border.all(color: Colors.grey.shade300)),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.info_outline, size: 14, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text('Retur Diajukan', style: GoogleFonts.plusJakartaSans(color: Colors.grey.shade700, fontWeight: FontWeight.bold, fontSize: 11)),
+                            ],
+                          ),
+                        )
+                      else
+                        _buildActionBtn('Retur', Colors.grey.shade100, Colors.black87, () => _showReturnDialog(order, item)),
+                        
                       if (order.status == 'completed') ...[
                         const SizedBox(width: 10),
-                        _buildActionBtn('Ulasan', const Color(0xFF9F1521), Colors.white, () => _showReviewDialog(order, item)),
+                        if (hasReviewed)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(100), border: Border.all(color: Colors.green.shade200)),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check_circle, size: 14, color: Colors.green),
+                                const SizedBox(width: 4),
+                                Text('Telah Diulas', style: GoogleFonts.plusJakartaSans(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 11)),
+                              ],
+                            ),
+                          )
+                        else if (!hasReturned)
+                          _buildActionBtn('Ulasan', const Color(0xFF9F1521), Colors.white, () => _showReviewDialog(order, item)),
                       ]
                     ],
                   ),

@@ -45,7 +45,7 @@ class SellerSidebar extends StatelessWidget {
                 ],
               ),
             ),
-            _buildFooter(),
+            _buildFooter(context),
           ],
         ),
       ),
@@ -132,7 +132,7 @@ class SellerSidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(

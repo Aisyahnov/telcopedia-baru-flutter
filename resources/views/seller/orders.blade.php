@@ -78,6 +78,10 @@
         </div>
     </div>
 
+    <div class="mt-4 d-flex justify-content-center">
+        {{ $orders->links('pagination::bootstrap-5') }}
+    </div>
+
     @foreach($orders as $order)
     <div class="modal fade" id="orderDetail{{ $order->id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

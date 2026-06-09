@@ -101,7 +101,7 @@
                                         <label class="form-label">Harga Jual</label>
                                         <div class="input-group shadow-sm">
                                             <span class="input-group-text border-0 bg-light text-muted">Rp</span>
-                                            <input type="number" class="form-control border-0 bg-light" name="price" value="{{ old('price', $product->price) }}" min="500" required>
+                                            <input type="text" class="form-control border-0 bg-light" name="price" value="{{ old('price', number_format($product->price, 0, '', '.')) }}" required oninput="formatCurrency(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -221,5 +221,23 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    function formatCurrency(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value !== '') {
+            input.value = parseInt(value, 10).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            let priceInput = this.querySelector('input[name="price"]');
+            if (priceInput) {
+                priceInput.value = priceInput.value.replace(/\./g, '');
+            }
+        });
+    });
 </script>
 @endsection

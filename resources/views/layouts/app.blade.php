@@ -294,6 +294,49 @@
     .lead-sm { font-size: 1.1rem; font-weight: 500; opacity: 0.8; }
 </style>
 
+<!-- TELCOBOT CHAT WIDGET -->
+<div id="telcobot-widget" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1050;">
+    <!-- Chat Button -->
+    <button id="telcobot-btn" class="btn btn-maroon rounded-circle shadow-lg" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <i class="fa-solid fa-robot" style="font-size: 1.5rem;"></i>
+        <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+            <span class="visually-hidden">New alerts</span>
+        </span>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="telcobot-window" class="card shadow-lg d-none" style="width: 350px; height: 450px; position: absolute; bottom: 80px; right: 0; border-radius: 20px; overflow: hidden; border: 1px solid #eee;">
+        <div class="card-header bg-maroon text-white d-flex justify-content-between align-items-center p-3 border-0">
+            <div class="d-flex align-items-center">
+                <div class="bg-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                    <i class="fa-solid fa-robot text-maroon"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">TelcoBot</h6>
+                    <small style="font-size: 0.7rem; opacity: 0.8;">Online - Assistant</small>
+                </div>
+            </div>
+            <button id="telcobot-close" class="btn btn-sm text-white"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div id="telcobot-body" class="card-body bg-light p-3 overflow-auto" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="text-start">
+                <div class="d-inline-block bg-white p-2 px-3 rounded-3 shadow-sm" style="max-width: 85%; font-size: 0.85rem; border-bottom-left-radius: 0 !important;">
+                    Halo! 👋 Aku TelcoBot. Ada yang bisa aku bantu cariin atau kamu mau nanya-nanya seputar Telcopedia?
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-white p-2 border-top">
+            <form id="telcobot-form" class="d-flex align-items-center gap-2">
+                @csrf
+                <input type="text" id="telcobot-input" class="form-control rounded-pill border-0 bg-light" placeholder="Ketik pesan..." style="font-size: 0.85rem;" required autocomplete="off">
+                <button type="submit" class="btn btn-maroon rounded-circle p-0" style="width: 35px; height: 35px; min-width: 35px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-paper-plane" style="font-size: 0.8rem;"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -317,6 +360,93 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // TelcoBot Logic
+    const botBtn = document.getElementById('telcobot-btn');
+    const botWindow = document.getElementById('telcobot-window');
+    const botClose = document.getElementById('telcobot-close');
+    const botForm = document.getElementById('telcobot-form');
+    const botInput = document.getElementById('telcobot-input');
+    const botBody = document.getElementById('telcobot-body');
+
+    botBtn.addEventListener('click', () => {
+        botWindow.classList.toggle('d-none');
+        botBtn.querySelector('.position-absolute')?.remove(); // Remove red dot
+    });
+    botClose.addEventListener('click', () => botWindow.classList.add('d-none'));
+
+    botForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = botInput.value.trim();
+        if(!msg) return;
+
+        // User message
+        appendMessage('user', msg);
+        botInput.value = '';
+        
+        // Typing indicator
+        const typingId = 'typing-' + Date.now();
+        botBody.insertAdjacentHTML('beforeend', `
+            <div id="${typingId}" class="text-start">
+                <div class="d-inline-block bg-white p-2 px-3 rounded-3 shadow-sm text-muted" style="max-width: 85%; font-size: 0.85rem; border-bottom-left-radius: 0 !important;">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Mengetik...
+                </div>
+            </div>
+        `);
+        botBody.scrollTop = botBody.scrollHeight;
+
+        try {
+            const response = await fetch('/chatbot/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await response.json();
+            
+            document.getElementById(typingId).remove();
+            appendMessage('bot', data.text, data.products);
+            
+        } catch (err) {
+            document.getElementById(typingId).remove();
+            appendMessage('bot', 'Maaf, server lagi gangguan nih. Coba lagi nanti ya!');
+        }
+    });
+
+    function appendMessage(sender, text, products = []) {
+        const isUser = sender === 'user';
+        let html = `
+            <div class="${isUser ? 'text-end' : 'text-start'}">
+                <div class="d-inline-block ${isUser ? 'bg-maroon text-white' : 'bg-white text-dark'} p-2 px-3 rounded-3 shadow-sm" style="max-width: 85%; font-size: 0.85rem; border-bottom-${isUser ? 'right' : 'left'}-radius: 0 !important;">
+                    ${text.replace(/\n/g, '<br>')}
+                </div>
+            </div>
+        `;
+        botBody.insertAdjacentHTML('beforeend', html);
+
+        // Render products if any
+        if (products && products.length > 0) {
+            let prodHtml = `<div class="d-flex gap-2 overflow-auto py-2" style="max-width: 100%;">`;
+            products.forEach(p => {
+                prodHtml += `
+                    <div class="card shadow-sm border-0" style="min-width: 140px; max-width: 140px; border-radius: 12px; overflow: hidden; flex-shrink: 0;">
+                        <img src="${p.image_url}" style="height: 100px; object-fit: cover;" alt="${p.name}">
+                        <div class="p-2">
+                            <h6 class="mb-1 text-truncate" style="font-size: 0.75rem; font-weight: 700;">${p.name}</h6>
+                            <p class="text-maroon fw-bold mb-1" style="font-size: 0.8rem;">Rp ${parseInt(p.price).toLocaleString('id-ID')}</p>
+                            <a href="/product/${p.id}" class="btn btn-sm btn-outline-maroon w-100 py-1" style="font-size: 0.65rem;">Lihat</a>
+                        </div>
+                    </div>
+                `;
+            });
+            prodHtml += `</div>`;
+            botBody.insertAdjacentHTML('beforeend', `<div class="text-start">${prodHtml}</div>`);
+        }
+
+        botBody.scrollTop = botBody.scrollHeight;
+    }
 });
 </script>
 @stack('scripts')

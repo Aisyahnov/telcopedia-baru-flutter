@@ -72,7 +72,7 @@ class DatabaseSeeder extends Seeder
         // Add Sub-categories
         $subCategories = [
             'Elektronik' => ['Smartphone', 'Laptop', 'Aksesoris PC', 'Audio', 'Kamera'],
-            'Fashion' => ['Pakaian Pria', 'Pakaian Wanita', 'Sepatu', 'Tas', 'Aksesoris'],
+            'Fashion' => ['Pakaian Pria', 'Pakaian Wanita', 'Sepatu', 'Tas', 'Aksesoris', 'Celana Pria', 'Celana Wanita', 'Celana Unisex'],
             'Buku' => ['Buku Kuliah', 'Novel', 'Komik', 'Pengembangan Diri'],
             'Furniture' => ['Meja', 'Kursi', 'Lemari', 'Kasur'],
             'Alat Tulis' => ['Alat Tulis Kantor', 'Buku Catatan', 'Perlengkapan Gambar'],

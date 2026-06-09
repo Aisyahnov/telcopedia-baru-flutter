@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/category.dart';
 import '../../services/seller_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
+import '../../utils/currency_formatter.dart';
 
 class SellerAddProductScreen extends StatefulWidget {
   const SellerAddProductScreen({super.key});
@@ -53,7 +55,7 @@ class _SellerAddProductScreenState extends State<SellerAddProductScreen> {
         'name': _nameController.text,
         'category_id': _selectedSubCategoryId ?? _selectedCategoryId,
         'condition': _selectedCondition,
-        'price': double.parse(_priceController.text),
+        'price': double.parse(_priceController.text.replaceAll('.', '')),
         'stock': int.parse(_stockController.text),
         'description': _descriptionController.text,
         'image_url': _imageUrlController.text, // Nanti bisa diganti dengan upload asli
@@ -219,6 +221,7 @@ class _SellerAddProductScreenState extends State<SellerAddProductScreen> {
     return TextFormField(
       controller: _priceController,
       keyboardType: TextInputType.number,
+      inputFormatters: [CurrencyInputFormatter()],
       decoration: InputDecoration(
         hintText: '0',
         prefixIcon: Container(

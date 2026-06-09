@@ -24,6 +24,28 @@ class ProductService {
     }
   }
 
+  Future<Map<String, List<Product>>> getHomeData({String? keyword, int? categoryId}) async {
+    try {
+      final response = await _apiService.dio.get('home', queryParameters: {
+        if (keyword != null) 'keyword': keyword,
+        if (categoryId != null) 'category_id': categoryId,
+      });
+
+      if (response.statusCode == 200) {
+        final List data = response.data['data']['data'];
+        final List recData = response.data['recommended_products'] ?? [];
+        return {
+          'products': data.map((json) => Product.fromJson(json)).toList(),
+          'recommended': recData.map((json) => Product.fromJson(json)).toList(),
+        };
+      }
+      return {'products': [], 'recommended': []};
+    } catch (e) {
+      debugPrint('Error fetching home data: $e');
+      return {'products': [], 'recommended': []};
+    }
+  }
+
   Future<Map<String, dynamic>?> getProductDetail(int id) async {
     try {
       final response = await _apiService.dio.get('home/product/$id');

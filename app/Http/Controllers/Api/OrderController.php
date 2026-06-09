@@ -94,6 +94,26 @@ class OrderController extends Controller
 
         $path = $request->hasFile('media') ? $request->file('media')->store('reviews', 'public') : null;
         
+        // Prevent duplicate review
+        $existingReview = \App\Models\Review::where('order_id', $request->order_id)
+            ->where('product_id', $request->product_id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if ($existingReview) {
+            return response()->json(['message' => 'Anda sudah memberikan ulasan untuk produk ini pada pesanan yang sama.'], 400);
+        }
+
+        // Prevent review if product has been returned
+        $existingReturn = \App\Models\ProductReturn::where('order_id', $request->order_id)
+            ->where('product_id', $request->product_id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if ($existingReturn) {
+            return response()->json(['message' => 'Anda tidak dapat memberikan ulasan karena Anda telah mengajukan pengembalian untuk produk ini.'], 400);
+        }
+
         $review = \App\Models\Review::create([
             'user_id' => $request->user()->id,
             'order_id' => $request->order_id,

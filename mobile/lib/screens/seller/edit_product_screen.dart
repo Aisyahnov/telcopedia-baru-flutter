@@ -3,6 +3,9 @@ import '../../models/category.dart';
 import '../../models/product.dart';
 import '../../services/seller_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
+import '../../utils/currency_formatter.dart';
+import 'package:intl/intl.dart';
 
 class SellerEditProductScreen extends StatefulWidget {
   final Product product;
@@ -32,7 +35,7 @@ class _SellerEditProductScreenState extends State<SellerEditProductScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.product.name);
-    _priceController = TextEditingController(text: widget.product.price.toInt().toString());
+    _priceController = TextEditingController(text: NumberFormat.currency(locale: 'id', symbol: '', decimalDigits: 0).format(widget.product.price).trim());
     _stockController = TextEditingController(text: widget.product.stock.toString());
     _descriptionController = TextEditingController(text: widget.product.description);
     _imageUrlController = TextEditingController(text: widget.product.imageUrl);
@@ -81,7 +84,7 @@ class _SellerEditProductScreenState extends State<SellerEditProductScreen> {
         'name': _nameController.text,
         'category_id': _selectedSubCategoryId ?? _selectedCategoryId,
         'condition': _selectedCondition,
-        'price': double.parse(_priceController.text),
+        'price': double.parse(_priceController.text.replaceAll('.', '')),
         'stock': int.parse(_stockController.text),
         'description': _descriptionController.text,
         'image_url': _imageUrlController.text,
@@ -240,6 +243,7 @@ class _SellerEditProductScreenState extends State<SellerEditProductScreen> {
     return TextFormField(
       controller: _priceController,
       keyboardType: TextInputType.number,
+      inputFormatters: [CurrencyInputFormatter()],
       decoration: InputDecoration(
         hintText: '0',
         prefixIcon: Container(padding: const EdgeInsets.all(15), child: Text('Rp', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.grey.shade500))),

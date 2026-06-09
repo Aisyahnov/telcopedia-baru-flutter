@@ -118,7 +118,7 @@
                                                 @if($order->status == 'completed')
                                                     @if($hasReviewed)
                                                         <span class="badge bg-light text-success border border-success py-2 px-3"><i class="fa fa-check-circle me-1"></i> Telah Diulas</span>
-                                                    @else
+                                                    @elseif(!$productReturn)
                                                         <button type="button" class="btn btn-sm btn-maroon shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#reviewModal-{{ $order->id }}-{{ $item->product_id }}">
                                                             Beri Ulasan
                                                         </button>
@@ -332,6 +332,10 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+        
+        <div class="mt-4 d-flex justify-content-center">
+            {{ $orders->links('pagination::bootstrap-5') }}
         </div>
     @endif
 </div>

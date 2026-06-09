@@ -57,8 +57,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('categories', [ApiHomeController::class, 'categories']);
     Route::get('home/favorites', [ApiHomeController::class, 'favorites']);
     Route::post('home/favorite/toggle', [ApiHomeController::class, 'toggleFavorite']);
-    Route::get('vouchers', [ApiHomeController::class, 'vouchers']);
-    Route::get('seller/{id}/profile', [ApiHomeController::class, 'sellerProfile']);
+    Route::get('/vouchers', [ApiHomeController::class, 'vouchers']);
+    Route::get('/seller/{id}/profile', [ApiHomeController::class, 'sellerProfile']);
+
+    Route::post('/chatbot/send', [\App\Http\Controllers\ChatbotController::class, 'send']);
 
     /*
     |--------------------------------------------------------------------------

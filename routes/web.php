@@ -33,6 +33,8 @@ Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [HomeController::class, 'terms'])->name('terms');
 Route::get('/seller/{id}/profile', [HomeController::class, 'sellerProfile'])->name('seller.profile');
 
+Route::post('/chatbot/send', [\App\Http\Controllers\ChatbotController::class, 'send'])->name('chatbot.send');
+
 // Category Explorer
 Route::get('/categories', [CategoryController::class, 'index'])->name('category.index');
 Route::get('/categories/products/{id}', [CategoryController::class, 'getProductsAjax'])->name('category.products');

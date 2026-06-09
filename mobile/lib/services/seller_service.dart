@@ -46,11 +46,11 @@ class SellerService {
     return [];
   }
 
-  Future<List<Order>> getMyOrders() async {
+  Future<List<Order>> getMyOrders({int page = 1}) async {
     try {
-      final response = await _dio.get('seller/orders');
+      final response = await _dio.get('seller/orders?page=$page');
       if (response.statusCode == 200) {
-        final List data = response.data['data'];
+        final List data = response.data['data']['data'] ?? response.data['data'];
         return data.map((json) => Order.fromJson(json)).toList();
       }
     } catch (e) {

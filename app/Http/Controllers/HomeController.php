@@ -21,12 +21,19 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $products = $this->productService->searchProducts($request->query('keyword'), $request->query('category_id'));
-        return view('home', compact('products'));
+        $recommendedProducts = $this->productService->getRecommendedProducts(auth()->id());
+        return view('home', compact('products', 'recommendedProducts'));
     }
 
     public function showProduct($id)
     {
         $product = Product::where('status', 'approved')->with('seller', 'category', 'images')->findOrFail($id);
+        
+        \App\Models\ProductView::create([
+            'user_id' => auth()->id(),
+            'product_id' => $product->id,
+        ]);
+
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $id)
             ->where('status', 'approved')
