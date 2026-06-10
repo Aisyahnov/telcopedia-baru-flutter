@@ -39,6 +39,7 @@ class AuthProvider with ChangeNotifier {
     required String name,
     required String email,
     required String password,
+    required String phone,
     String role = 'buyer',
   }) async {
     _isLoading = true;
@@ -50,6 +51,7 @@ class AuthProvider with ChangeNotifier {
       name: name,
       email: email,
       password: password,
+      phone: phone,
       role: role,
     );
 
