@@ -16,6 +16,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _nimController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
   String _selectedRole = 'buyer';
 
   void _handleRegister() async {
@@ -26,6 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text,
         nim: _nimController.text,
         password: _passwordController.text,
+        phone: _phoneController.text,
         role: _selectedRole,
       );
 
@@ -96,6 +98,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 icon: Icons.lock_outline,
                 obscure: true,
                 validator: (value) => value!.length < 6 ? 'Password too short' : null,
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _phoneController,
+                label: 'Nomor Telepon',
+                icon: Icons.phone_outlined,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Enter your phone number';
+                  if (value.length < 11 || value.length > 13) return 'Phone must be 11-13 digits';
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
               const Text('I want to join as:', style: TextStyle(fontWeight: FontWeight.bold)),
