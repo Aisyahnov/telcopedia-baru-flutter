@@ -229,7 +229,7 @@
                     <span class="fw-bold fs-4 text-maroon">Rp {{ number_format($total ?? 0, 0, ',', '.') }}</span>
                 </div>
 
-                <button type="submit" form="checkout-form" class="btn btn-maroon w-100 shadow-sm mb-3">
+                <button type="submit" form="checkout-form" class="btn btn-maroon w-100 shadow-sm mb-3 d-flex justify-content-center align-items-center">
                     Konfirmasi & Buat Pesanan <i class="fa fa-arrow-right ms-2 small"></i>
                 </button>
 

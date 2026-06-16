@@ -190,7 +190,7 @@
                         
                         <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                             <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(optional($p->seller)->name ?? 'S') }}&background=F8F9FA&color=9F1521" class="rounded-circle me-1" width="20" height="20">
+                                <img src="{{ optional($p->seller)->photo ? asset('storage/' . $p->seller->photo) : 'https://ui-avatars.com/api/?name='.urlencode(optional($p->seller)->name ?? 'S').'&background=F8F9FA&color=9F1521' }}" class="rounded-circle me-1" style="object-fit: cover;" width="20" height="20">
                                 <span class="text-dark fw-bold" style="font-size: 0.7rem;">{{ explode(' ', optional($p->seller)->name ?? 'Seller')[0] }}</span>
                             </div>
                             <div class="d-flex gap-1" style="position: relative; z-index: 2;">
@@ -241,7 +241,7 @@
                         
                         <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                             <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(optional($p->seller)->name ?? 'S') }}&background=F8F9FA&color=9F1521" class="rounded-circle me-1" width="20" height="20">
+                                <img src="{{ optional($p->seller)->photo ? asset('storage/' . $p->seller->photo) : 'https://ui-avatars.com/api/?name='.urlencode(optional($p->seller)->name ?? 'S').'&background=F8F9FA&color=9F1521' }}" class="rounded-circle me-1" style="object-fit: cover;" width="20" height="20">
                                 <span class="text-dark fw-bold" style="font-size: 0.7rem;">{{ explode(' ', optional($p->seller)->name ?? 'Seller')[0] }}</span>
                             </div>
                             <div class="d-flex gap-1" style="position: relative; z-index: 2;">

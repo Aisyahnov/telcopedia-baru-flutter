@@ -45,6 +45,11 @@ class ProductService
             $query->whereIn('category_id', $categoryIds);
         }
 
+        // Jika tidak ada pencarian atau filter kategori, tampilkan hanya produk 3 hari terakhir
+        if (!$keyword && !$categoryId) {
+            $query->where('created_at', '>=', now()->subDays(3));
+        }
+
         return $query->latest()->paginate(8);
     }
 
