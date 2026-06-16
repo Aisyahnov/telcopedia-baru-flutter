@@ -134,7 +134,7 @@
                                             <p class="small fw-bold text-muted mb-1">Upload Foto Utama</p>
                                             <p class="x-small text-muted mb-0 opacity-75">Format: JPG, PNG (Max 2MB)</p>
                                         </div>
-                                        <input type="file" id="main_image" name="image" accept="image/*" class="d-none" onchange="previewMain(this)">
+                                        <input type="file" id="main_image" name="image" accept="image/*" required onchange="previewMain(this)" style="opacity: 0; position: absolute; z-index: -1; width: 10px; height: 10px; bottom: 10px; left: 50%;">
                                         <div id="main_preview" class="mt-2 d-none">
                                             <img src="" class="img-fluid rounded-4 shadow" style="max-height: 250px; width: 100%; object-fit: cover;">
                                             <div class="mt-3 text-maroon small fw-bold">
@@ -238,25 +238,9 @@
         }
     }
 
-    // Hapus titik sebelum submit form dan validasi gambar
+    // Hapus titik sebelum submit form
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function(e) {
-            // Validasi Foto Utama
-            const mainImageInput = document.getElementById('main_image');
-            if (mainImageInput && mainImageInput.files.length === 0) {
-                e.preventDefault(); // Hentikan pengiriman form
-                alert("Peringatan: Anda belum mengunggah Foto Utama! Silakan klik area kamera untuk memilih foto produk Anda.");
-                
-                // Beri efek highlight merah muda pada box upload
-                const uploadBox = document.querySelector('.image-upload-box');
-                if (uploadBox) {
-                    uploadBox.style.borderColor = '#dc3545';
-                    uploadBox.style.backgroundColor = '#fff8f8';
-                    uploadBox.classList.add('shadow-sm');
-                }
-                return false;
-            }
-
             let priceInput = this.querySelector('input[name="price"]');
             if (priceInput) {
                 priceInput.value = priceInput.value.replace(/\./g, '');
