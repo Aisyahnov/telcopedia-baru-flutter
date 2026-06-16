@@ -78,13 +78,13 @@
 
                 <div class="mb-4 mt-2">
                     @if($user->is_verified)
-                        <div class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 w-100">
-                            <i class="fa fa-check-circle me-1"></i> Identitas Terverifikasi
+                        <div class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 w-100 shadow-sm" style="font-size: 0.85rem;">
+                            <i class="fa fa-shield-check me-1"></i> Identitas Terverifikasi
                         </div>
                     @else
-                        <button type="button" class="btn btn-warning btn-sm w-100 rounded-pill fw-bold shadow-sm py-2" id="btnShowVerifyModal">
-                            <i class="fa fa-shield-alt me-1"></i> Verifikasi Identitas
-                        </button>
+                        <div class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25 rounded-pill px-3 py-2 w-100 shadow-sm" style="font-size: 0.85rem;">
+                            <i class="fa fa-exclamation-triangle me-1"></i> Belum Terverifikasi
+                        </div>
                     @endif
                 </div>
 
@@ -123,17 +123,30 @@
                 </div>
             </div>
 
-            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
-                <button class="nav-link {{ $errors->has('current_password') || $errors->has('password') ? '' : 'active' }} text-start mb-2" data-bs-toggle="pill" data-bs-target="#tab-info" type="button">
-                    <i class="fa-solid fa-user-pen me-2"></i> Informasi Dasar
-                </button>
-                <button class="nav-link {{ $errors->has('current_password') || $errors->has('password') ? 'active' : '' }} text-start mb-2" data-bs-toggle="pill" data-bs-target="#tab-security" type="button">
-                    <i class="fa-solid fa-shield-halved me-2"></i> Keamanan Akun
-                </button>
-            </div>
         </div>
 
         <div class="col-lg-8">
+            <div class="card border-0 bg-white mb-4 shadow-sm rounded-4">
+                <div class="card-body p-2">
+                    <ul class="nav nav-pills nav-fill gap-2" id="v-pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {{ $errors->has('current_password') || $errors->has('password') ? '' : 'active' }} fw-bold rounded-pill" data-bs-toggle="pill" data-bs-target="#tab-info" type="button">
+                                <i class="fa-solid fa-user-pen me-2"></i> Informasi Dasar
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold rounded-pill" data-bs-toggle="pill" data-bs-target="#tab-kyc" type="button">
+                                <i class="fa-solid fa-id-card-clip me-2"></i> Verifikasi Identitas
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {{ $errors->has('current_password') || $errors->has('password') ? 'active' : '' }} fw-bold rounded-pill" data-bs-toggle="pill" data-bs-target="#tab-security" type="button">
+                                <i class="fa-solid fa-shield-halved me-2"></i> Keamanan Akun
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <div class="tab-content" id="v-pills-tabContent">
                 {{-- TAB: INFORMASI DASAR --}}
                 <div class="tab-pane fade {{ $errors->has('current_password') || $errors->has('password') ? '' : 'show active' }}" id="tab-info">
@@ -186,46 +199,80 @@
                                 </div>
                             </div>
                             
-                            <div class="mb-5">
-                                <div class="d-flex align-items-center mb-3">
-                                    <h6 class="fw-bold mb-0">Verifikasi Identitas (Selfie dengan KTM)</h6>
-                                    <hr class="flex-grow-1 ms-3 opacity-10">
+                        </form>
+                    </div>
+                </div>
+
+                {{-- TAB: VERIFIKASI KYC --}}
+                <div class="tab-pane fade" id="tab-kyc">
+                    <div class="card card-management p-4 p-md-5 border-0 bg-white">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fa-solid fa-id-card fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Verifikasi Identitas</h5>
+                        </div>
+
+                        <div class="bg-light p-4 rounded-24 border">
+                            <div class="row align-items-center">
+                                <div class="col-md-5 mb-3 mb-md-0">
+                                    @if($user->ktm)
+                                        <div class="position-relative">
+                                            <img src="{{ asset('storage/' . $user->ktm) }}" class="rounded-20 border shadow-sm w-100" style="height: 160px; object-fit: cover;" alt="KTM">
+                                            <div class="position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-success shadow-sm rounded-pill"><i class="fa fa-check me-1"></i> Terupload</span>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="bg-white border rounded-20 d-flex flex-column align-items-center justify-content-center text-muted" style="height: 160px; border-style: dashed !important;">
+                                            <i class="fa fa-id-card fa-3x opacity-25 mb-2"></i>
+                                            <span class="x-small fw-bold">KTM BELUM DIUPLOAD</span>
+                                        </div>
+                                    @endif
                                 </div>
-                                <div class="row align-items-center">
-                                    <div class="col-md-5 mb-3 mb-md-0">
-                                        @if($user->ktm)
-                                            <div class="position-relative">
-                                                <img src="{{ asset('storage/' . $user->ktm) }}" class="rounded-20 border shadow-sm w-100" style="height: 160px; object-fit: cover;" alt="KTM">
-                                                <div class="position-absolute top-0 end-0 m-2">
-                                                    <span class="badge bg-success shadow-sm rounded-pill"><i class="fa fa-check me-1"></i> Terupload</span>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <div class="bg-light border rounded-20 d-flex flex-column align-items-center justify-content-center text-muted" style="height: 160px; border-style: dashed !important;">
-                                                <i class="fa fa-id-card fa-3x opacity-25 mb-2"></i>
-                                                <span class="x-small fw-bold">KTM BELUM DIUPLOAD</span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-7">
-                                        <p class="text-muted small mb-2">Upload foto <strong>Selfie sambil memegang KTM Fisik</strong> Anda untuk mendapatkan lencana <strong class="text-success"><i class="fa fa-check-circle"></i> Terverifikasi</strong>.</p>
-                                        <p class="text-danger fw-bold" style="font-size: 0.7rem;"><em><i class="fa fa-exclamation-triangle"></i> WAJIB menggunakan KTM Fisik asli. KTM digital di layar HP akan otomatis ditolak oleh sistem keamanan KYC.</em></p>
-                                        <div class="d-flex gap-2 align-items-center">
-                                            <input type="file" name="ktm" class="form-control rounded-pill px-4 py-2 border-0 bg-light shadow-sm" accept="image/*" style="flex: 1;">
-                                            <span class="text-muted small fw-bold">ATAU</span>
-                                            <button type="button" class="btn btn-dark rounded-pill px-3 py-2 shadow-sm whitespace-nowrap text-nowrap" data-bs-toggle="modal" data-bs-target="#webcamModal" data-webcam-target="ktm">
-                                                <i class="fa fa-camera me-1"></i> Kamera KYC
+                                <div class="col-md-7">
+                                    @if($user->is_verified)
+                                        <div class="alert alert-success py-2 small mb-3 border-0 bg-success bg-opacity-10 text-success">
+                                            <i class="fa fa-shield-check me-1"></i> Identitas Anda sudah terverifikasi.
+                                        </div>
+                                        <p class="text-muted small mb-2">Anda tidak perlu melakukan verifikasi identitas lagi kecuali jika Anda ingin memperbarui data wajah atau KTM Anda.</p>
+                                        <div class="d-flex align-items-center mt-3">
+                                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#webcamModal" data-webcam-target="ktm">
+                                                <i class="fa fa-camera me-2"></i> Verifikasi Ulang?
                                             </button>
                                         </div>
+                                    @elseif($user->ktm)
+                                        <div class="alert alert-warning py-2 small mb-3 border-0 bg-warning bg-opacity-10 text-warning-emphasis">
+                                            <i class="fa fa-info-circle me-1"></i> Foto Selfie KTM sudah tersimpan.
+                                        </div>
+                                        <p class="text-muted small mb-2">KTM Anda siap dipindai. Silakan mulai proses pemindaian AI untuk memverifikasi keaslian dokumen dan wajah Anda.</p>
+                                        <div class="d-flex align-items-center mt-3 gap-2">
+                                            <button type="button" class="btn btn-warning rounded-pill px-4 py-2 shadow-sm fw-bold" id="btnShowVerifyModal">
+                                                <i class="fa fa-shield-alt me-2"></i> Mulai Verifikasi AI
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-2" data-bs-toggle="modal" data-bs-target="#webcamModal" data-webcam-target="ktm" title="Ambil Ulang Foto">
+                                                <i class="fa fa-camera"></i>
+                                            </button>
+                                        </div>
+                                    @else
+                                        <p class="text-muted small mb-2">Upload foto <strong>Selfie sambil memegang KTM Fisik</strong> Anda untuk mendapatkan lencana <strong class="text-success"><i class="fa fa-check-circle"></i> Terverifikasi</strong>.</p>
+                                        <p class="text-danger fw-bold" style="font-size: 0.7rem;"><em><i class="fa fa-exclamation-triangle"></i> WAJIB menggunakan KTM Fisik asli. KTM digital di layar HP akan otomatis ditolak oleh sistem keamanan.</em></p>
+                                        <div class="d-flex align-items-center mt-3">
+                                            <button type="button" class="btn btn-dark rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#webcamModal" data-webcam-target="ktm">
+                                                <i class="fa fa-camera me-2"></i> Buka Kamera
+                                            </button>
+                                        </div>
+                                    @endif
+                                    
+                                    <!-- Hidden form for KYC submission only -->
+                                    <form action="{{ route('profile.update') }}" method="POST" id="kycForm">
+                                        @csrf
+                                        @method('PUT')
                                         <input type="hidden" name="ktm_base64" id="ktmBase64">
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
-
-                            <div class="text-end">
-                                <button type="submit" class="btn btn-maroon px-5 py-3 shadow-lg">Simpan Perubahan</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
 
@@ -447,7 +494,7 @@
         if (currentWebcamTarget === 'photo') {
             photoForm.submit();
         } else {
-            infoForm.submit();
+            document.getElementById('kycForm').submit();
         }
     });
 

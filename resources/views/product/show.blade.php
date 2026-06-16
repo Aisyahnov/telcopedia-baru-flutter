@@ -155,12 +155,14 @@
             <!-- Seller Profile Section -->
             <a href="{{ route('seller.profile', $product->seller_id) }}" class="seller-profile-card">
                 <div class="d-flex align-items-center">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($product->seller->name ?? 'S') }}&background=9F1521&color=fff&bold=true" class="rounded-circle me-3" width="55" height="55">
+                    <img src="{{ optional($product->seller)->photo ? asset('storage/' . $product->seller->photo) : 'https://ui-avatars.com/api/?name='.urlencode($product->seller->name ?? 'S').'&background=9F1521&color=fff&bold=true' }}" class="rounded-circle me-3" style="object-fit: cover;" width="55" height="55">
                     <div class="flex-grow-1">
                         <div class="fw-800 text-dark mb-0">
                             {{ $product->seller->name ?? 'Penjual' }}
                             @if(optional($product->seller)->is_verified)
-                                <i class="fa fa-check-circle text-primary ms-1" title="Verified Telco User"></i>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill align-middle ms-1" style="font-size: 0.6rem; padding: 4px 8px;">
+                                    <i class="fa fa-shield-check me-1"></i> Identitas Terverifikasi
+                                </span>
                             @endif
                         </div>
                         <div class="text-muted x-small fw-bold">Online • Bergabung {{ $product->seller->created_at->format('M Y') }}</div>

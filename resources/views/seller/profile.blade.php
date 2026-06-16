@@ -127,7 +127,14 @@
                     @endif
                 </div>
                 <div>
-                    <h4 class="fw-bold mb-1">{{ $seller->name }}</h4>
+                    <h4 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                        {{ $seller->name }}
+                        @if($seller->is_verified)
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill" style="font-size: 0.65rem; padding: 6px 10px;">
+                                <i class="fa fa-shield-check me-1"></i> Identitas Terverifikasi
+                            </span>
+                        @endif
+                    </h4>
                     <p class="text-muted small mb-2"><i class="fa fa-circle text-success" style="font-size: 8px;"></i> Aktif 5 menit lalu</p>
                     <div class="d-flex gap-2 mt-2">
                         <!-- We don't have a direct chat with seller button passing seller id right now, but we can simulate or link to chat index -->
