@@ -63,7 +63,7 @@
                         </label>
                     </div>
                     <input type="hidden" name="photo_base64" id="photoBase64">
-                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#webcamModal">
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#webcamModal" data-webcam-target="photo">
                         <i class="fa fa-camera me-1"></i> Buka Kamera
                     </button>
                 </form>
@@ -145,7 +145,7 @@
                             <h5 class="fw-bold mb-0">Informasi Dasar</h5>
                         </div>
 
-                        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" id="infoForm">
                             @csrf
                             @method('PUT')
                             
@@ -210,7 +210,14 @@
                                     <div class="col-md-7">
                                         <p class="text-muted small mb-2">Upload foto <strong>Selfie sambil memegang KTM Fisik</strong> Anda untuk mendapatkan lencana <strong class="text-success"><i class="fa fa-check-circle"></i> Terverifikasi</strong>.</p>
                                         <p class="text-danger fw-bold" style="font-size: 0.7rem;"><em><i class="fa fa-exclamation-triangle"></i> WAJIB menggunakan KTM Fisik asli. KTM digital di layar HP akan otomatis ditolak oleh sistem keamanan KYC.</em></p>
-                                        <input type="file" name="ktm" class="form-control rounded-pill px-4 py-2 border-0 bg-light shadow-sm" accept="image/*">
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <input type="file" name="ktm" class="form-control rounded-pill px-4 py-2 border-0 bg-light shadow-sm" accept="image/*" style="flex: 1;">
+                                            <span class="text-muted small fw-bold">ATAU</span>
+                                            <button type="button" class="btn btn-dark rounded-pill px-3 py-2 shadow-sm whitespace-nowrap text-nowrap" data-bs-toggle="modal" data-bs-target="#webcamModal" data-webcam-target="ktm">
+                                                <i class="fa fa-camera me-1"></i> Kamera KYC
+                                            </button>
+                                        </div>
+                                        <input type="hidden" name="ktm_base64" id="ktmBase64">
                                     </div>
                                 </div>
                             </div>
@@ -353,18 +360,34 @@
     const saveWebcamBtn = document.getElementById('saveWebcamBtn');
     const webcamActions = document.getElementById('webcamActions');
     const photoBase64Input = document.getElementById('photoBase64');
+    const ktmBase64Input = document.getElementById('ktmBase64');
     const photoForm = document.getElementById('photoForm');
+    const infoForm = document.getElementById('infoForm');
     let stream;
     let myModalInstance;
+    let currentWebcamTarget = 'photo'; // Default
 
     document.addEventListener("DOMContentLoaded", function() {
         @if(!$user->photo)
             myModalInstance = new bootstrap.Modal(document.getElementById('webcamModal'));
-            myModalInstance.show();
+            // Optionally, we could show it automatically, but let's just leave it manual or default target
         @endif
     });
 
-    webcamModal.addEventListener('show.bs.modal', function () {
+    webcamModal.addEventListener('show.bs.modal', function (event) {
+        // Set target based on which button was clicked
+        if (event.relatedTarget) {
+            currentWebcamTarget = event.relatedTarget.getAttribute('data-webcam-target') || 'photo';
+            
+            // Ubah judul modal agar lebih jelas
+            const title = document.getElementById('webcamModalLabel');
+            if (currentWebcamTarget === 'ktm') {
+                title.innerText = 'Ambil Foto Selfie dengan KTM Fisik';
+            } else {
+                title.innerText = 'Ambil Foto Profil';
+            }
+        }
+
         navigator.mediaDevices.getUserMedia({ video: { width: 300, height: 300 } })
             .then(function(s) {
                 stream = s;
@@ -408,7 +431,12 @@
 
     saveWebcamBtn.addEventListener('click', function() {
         const dataURL = canvas.toDataURL('image/png');
-        photoBase64Input.value = dataURL;
+        
+        if (currentWebcamTarget === 'photo') {
+            photoBase64Input.value = dataURL;
+        } else if (currentWebcamTarget === 'ktm') {
+            ktmBase64Input.value = dataURL;
+        }
         
         // Tutup stream
         if (stream) {
@@ -416,7 +444,11 @@
         }
         
         // Submit form
-        photoForm.submit();
+        if (currentWebcamTarget === 'photo') {
+            photoForm.submit();
+        } else {
+            infoForm.submit();
+        }
     });
 
     // Verification Logic (Simulated)

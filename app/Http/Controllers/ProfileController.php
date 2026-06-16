@@ -73,6 +73,21 @@ class ProfileController extends Controller
             $validated['is_verified'] = false; // Reset verifikasi
         }
 
+        // Handle Base64 KTM (dari webcam)
+        if ($request->filled('ktm_base64')) {
+            if ($user->ktm && \Storage::disk('public')->exists($user->ktm)) {
+                \Storage::disk('public')->delete($user->ktm);
+            }
+            
+            $image_parts = explode(";base64,", $request->ktm_base64);
+            $image_base64 = base64_decode($image_parts[1]);
+            $fileName = 'ktm/' . uniqid() . '.png';
+            
+            \Storage::disk('public')->put($fileName, $image_base64);
+            $validated['ktm'] = $fileName;
+            $validated['is_verified'] = false; // Reset verifikasi
+        }
+
         $user->update($validated);
         return back()->with('success', 'Data profil kampus berhasil diperbarui.');
     }
