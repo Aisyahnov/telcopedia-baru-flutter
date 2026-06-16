@@ -208,8 +208,8 @@
                                         @endif
                                     </div>
                                     <div class="col-md-7">
-                                        <p class="text-muted small mb-2">Upload foto <strong>Selfie sambil memegang KTM</strong> Anda untuk mendapatkan lencana <strong class="text-success"><i class="fa fa-check-circle"></i> Terverifikasi</strong>.</p>
-                                        <p class="text-muted" style="font-size: 0.7rem;"><em>*KTM boleh berbentuk fisik atau KTM digital yang ditampilkan dari layar HP lain.</em></p>
+                                        <p class="text-muted small mb-2">Upload foto <strong>Selfie sambil memegang KTM Fisik</strong> Anda untuk mendapatkan lencana <strong class="text-success"><i class="fa fa-check-circle"></i> Terverifikasi</strong>.</p>
+                                        <p class="text-danger fw-bold" style="font-size: 0.7rem;"><em><i class="fa fa-exclamation-triangle"></i> WAJIB menggunakan KTM Fisik asli. KTM digital di layar HP akan otomatis ditolak oleh sistem keamanan KYC.</em></p>
                                         <input type="file" name="ktm" class="form-control rounded-pill px-4 py-2 border-0 bg-light shadow-sm" accept="image/*">
                                     </div>
                                 </div>
