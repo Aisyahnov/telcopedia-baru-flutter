@@ -36,17 +36,13 @@ class CategoryController extends Controller
                 return $category;
             });
 
-        // Ambil produk untuk kategori pertama sebagai default
-        $firstCategory = $categories->first();
-        $products = collect();
-        if ($firstCategory) {
-            $products = Product::where('category_id', $firstCategory->id)
-                ->where('status', 'approved')
-                ->with(['seller', 'category'])
-                ->latest()
-                ->take(12)
-                ->get();
-        }
+        // Default: Tampilkan semua produk dari semua kategori
+        $firstCategory = null;
+        $products = Product::where('status', 'approved')
+            ->with(['seller', 'category'])
+            ->latest()
+            ->take(12)
+            ->get();
 
         return view('category.index', compact('categories', 'products', 'firstCategory'));
     }
@@ -56,6 +52,20 @@ class CategoryController extends Controller
      */
     public function getProductsAjax($id)
     {
+        if ($id === 'all') {
+            $products = Product::where('status', 'approved')
+                ->with(['seller', 'category'])
+                ->latest()
+                ->take(13)
+                ->get();
+                
+            return response()->json([
+                'products' => $products->take(12),
+                'has_more' => $products->count() > 12,
+                'category_slug' => ''
+            ]);
+        }
+
         $categoryIds = Category::where('id', $id)
             ->orWhere('parent_id', $id)
             ->pluck('id');

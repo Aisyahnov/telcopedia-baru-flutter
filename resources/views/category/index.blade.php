@@ -80,6 +80,11 @@
 
     <!-- Category Nav -->
     <div class="cat-nav-wrapper mb-3 pb-2">
+        <button class="cat-btn {{ !$firstCategory ? 'active' : '' }}" 
+                onclick="loadCategory('all', this)">
+            <i class="fa-solid fa-border-all"></i>
+            Semua Kategori
+        </button>
         @foreach($categories as $index => $cat)
             <button class="cat-btn {{ $firstCategory && $firstCategory->id == $cat->id ? 'active' : '' }}" 
                     onclick="loadCategory({{ $cat->id }}, this)">
