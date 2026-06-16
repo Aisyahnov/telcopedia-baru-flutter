@@ -188,7 +188,7 @@
                             
                             <div class="mb-5">
                                 <div class="d-flex align-items-center mb-3">
-                                    <h6 class="fw-bold mb-0">Verifikasi Identitas (KTM)</h6>
+                                    <h6 class="fw-bold mb-0">Verifikasi Identitas (Selfie dengan KTM)</h6>
                                     <hr class="flex-grow-1 ms-3 opacity-10">
                                 </div>
                                 <div class="row align-items-center">
@@ -208,7 +208,7 @@
                                         @endif
                                     </div>
                                     <div class="col-md-7">
-                                        <p class="text-muted small mb-3">Upload foto KTM untuk mendapatkan lencana <strong>Terverifikasi</strong>.</p>
+                                        <p class="text-muted small mb-3">Upload foto <strong>Selfie sambil memegang KTM</strong> Anda untuk mendapatkan lencana <strong class="text-success"><i class="fa fa-check-circle"></i> Terverifikasi</strong>.</p>
                                         <input type="file" name="ktm" class="form-control rounded-pill px-4 py-2 border-0 bg-light shadow-sm" accept="image/*">
                                     </div>
                                 </div>
@@ -300,37 +300,30 @@
             </div>
             <div class="modal-body text-center p-4">
                 <div id="verifyStep1">
-                    <p class="text-muted small mb-4">Sistem AI Telcopedia akan membandingkan foto profil Anda dengan foto pada KTM untuk memastikan keaslian akun.</p>
-                    <div class="d-flex justify-content-center gap-3 mb-4">
+                    <p class="text-muted small mb-4">Sistem AI Telcopedia akan memindai wajah Anda dan mencocokkannya dengan data pada KTM yang Anda pegang untuk memastikan liveness dan keaslian dokumen.</p>
+                    <div class="d-flex justify-content-center mb-4">
                         <div class="text-center">
-                            <img src="{{ $user->photo ? asset('storage/' . $user->photo) : 'https://ui-avatars.com/api/?name='.urlencode($user->name) }}" class="rounded-3 border" style="width: 100px; height: 100px; object-fit: cover;">
-                            <div class="small text-muted mt-1">Foto Profil</div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fa fa-exchange-alt text-muted opacity-50"></i>
-                        </div>
-                        <div class="text-center">
-                            <img src="{{ $user->ktm ? asset('storage/' . $user->ktm) : 'https://placehold.co/100x100?text=No+KTM' }}" class="rounded-3 border" style="width: 100px; height: 100px; object-fit: cover;">
-                            <div class="small text-muted mt-1">Foto KTM</div>
+                            <img src="{{ $user->ktm ? asset('storage/' . $user->ktm) : 'https://placehold.co/150x150?text=No+Selfie' }}" class="rounded-3 border shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                            <div class="small text-muted mt-2 fw-bold">Selfie dengan KTM</div>
                         </div>
                     </div>
-                    @if(!$user->photo || !$user->ktm)
+                    @if(!$user->ktm)
                         <div class="alert alert-danger small py-2">
-                            Lengkapi foto profil dan KTM Anda sebelum melakukan verifikasi.
+                            Upload foto Selfie dengan KTM Anda sebelum melakukan verifikasi.
                         </div>
                         <button class="btn btn-secondary w-100 rounded-pill" data-bs-dismiss="modal">Tutup</button>
                     @else
-                        <button class="btn btn-maroon w-100 rounded-pill py-2 shadow" id="btnStartVerify">Mulai Identifikasi Wajah</button>
+                        <button class="btn btn-maroon w-100 rounded-pill py-2 shadow" id="btnStartVerify">Mulai Identifikasi Keaslian Wajah</button>
                     @endif
                 </div>
 
                 <div id="verifyStep2" class="d-none py-4">
                     <div class="position-relative mx-auto mb-4" style="width: 150px; height: 150px;">
-                        <img src="{{ $user->photo ? asset('storage/' . $user->photo) : '' }}" class="rounded-circle border border-4 border-light shadow" style="width: 150px; height: 150px; object-fit: cover;">
+                        <img src="{{ $user->ktm ? asset('storage/' . $user->ktm) : '' }}" class="rounded-3 border border-4 border-light shadow" style="width: 150px; height: 150px; object-fit: cover;">
                         <div class="scanner-line"></div>
                     </div>
-                    <h6 class="fw-bold mb-1">Menganalisis Kecocokan...</h6>
-                    <p class="text-muted small mb-0" id="verifyStatusText">Mencocokkan fitur wajah dengan database KTM...</p>
+                    <h6 class="fw-bold mb-1">Menganalisis Liveness & Dokumen...</h6>
+                    <p class="text-muted small mb-0" id="verifyStatusText">Mengekstrak data wajah dari foto selfie...</p>
                     <div class="progress mt-4 rounded-pill" style="height: 6px;">
                         <div id="verifyProgress" class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
                     </div>

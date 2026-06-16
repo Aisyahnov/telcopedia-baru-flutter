@@ -46,7 +46,6 @@ class ProfileController extends Controller
             
             $path = $request->file('photo')->store('profiles', 'public');
             $validated['photo'] = $path;
-            $validated['is_verified'] = false; // Reset verifikasi
         }
 
         // Handle Base64 Foto Profil (dari webcam)
@@ -61,7 +60,6 @@ class ProfileController extends Controller
             
             \Storage::disk('public')->put($fileName, $image_base64);
             $validated['photo'] = $fileName;
-            $validated['is_verified'] = false; // Reset verifikasi
         }
 
         // Handle Upload KTM
@@ -96,8 +94,8 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         
-        if (!$user->photo || !$user->ktm) {
-            return response()->json(['success' => false, 'message' => 'Lengkapi foto profil dan upload KTM terlebih dahulu.'], 400);
+        if (!$user->ktm) {
+            return response()->json(['success' => false, 'message' => 'Upload foto Selfie dengan KTM terlebih dahulu.'], 400);
         }
 
         $user->update(['is_verified' => true]);
