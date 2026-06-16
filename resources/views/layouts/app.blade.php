@@ -107,16 +107,43 @@
         background-color: var(--telco-maroon-soft) !important;
         color: var(--telco-maroon) !important;
     }
-    .nav-link:focus, .nav-link:hover {
+    .nav-link:not(.active):focus, .nav-link:not(.active):hover {
         color: var(--telco-maroon) !important;
     }
-    .page-link { color: var(--telco-maroon); }
+    /* Global Pagination Styling */
+    nav .small.text-muted {
+        margin-bottom: 0 !important; /* Fix vertical alignment */
+        padding-top: 0.4rem;
+        line-height: 1.5;
+    }
+    .pagination { gap: 6px; }
+    .page-item .page-link { 
+        border-radius: 8px !important; 
+        border: 1px solid #f0f0f0; 
+        color: #555; 
+        font-weight: 600; 
+        padding: 8px 16px; 
+        transition: 0.3s; 
+    }
     .page-item.active .page-link {
-        background-color: var(--telco-maroon);
-        border-color: var(--telco-maroon);
+        background-color: var(--telco-maroon) !important;
+        border-color: var(--telco-maroon) !important;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(159, 21, 33, 0.25);
+    }
+    .page-item:not(.active) .page-link:hover {
+        background-color: var(--telco-maroon-soft);
+        color: var(--telco-maroon);
+        border-color: transparent;
+        transform: translateY(-2px);
+    }
+    .page-item.disabled .page-link {
+        background-color: #fdfdfd;
+        color: #ccc;
+        border-color: #f4f4f4;
     }
     .page-link:focus {
-        box-shadow: 0 0 0 0.25rem rgba(159, 21, 33, 0.25);
+        box-shadow: 0 0 0 0.25rem rgba(159, 21, 33, 0.15) !important;
     }
     
     .rounded-8 { border-radius: 8px !important; }
@@ -449,6 +476,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            confirmButtonColor: '#9F1521',
+            timer: 3000,
+            timerProgressBar: true
+        });
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#9F1521'
+        });
+    });
+</script>
+@endif
+
+@if($errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Terdapat Kesalahan',
+            text: 'Silakan periksa kembali isian form Anda.',
+            confirmButtonColor: '#9F1521'
+        });
+    });
+</script>
+@endif
+
 @stack('scripts')
 </body>
 </html>

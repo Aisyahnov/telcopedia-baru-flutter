@@ -85,7 +85,7 @@ class MyApp extends StatelessWidget {
           '/chat': (context) => const ChatListScreen(),
           '/favorites': (context) => const Scaffold(body: Center(child: Text('Halaman Favorit'))),
           '/vouchers': (context) => const VoucherScreen(),
-          '/profile': (context) => const Scaffold(body: Center(child: Text('Halaman Pengaturan Profil'))),
+          '/profile': (context) => const SellerSettingsScreen(),
           '/orders': (context) => const Scaffold(body: Center(child: Text('Halaman Riwayat Belanja'))),
           '/about': (context) => const StaticPageScreen(
             title: 'Tentang Telcopedia',

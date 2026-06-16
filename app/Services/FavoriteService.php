@@ -6,9 +6,13 @@ use App\Models\Favorite;
 
 class FavoriteService
 {
-    public function getUserFavorites($userId)
+    public function getUserFavorites($userId, $paginate = false, $perPage = 10)
     {
-        return Favorite::where('user_id', $userId)->with('product')->get();
+        $query = Favorite::where('user_id', $userId)->with('product');
+        if ($paginate) {
+            return $query->paginate($perPage);
+        }
+        return $query->get();
     }
 
     public function toggleFavorite($userId, $productId)

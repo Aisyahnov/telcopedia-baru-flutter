@@ -34,12 +34,32 @@ class HomeController extends Controller
             'product_id' => $product->id,
         ]);
 
-        $relatedProducts = Product::where('category_id', $product->category_id)
+        $relatedProducts = Product::with('seller')
+            ->where('category_id', $product->category_id)
             ->where('id', '!=', $id)
             ->where('status', 'approved')
             ->latest()
-            ->take(8)
-            ->get();
+            ->get()
+            ->filter(function ($p) {
+                return !optional($p->seller)->is_banned_from_posting;
+            });
+
+        if ($relatedProducts->count() < 4) {
+            $fallbackProducts = Product::with('seller')
+                ->where('id', '!=', $id)
+                ->where('status', 'approved')
+                ->whereNotIn('id', $relatedProducts->pluck('id'))
+                ->inRandomOrder()
+                ->take(8 - $relatedProducts->count())
+                ->get()
+                ->filter(function ($p) {
+                    return !optional($p->seller)->is_banned_from_posting;
+                });
+            
+            $relatedProducts = $relatedProducts->merge($fallbackProducts);
+        }
+
+        $relatedProducts = $relatedProducts->take(8);
             
         $isFavorited = false;
         if (auth()->check()) {
@@ -54,24 +74,14 @@ class HomeController extends Controller
         return view('about');
     }
 
-    public function contact()
+    public function help()
     {
-        return view('contact');
-    }
-
-    public function privacy()
-    {
-        return view('privacy');
-    }
-
-    public function terms()
-    {
-        return view('terms');
+        return view('help');
     }
 
     public function favorites(Request $request)
     {
-        $favorites = $this->favoriteService->getUserFavorites($request->user()->id);
+        $favorites = $this->favoriteService->getUserFavorites($request->user()->id, true, 12);
         return view('favorites.index', compact('favorites'));
     }
 

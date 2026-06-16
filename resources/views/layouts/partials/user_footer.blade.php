@@ -33,12 +33,9 @@
 
             <!-- BANTUAN -->
             <div class="col-lg-3 col-md-4">
-                <h6 class="fw-bold text-white mb-4 footer-title">Bantuan</h6>
+                <h6 class="fw-bold text-white mb-4 footer-title">Bantuan & Legal</h6>
                 <ul class="list-unstyled footer-links">
-                    <li><a href="{{ route('contact') }}">Hubungi Kami</a></li>
-                    <li><a href="{{ route('privacy') }}">Kebijakan Privasi</a></li>
-                    <li><a href="{{ route('terms') }}">Syarat & Ketentuan</a></li>
-                    <li><a href="{{ route('contact') }}">FAQ / Bantuan</a></li>
+                    <li><a href="{{ route('help') }}">Pusat Bantuan</a></li>
                 </ul>
             </div>
 

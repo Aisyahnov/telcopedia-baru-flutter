@@ -2,12 +2,14 @@ class Voucher {
   final int id;
   final String code;
   final double discountAmount;
+  final double minSpend;
   final DateTime? validUntil;
 
   Voucher({
     required this.id,
     required this.code,
     required this.discountAmount,
+    required this.minSpend,
     this.validUntil,
   });
 
@@ -16,6 +18,7 @@ class Voucher {
       id: json['id'],
       code: json['code'],
       discountAmount: _toDouble(json['discount_amount']),
+      minSpend: _toDouble(json['min_spend']),
       validUntil: json['valid_until'] != null ? DateTime.parse(json['valid_until']) : null,
     );
   }

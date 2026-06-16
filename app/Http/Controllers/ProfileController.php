@@ -16,6 +16,13 @@ class ProfileController extends Controller
             'total_favorites' => \App\Models\Favorite::where('user_id', $user->id)->count(),
         ];
 
+        if ($user->role === 'seller') {
+            $stats['total_products'] = \App\Models\Product::where('seller_id', $user->id)->count();
+            $stats['seller_orders'] = \App\Models\Order::whereHas('items.product', function($q) use ($user) {
+                $q->where('seller_id', $user->id);
+            })->count();
+        }
+
         return view('profile.index', compact('user', 'stats'));
     }
 
@@ -73,7 +80,7 @@ class ProfileController extends Controller
     {
         $request->validate([
             'current_password' => 'required|current_password',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|confirmed',
         ]);
 
         $request->user()->update([

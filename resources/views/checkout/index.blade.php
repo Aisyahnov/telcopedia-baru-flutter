@@ -20,9 +20,9 @@
 
 @section('content')
 <div class="container my-5">
-    <div class="mb-4">
-        <h4 class="fw-bold"><i class="fa-solid fa-bag-shopping me-2 text-maroon"></i>Checkout</h4>
-        <p class="text-muted small">Selesaikan pesananmu dan pilih lokasi penyerahan barang.</p>
+    <div class="text-center mb-5 mt-4">
+        <h2 class="fw-900" style="letter-spacing: -1px;">Konfirmasi <span class="text-maroon">Checkout</span></h2>
+        <p class="text-muted">Selesaikan pesananmu dan pilih metode pengiriman yang nyaman.</p>
     </div>
 
     <form action="{{ route('checkout.save') }}" method="POST" id="checkout-form">

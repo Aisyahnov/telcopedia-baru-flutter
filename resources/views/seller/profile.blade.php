@@ -153,7 +153,7 @@
                             <i class="fa-solid fa-user-check store-stat-icon"></i>
                             <div>
                                 <span class="d-block small text-muted">Bergabung</span>
-                                <span class="fw-bold text-maroon">{{ $seller->created_at->diffForHumans(null, true) }}</span>
+                                <span class="fw-bold text-maroon">{{ \Carbon\Carbon::parse($seller->created_at)->locale('id')->translatedFormat('F Y') }}</span>
                             </div>
                         </div>
                     </div>
@@ -162,7 +162,7 @@
                             <i class="fa-solid fa-star store-stat-icon"></i>
                             <div>
                                 <span class="d-block small text-muted">Penilaian</span>
-                                <span class="fw-bold text-maroon">{{ $avgSellerRating ? number_format($avgSellerRating, 1) : 'Belum ada' }}</span>
+                                <span class="fw-bold {{ $avgSellerRating ? 'text-maroon' : 'text-muted opacity-75' }}">{{ $avgSellerRating ? number_format($avgSellerRating, 1) : 'Belum ada' }}</span>
                             </div>
                         </div>
                     </div>

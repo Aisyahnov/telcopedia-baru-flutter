@@ -75,8 +75,8 @@ class HomeController extends Controller
 
     public function favorites(Request $request)
     {
-        $favorites = $this->favoriteService->getUserFavorites($request->user()->id);
-        return response()->json(['data' => $favorites]);
+        $favorites = $this->favoriteService->getUserFavorites($request->user()->id, true, 12);
+        return response()->json($favorites);
     }
 
     public function toggleFavorite(Request $request)
@@ -91,10 +91,13 @@ class HomeController extends Controller
 
     public function vouchers()
     {
-        $vouchers = Voucher::where('valid_until', '>=', now())
+        $vouchers = Voucher::where(function($q) {
+                $q->whereNull('valid_until')
+                  ->orWhere('valid_until', '>=', now());
+            })
             ->latest()
-            ->get();
-        return response()->json(['data' => $vouchers]);
+            ->paginate(10);
+        return response()->json($vouchers);
     }
 
     public function sellerProfile($id)

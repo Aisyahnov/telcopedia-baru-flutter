@@ -13,13 +13,19 @@ class VoucherController extends Controller
      */
     public function index()
     {
-        // Ambil voucher yang masih aktif (belum expired)
-        $vouchers = Voucher::where(function($q) {
+        $query = Voucher::where(function($q) {
             $q->whereNull('valid_until')
               ->orWhere('valid_until', '>=', Carbon::today());
-        })
-        ->latest()
-        ->get();
+        });
+
+        if ($keyword = request('keyword')) {
+            $query->where(function($q) use ($keyword) {
+                $q->where('code', 'LIKE', "%{$keyword}%")
+                  ->orWhere('description', 'LIKE', "%{$keyword}%");
+            });
+        }
+
+        $vouchers = $query->latest()->paginate(10);
 
         return view('vouchers.index', compact('vouchers'));
     }

@@ -81,6 +81,14 @@ class ProductReturnController extends Controller
         $return->status = 'approved';
         $return->save();
 
+        // Notify Buyer
+        $return->user->notify(new \App\Notifications\SystemNotification(
+            'Pengajuan Retur Disetujui',
+            "Pengajuan retur Anda untuk pesanan #{$return->order_id} telah disetujui oleh penjual.",
+            'order',
+            '/orders?filter=returned'
+        ));
+
         if ($return->tipe_retur === 'kembali_dana') {
             $orderItem = $return->order->items->where('product_id', $return->product_id)->first();
             if ($orderItem) {
@@ -112,6 +120,14 @@ class ProductReturnController extends Controller
 
         $return->status = 'rejected';
         $return->save();
+
+        // Notify Buyer
+        $return->user->notify(new \App\Notifications\SystemNotification(
+            'Pengajuan Retur Ditolak',
+            "Maaf, pengajuan retur Anda untuk pesanan #{$return->order_id} ditolak oleh penjual.",
+            'order',
+            '/orders?filter=returned'
+        ));
 
         return back()->with('success', 'Retur ditolak.');
     }

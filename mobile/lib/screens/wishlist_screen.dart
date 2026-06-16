@@ -15,21 +15,55 @@ class WishlistScreen extends StatefulWidget {
 class _WishlistScreenState extends State<WishlistScreen> {
   final FavoriteService _favoriteService = FavoriteService();
   final CartService _cartService = CartService();
+  final ScrollController _scrollController = ScrollController();
   List<Product> _favorites = [];
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  int _currentPage = 1;
+  bool _hasMore = true;
 
   @override
   void initState() {
     super.initState();
     _loadFavorites();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      if (_hasMore && !_isLoadingMore) {
+        _loadMoreFavorites();
+      }
+    }
   }
 
   Future<void> _loadFavorites() async {
-    final favs = await _favoriteService.getFavorites();
+    setState(() { _isLoading = true; _currentPage = 1; _hasMore = true; _favorites.clear(); });
+    final favs = await _favoriteService.getFavorites(page: _currentPage);
     if (mounted) {
       setState(() {
         _favorites = favs;
+        if (favs.length < 12) _hasMore = false;
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadMoreFavorites() async {
+    setState(() => _isLoadingMore = true);
+    _currentPage++;
+    final favs = await _favoriteService.getFavorites(page: _currentPage);
+    if (mounted) {
+      setState(() {
+        _favorites.addAll(favs);
+        if (favs.length < 12) _hasMore = false;
+        _isLoadingMore = false;
       });
     }
   }
@@ -83,6 +117,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
       onRefresh: _loadFavorites,
       color: const Color(0xFF9F1521),
       child: GridView.builder(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -90,8 +126,11 @@ class _WishlistScreenState extends State<WishlistScreen> {
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
-        itemCount: _favorites.length,
+        itemCount: _favorites.length + (_hasMore ? 2 : 0),
         itemBuilder: (context, index) {
+          if (index >= _favorites.length) {
+            return const Center(child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator(color: Color(0xFF9F1521))));
+          }
           return _buildPremiumWishlistCard(_favorites[index]);
         },
       ),

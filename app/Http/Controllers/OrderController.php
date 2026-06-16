@@ -9,10 +9,53 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = Order::where('user_id', $request->user()->id)
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(5);
-        return view('orders.index', compact('orders'));
+        $query = Order::where('user_id', $request->user()->id);
+        $filter = $request->query('filter', 'all');
+
+        switch ($filter) {
+            case 'pending':
+                $query->where('status', 'pending_payment');
+                break;
+            case 'paid':
+                $query->where('status', 'paid_verifying');
+                break;
+            case 'processing':
+                $query->where('status', 'processing');
+                break;
+            case 'shipped':
+                $query->where('status', 'shipped');
+                break;
+            case 'completed':
+                $query->where('status', 'completed');
+                break;
+            case 'cancelled':
+                $query->where('status', 'cancelled');
+                break;
+            case 'returned':
+                $query->has('returns');
+                break;
+            case 'reviewed':
+                $query->has('reviews');
+                break;
+        }
+
+        if ($keyword = $request->query('keyword')) {
+            $query->where(function($q) use ($keyword) {
+                // If user types "ORD-12", remove the prefix for ID search
+                $cleanId = str_ireplace('ORD-', '', $keyword);
+                
+                $q->where('id', 'LIKE', "%{$cleanId}%")
+                  ->orWhereHas('items.product', function($q2) use ($keyword) {
+                      $q2->where('name', 'LIKE', "%{$keyword}%");
+                  });
+            });
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')
+                        ->paginate(5)
+                        ->appends(['filter' => $filter, 'keyword' => $request->query('keyword')]);
+
+        return view('orders.index', compact('orders', 'filter'));
     }
 
     public function complete(Request $request, $id)

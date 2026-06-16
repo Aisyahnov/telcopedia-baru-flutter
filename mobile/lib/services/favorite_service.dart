@@ -4,9 +4,9 @@ import '../models/product.dart';
 class FavoriteService {
   final ApiService _apiService = ApiService();
 
-  Future<List<Product>> getFavorites() async {
+  Future<List<Product>> getFavorites({int page = 1}) async {
     try {
-      final response = await _apiService.dio.get('home/favorites'); // Assuming this is the route
+      final response = await _apiService.dio.get('home/favorites?page=$page'); // Assuming this is the route
       if (response.statusCode == 200) {
         final List data = response.data['data'];
         return data.map((json) {

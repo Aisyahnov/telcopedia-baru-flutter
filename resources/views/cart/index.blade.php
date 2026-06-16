@@ -19,9 +19,9 @@
 
 @section('content')
 <div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold mb-0">Keranjang Belanja</h4>
-        <span class="text-muted" id="selected-count">0 Produk terpilih</span>
+    <div class="text-center mb-5 mt-4">
+        <h2 class="fw-900" style="letter-spacing: -1px;">Keranjang <span class="text-maroon">Belanja</span></h2>
+        <p class="text-muted mb-0"><span id="selected-count">0 Produk terpilih</span> siap dicheckout.</p>
     </div>
 
     @if(session('success'))
@@ -159,7 +159,7 @@
 
                 <form action="{{ route('checkout.index') }}" method="GET" id="checkout-form">
                     <input type="hidden" name="cart_item_ids" id="selected-ids-input">
-                    <button type="submit" id="btn-checkout" class="btn btn-maroon w-100 py-3 shadow-sm mb-3" disabled>
+                    <button type="submit" id="btn-checkout" class="btn btn-maroon w-100 py-3 shadow-sm mb-3 justify-content-center" disabled>
                         Lanjut ke Pembayaran <i class="fa fa-arrow-right ms-2 small"></i>
                     </button>
                 </form>

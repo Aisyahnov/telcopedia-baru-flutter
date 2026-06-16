@@ -38,6 +38,41 @@
     .pc-img-wrapper { position: relative; height: 180px; background: #f8f8f8; overflow: hidden; }
     .pc-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
     .pc-body { padding: 15px; }
+
+    /* Read More Description */
+    .product-desc-container {
+        position: relative;
+        max-height: 120px;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+    }
+    .product-desc-container.expanded {
+        max-height: 2000px;
+    }
+    .product-desc-gradient {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: linear-gradient(to bottom, rgba(252, 252, 252, 0) 0%, rgba(252, 252, 252, 1) 100%);
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .product-desc-container.expanded .product-desc-gradient {
+        opacity: 0;
+    }
+    .btn-read-more {
+        font-weight: 800;
+        color: var(--telco-maroon);
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin-top: 5px;
+    }
+    .btn-read-more:hover {
+        text-decoration: underline;
+    }
 </style>
 @endpush
 
@@ -47,7 +82,7 @@
     <!-- Breadcrumbs -->
     <nav class="breadcrumb-custom">
         <a href="{{ route('home') }}">Home</a> <i class="fa fa-chevron-right mx-2 small opacity-50"></i>
-        <a href="{{ route('category.show', $product->category->slug) }}">{{ $product->category->name }}</a> <i class="fa fa-chevron-right mx-2 small opacity-50"></i>
+        <a href="{{ route('category.index') }}">Semua Kategori</a> <i class="fa fa-chevron-right mx-2 small opacity-50"></i>
         <span class="active">{{ $product->name }}</span>
     </nav>
 
@@ -105,9 +140,15 @@
             <hr class="opacity-10 my-4">
 
             <h6 class="fw-800 text-dark mb-2">Deskripsi Produk</h6>
-            <p class="text-muted" style="line-height: 1.8; font-size: 0.95rem;">
-                {{ $product->description ?? 'Tidak ada deskripsi untuk produk ini.' }}
-            </p>
+            <div class="product-desc-wrapper mb-2">
+                <div class="product-desc-container" id="descContainer">
+                    <p class="text-muted mb-0" style="line-height: 1.8; font-size: 0.95rem;">
+                        {{ $product->description ?? 'Tidak ada deskripsi untuk produk ini.' }}
+                    </p>
+                    <div class="product-desc-gradient" id="descGradient"></div>
+                </div>
+                <div class="btn-read-more" id="readMoreBtn" onclick="toggleDescription()">Baca Selengkapnya</div>
+            </div>
 
             <hr class="opacity-10 my-4">
 
@@ -159,7 +200,7 @@
                             </div>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-maroon py-2 fw-bold rounded-3 shadow-sm">
+                            <button type="submit" class="btn btn-maroon py-2 fw-bold rounded-3 shadow-sm d-flex align-items-center justify-content-center">
                                 <i class="fa fa-cart-plus me-2"></i> Keranjang
                             </button>
                             <button type="button" class="btn btn-outline-maroon py-2 fw-bold rounded-3" onclick="buyNow()">
@@ -172,13 +213,13 @@
                 @endif
 
                 <div class="d-flex gap-2 mt-3">
-                    <a href="{{ route('chat.start', $product->id) }}" class="btn btn-light btn-sm flex-grow-1 fw-bold border">
+                    <a href="{{ route('chat.start', $product->id) }}" class="btn btn-light btn-sm flex-grow-1 fw-bold border d-flex align-items-center justify-content-center">
                         <i class="fa-regular fa-comment me-1"></i> Chat
                     </a>
                     <form action="{{ route('favorite.toggle') }}" method="POST" class="flex-grow-1">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <button type="submit" class="btn btn-sm w-100 fw-bold border" style="{{ $isFavorited ? 'background: #fff5f5; border-color: #9F1521; color: #9F1521;' : 'background: #fff; color: #666;' }}">
+                        <button type="submit" class="btn btn-sm w-100 fw-bold border d-flex align-items-center justify-content-center" style="{{ $isFavorited ? 'background: #fff5f5; border-color: #9F1521; color: #9F1521;' : 'background: #fff; color: #666;' }}">
                             <i class="{{ $isFavorited ? 'fa-solid' : 'fa-regular' }} fa-heart text-maroon me-1"></i> Wishlist
                         </button>
                     </form>
@@ -242,7 +283,7 @@
     <div class="mt-5 pt-4 border-top">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-900 text-dark mb-0">Rekomendasi <span class="text-maroon">Untuk Kamu</span></h5>
-            <a href="{{ route('category.show', $product->category->slug) }}" class="text-maroon small fw-bold text-decoration-none">Lihat Semua <i class="fa fa-arrow-right ms-1"></i></a>
+            <a href="{{ route('category.index') }}" class="text-maroon small fw-bold text-decoration-none">Lihat Semua Kategori <i class="fa fa-arrow-right ms-1"></i></a>
         </div>
         <div class="row g-3">
             @foreach($relatedProducts as $rp)
@@ -338,8 +379,41 @@
 
     function copyLink() {
         navigator.clipboard.writeText(window.location.href);
-        alert('Link produk berhasil disalin!');
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Link produk berhasil disalin!',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
     }
+
+    function toggleDescription() {
+        const container = document.getElementById('descContainer');
+        const btn = document.getElementById('readMoreBtn');
+        
+        container.classList.toggle('expanded');
+        if(container.classList.contains('expanded')) {
+            btn.innerText = 'Tampilkan Lebih Sedikit';
+        } else {
+            btn.innerText = 'Baca Selengkapnya';
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const container = document.getElementById('descContainer');
+        const btn = document.getElementById('readMoreBtn');
+        const gradient = document.getElementById('descGradient');
+        
+        // Hide Read More if text is short
+        if (container && container.scrollHeight <= 120) {
+            btn.style.display = 'none';
+            gradient.style.display = 'none';
+            container.style.maxHeight = 'none';
+        }
+    });
 </script>
 
 @endsection

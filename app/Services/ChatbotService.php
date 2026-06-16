@@ -91,7 +91,7 @@ Tugasmu:
     protected function fallbackResponse($message)
     {
         $msg = strtolower($message);
-        $reply = "Halo! Aku TelcoBot. Maaf ya, saat ini otak utamaku (Gemini API) belum disambungin sama admin.";
+        $reply = "Halo! Aku TelcoBot. Maaf ya, saat ini aku sedang dalam mode pemeliharaan dan belum bisa diajak ngobrol panjang. Tapi aku bisa bantu carikan barang kok, ketik aja 'cari [nama barang]'.";
         $products = [];
 
         if (str_contains($msg, 'cari') || str_contains($msg, 'buku') || str_contains($msg, 'laptop')) {

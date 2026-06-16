@@ -28,6 +28,7 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
 
   final _codeController = TextEditingController();
   final _amountController = TextEditingController();
+  final _minSpendController = TextEditingController();
   DateTime? _selectedDate;
 
   @override
@@ -75,12 +76,14 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
     final success = await _adminService.storeVoucher({
       'code': _codeController.text.toUpperCase(),
       'discount_amount': double.parse(_amountController.text),
+      'min_spend': _minSpendController.text.isNotEmpty ? double.parse(_minSpendController.text) : 0,
       'valid_until': _selectedDate?.toIso8601String(),
     });
 
     if (success) {
       _codeController.clear();
       _amountController.clear();
+      _minSpendController.clear();
       _selectedDate = null;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Voucher berhasil diterbitkan!'), backgroundColor: Colors.green));
       _loadData();
@@ -171,6 +174,8 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
           const SizedBox(height: 15),
           _buildTextField('Potongan Belanja (Rp)', '50000', _amountController, icon: Icons.monetization_on_outlined, isNumber: true),
           const SizedBox(height: 15),
+          _buildTextField('Minimal Belanja (Rp)', '0', _minSpendController, icon: Icons.shopping_cart_outlined, isNumber: true),
+          const SizedBox(height: 15),
           Text('Batas Waktu (Expired)', style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade600, letterSpacing: 0.5)),
           const SizedBox(height: 8),
           InkWell(
@@ -229,6 +234,85 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
     );
   }
 
+  void _showEditDialog(Voucher v) {
+    final codeCtrl = TextEditingController(text: v.code);
+    final amountCtrl = TextEditingController(text: v.discountAmount.toInt().toString());
+    final minSpendCtrl = TextEditingController(text: v.minSpend.toInt().toString());
+    DateTime? selected = v.validUntil;
+
+    showDialog(context: context, builder: (ctx) => StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        title: const Text('Edit Voucher', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTextField('Kode', 'TELKO', codeCtrl),
+              const SizedBox(height: 10),
+              _buildTextField('Diskon', '50000', amountCtrl, isNumber: true),
+              const SizedBox(height: 10),
+              _buildTextField('Min. Belanja', '0', minSpendCtrl, isNumber: true),
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: () async {
+                  final date = await showDatePicker(context: context, initialDate: selected ?? DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 365)));
+                  if (date != null) setState(() => selected = date);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(selected == null ? 'Pilih Tanggal' : DateFormat('dd MMM yyyy').format(selected!)),
+                      const Icon(Icons.calendar_today, size: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final success = await _adminService.updateVoucher(v.id, {
+                'code': codeCtrl.text.toUpperCase(),
+                'discount_amount': double.tryParse(amountCtrl.text) ?? 0,
+                'min_spend': double.tryParse(minSpendCtrl.text) ?? 0,
+                'valid_until': selected?.toIso8601String(),
+              });
+              if (success) _loadData();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9F1521), foregroundColor: Colors.white),
+            child: const Text('Simpan'),
+          ),
+        ],
+      );
+    }));
+  }
+
+  void _showDeleteDialog(Voucher v) {
+    showDialog(context: context, builder: (ctx) => AlertDialog(
+      title: const Text('Hapus Voucher?'),
+      content: Text('Yakin ingin menghapus ${v.code}?'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+        ElevatedButton(
+          onPressed: () async {
+            Navigator.pop(ctx);
+            final success = await _adminService.deleteVoucher(v.id);
+            if (success) _loadData();
+          },
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+          child: const Text('Hapus'),
+        ),
+      ],
+    ));
+  }
+
   Widget _buildVouchersList(NumberFormat formatter) {
     if (_vouchers.isEmpty) {
       return Center(
@@ -260,16 +344,25 @@ class _AdminVouchersScreenState extends State<AdminVouchersScreen> {
               child: Text(v.code, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w900, color: Colors.orange, fontSize: 13)),
             ),
             title: Text(formatter.format(v.discountAmount), style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 15, color: const Color(0xFF9F1521))),
-            trailing: v.validUntil != null 
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text('BERLAKU HINGGA', style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.bold, color: Colors.grey)),
-                    Text(DateFormat('dd MMM yyyy').format(v.validUntil!), style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
-                  ],
-                )
-              : Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.grey.shade300)), child: const Text('FOREVER', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.grey))),
+            subtitle: Text(v.minSpend > 0 ? 'Min: ${formatter.format(v.minSpend)}' : 'Tanpa Min. Belanja', style: const TextStyle(fontSize: 10)),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                v.validUntil != null 
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('BERLAKU HINGGA', style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        Text(DateFormat('dd MMM yyyy').format(v.validUntil!), style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade700)),
+                      ],
+                    )
+                  : Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.grey.shade300)), child: const Text('FOREVER', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.grey))),
+                const SizedBox(width: 8),
+                IconButton(icon: const Icon(Icons.edit, size: 18, color: Colors.grey), onPressed: () => _showEditDialog(v)),
+                IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red), onPressed: () => _showDeleteDialog(v)),
+              ],
+            ),
           );
         },
       ),

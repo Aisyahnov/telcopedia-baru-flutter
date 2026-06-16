@@ -102,9 +102,22 @@ class AdminService {
   Future<List<dynamic>> getVouchers() async {
     try {
       final response = await _apiService.dio.get('admin/vouchers');
-      return response.data['data'];
+      final data = response.data['data'];
+      if (data is Map && data.containsKey('data')) {
+        return data['data'];
+      }
+      return data;
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<bool> updateVoucher(int id, Map<String, dynamic> data) async {
+    try {
+      await _apiService.dio.put('admin/vouchers/$id', data: data);
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 

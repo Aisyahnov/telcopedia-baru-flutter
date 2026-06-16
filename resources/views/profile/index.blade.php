@@ -47,10 +47,9 @@
 
 @section('content')
 
-@if(Auth::user()->role === 'buyer')
 <div class="container py-5">
     <div class="row g-4">
-        {{-- BUYER SIDEBAR --}}
+        {{-- PROFILE SIDEBAR --}}
         <div class="col-lg-4">
             <div class="card profile-sidebar p-4 mb-4 text-center">
                 <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" id="photoForm">
@@ -90,6 +89,22 @@
                 </div>
 
                 <div class="row g-2 mb-2">
+                    @if(Auth::user()->role === 'seller')
+                    <div class="col-6">
+                        <div class="stat-box">
+                            <i class="fa-solid fa-box text-maroon mb-1"></i>
+                            <h6 class="fw-bold mb-0">{{ $stats['total_products'] ?? 0 }}</h6>
+                            <small class="text-muted" style="font-size: 10px;">PRODUK</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box">
+                            <i class="fa-solid fa-receipt text-maroon mb-1"></i>
+                            <h6 class="fw-bold mb-0">{{ $stats['seller_orders'] ?? 0 }}</h6>
+                            <small class="text-muted" style="font-size: 10px;">PESANAN TOKO</small>
+                        </div>
+                    </div>
+                    @else
                     <div class="col-6">
                         <div class="stat-box">
                             <i class="fa-solid fa-bag-shopping text-maroon mb-1"></i>
@@ -104,43 +119,24 @@
                             <small class="text-muted" style="font-size: 10px;">WISHLIST</small>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
 
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
-                <button class="nav-link active text-start mb-2" data-bs-toggle="pill" data-bs-target="#tab-info" type="button">
+                <button class="nav-link {{ $errors->has('current_password') || $errors->has('password') ? '' : 'active' }} text-start mb-2" data-bs-toggle="pill" data-bs-target="#tab-info" type="button">
                     <i class="fa-solid fa-user-pen me-2"></i> Informasi Dasar
                 </button>
-                <button class="nav-link text-start mb-2" data-bs-toggle="pill" data-bs-target="#tab-security" type="button">
+                <button class="nav-link {{ $errors->has('current_password') || $errors->has('password') ? 'active' : '' }} text-start mb-2" data-bs-toggle="pill" data-bs-target="#tab-security" type="button">
                     <i class="fa-solid fa-shield-halved me-2"></i> Keamanan Akun
                 </button>
             </div>
         </div>
 
         <div class="col-lg-8">
-@else
-    <div class="card card-management mb-4 border-0 shadow-sm overflow-hidden bg-white">
-        <div class="card-body p-4 d-flex justify-content-between align-items-center">
-            <div>
-                <h5 class="fw-bold mb-1 text-dark">Pengaturan Akun</h5>
-                <p class="text-muted small mb-0">Kelola informasi profil dan keamanan akun Anda.</p>
-            </div>
-            <div class="nav nav-pills bg-light p-1 rounded-pill" id="v-pills-tab" role="tablist">
-                <button class="nav-link active rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tab-info" type="button" style="font-size: 0.8rem;">
-                    <i class="fa-solid fa-user-pen me-2"></i> Profil
-                </button>
-                <button class="nav-link rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tab-security" type="button" style="font-size: 0.8rem;">
-                    <i class="fa-solid fa-shield-halved me-2"></i> Keamanan
-                </button>
-            </div>
-        </div>
-    </div>
-    <div>
-@endif
-
             <div class="tab-content" id="v-pills-tabContent">
                 {{-- TAB: INFORMASI DASAR --}}
-                <div class="tab-pane fade show active" id="tab-info">
+                <div class="tab-pane fade {{ $errors->has('current_password') || $errors->has('password') ? '' : 'show active' }}" id="tab-info">
                     <div class="card card-management p-4 p-md-5 border-0 bg-white">
                         <div class="d-flex align-items-center mb-4">
                             <div class="bg-maroon-soft text-maroon rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
@@ -165,23 +161,27 @@
                                                 </label>
                                             </div>
                                             <div>
-                                                <h6 class="fw-bold mb-1">{{ $user->name }}</h6>
-                                                <p class="text-muted small mb-0">{{ $user->email }}</p>
+                                                <h6 class="mb-1 fw-bold">Foto Profil</h6>
+                                                <p class="small text-muted mb-0">Format: JPG, PNG, JPEG. Maks 2MB.</p>
+                                                @error('photo') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                                 <span class="badge bg-maroon-soft text-maroon rounded-pill mt-2 fw-bold" style="font-size: 0.65rem;">MEMBER SINCE {{ $user->created_at->format('Y') }}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="x-small text-muted fw-bold mb-2 text-uppercase">Nama Lengkap</label>
-                                        <input type="text" name="name" class="form-control rounded-pill px-4 py-3 border-0 shadow-sm" value="{{ old('name', $user->name) }}" required>
+                                        <input type="text" name="name" class="form-control rounded-pill px-4 py-3 border-0 shadow-sm @error('name') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
+                                        @error('name') <small class="text-danger mt-1">{{ $message }}</small> @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label class="x-small text-muted fw-bold mb-2 text-uppercase">Nomor WhatsApp</label>
-                                        <input type="text" name="phone" class="form-control rounded-pill px-4 py-3 border-0 shadow-sm" value="{{ old('phone', $user->phone) }}" placeholder="08xxxxxxxx">
+                                        <input type="text" name="phone" class="form-control rounded-pill px-4 py-3 border-0 shadow-sm @error('phone') is-invalid @enderror" value="{{ old('phone', $user->phone) }}" placeholder="08xxxxxxxx">
+                                        @error('phone') <small class="text-danger mt-1">{{ $message }}</small> @enderror
                                     </div>
                                     <div class="col-12">
-                                        <label class="x-small text-muted fw-bold mb-2 text-uppercase">Alamat / Lokasi Lapak</label>
-                                        <textarea name="address" class="form-control rounded-20 px-4 py-3 border-0 shadow-sm" rows="3" placeholder="Detail alamat untuk memudahkan transaksi...">{{ old('address', $user->address) }}</textarea>
+                                        <label class="x-small text-muted fw-bold mb-2 text-uppercase">Alamat Lengkap</label>
+                                        <textarea name="address" class="form-control rounded-20 px-4 py-3 border-0 shadow-sm @error('address') is-invalid @enderror" rows="3" placeholder="Detail alamat untuk memudahkan transaksi...">{{ old('address', $user->address) }}</textarea>
+                                        @error('address') <small class="text-danger mt-1">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -222,7 +222,7 @@
                 </div>
 
                 {{-- TAB: KEAMANAN --}}
-                <div class="tab-pane fade" id="tab-security">
+                <div class="tab-pane fade {{ $errors->has('current_password') || $errors->has('password') ? 'show active' : '' }}" id="tab-security">
                     <div class="card card-management p-4 p-md-5 border-0 bg-white">
                         <div class="d-flex align-items-center mb-4">
                             <div class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
@@ -261,14 +261,9 @@
                     </div>
                 </div>
             </div>
-@if(Auth::user()->role === 'buyer')
         </div>
     </div>
 </div>
-@else
-        </div>
-    </div>
-@endif
 
 <!-- Webcam Modal -->
 <div class="modal fade" id="webcamModal" tabindex="-1" aria-labelledby="webcamModalLabel" aria-hidden="true">
@@ -280,7 +275,7 @@
             </div>
             <div class="modal-body text-center pt-0">
                 <div class="bg-dark rounded-3 overflow-hidden position-relative mb-3 mx-auto" style="width: 300px; height: 300px;">
-                    <video id="webcamVideo" width="300" height="300" autoplay playsinline style="object-fit: cover;"></video>
+                    <video id="webcamVideo" width="300" height="300" autoplay playsinline style="object-fit: cover; transform: scaleX(-1);"></video>
                     <canvas id="webcamCanvas" width="300" height="300" class="d-none position-absolute top-0 start-0"></canvas>
                 </div>
                 <button type="button" class="btn btn-danger rounded-pill px-4" id="captureBtn">
@@ -399,7 +394,11 @@
 
     captureBtn.addEventListener('click', function() {
         const context = canvas.getContext('2d');
+        context.clearRect(0, 0, 300, 300);
+        context.translate(300, 0);
+        context.scale(-1, 1);
         context.drawImage(video, 0, 0, 300, 300);
+        context.setTransform(1, 0, 0, 1, 0, 0);
         video.classList.add('d-none');
         canvas.classList.remove('d-none');
         captureBtn.classList.add('d-none');

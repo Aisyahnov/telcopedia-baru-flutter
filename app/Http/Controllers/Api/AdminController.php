@@ -82,6 +82,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|unique:vouchers',
             'discount_amount' => 'required|numeric',
+            'min_spend' => 'nullable|numeric|min:0',
             'valid_until' => 'nullable|date'
         ]);
 

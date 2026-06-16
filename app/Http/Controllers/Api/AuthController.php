@@ -68,6 +68,7 @@ class AuthController extends Controller
             'name' => 'required|string',
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
+            'nim' => 'nullable|string|unique:users,nim,' . $user->id,
         ]);
 
         $user->update($validated);
@@ -80,7 +81,7 @@ class AuthController extends Controller
         $user = $request->user();
         $request->validate([
             'current_password' => 'required',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|confirmed',
         ]);
 
         if (!Hash::check($request->current_password, $user->password)) {

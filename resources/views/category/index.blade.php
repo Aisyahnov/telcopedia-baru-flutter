@@ -155,7 +155,7 @@
         
         <!-- Show More Button -->
         <div class="text-center mt-5 {{ $products->count() < 12 ? 'd-none' : '' }}" id="more-container">
-            <a href="{{ $firstCategory ? route('category.show', $firstCategory->slug) : '#' }}" id="btn-show-more" class="btn btn-outline-maroon px-5 rounded-pill fw-bold">
+            <a href="{{ $firstCategory ? route('home', ['category_id' => $firstCategory->id]) : '#' }}" id="btn-show-more" class="btn btn-outline-maroon px-5 rounded-pill fw-bold">
                 Tampilkan Produk Lebih Banyak <i class="fa-solid fa-arrow-right ms-2"></i>
             </a>
         </div>
@@ -206,7 +206,7 @@
 
                 if (data.has_more) {
                     moreContainer.classList.remove('d-none');
-                    btnMore.href = `/categories/${data.category_slug}`;
+                    btnMore.href = `/?category_id=${catId}`;
                 } else {
                     moreContainer.classList.add('d-none');
                 }
@@ -246,7 +246,7 @@
 
                 if (data.has_more) {
                     moreContainer.classList.remove('d-none');
-                    document.getElementById('btn-show-more').href = `/categories/${data.category_slug}`;
+                    document.getElementById('btn-show-more').href = `/?category_id=${subId}`;
                 } else {
                     moreContainer.classList.add('d-none');
                 }

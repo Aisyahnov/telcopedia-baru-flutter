@@ -112,9 +112,39 @@ class AdminController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|unique:vouchers',
             'discount_amount' => 'required|numeric',
+            'min_spend' => 'nullable|numeric|min:0',
             'valid_until' => 'nullable|date'
         ]);
         $this->voucherService->createVoucher($request->user()->id, $validated);
-        return back()->with('success', 'Voucher dibuat');
+
+        // Notify all buyers about the new voucher
+        \App\Models\User::where('role', 'buyer')->get()->each(function($user) use ($validated) {
+            $user->notify(new \App\Notifications\SystemNotification(
+                'Voucher Spesial Baru! 🎉',
+                "Gunakan kode '{$validated['code']}' untuk mendapatkan potongan harga Rp " . number_format($validated['discount_amount'], 0, ',', '.'),
+                'info',
+                '/vouchers'
+            ));
+        });
+
+        return back()->with('success', 'Voucher dibuat dan pengguna telah dinotifikasi');
+    }
+
+    public function updateVoucher(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|unique:vouchers,code,'.$id,
+            'discount_amount' => 'required|numeric',
+            'min_spend' => 'nullable|numeric|min:0',
+            'valid_until' => 'nullable|date'
+        ]);
+        $this->voucherService->updateVoucher($id, $validated);
+        return back()->with('success', 'Voucher berhasil diperbarui');
+    }
+
+    public function destroyVoucher($id)
+    {
+        $this->voucherService->deleteVoucher($id);
+        return back()->with('success', 'Voucher berhasil dihapus');
     }
 }

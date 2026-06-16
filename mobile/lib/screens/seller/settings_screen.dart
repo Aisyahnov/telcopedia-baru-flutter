@@ -147,7 +147,7 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: Text('Pengaturan Toko', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+        title: Text(_user?.role == 'seller' ? 'Pengaturan Toko' : 'Pengaturan Profil', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF1A1A1A),
         elevation: 0.5,
@@ -162,7 +162,7 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
           ],
         ),
       ),
-      drawer: SellerSidebar(
+      drawer: _user?.role == 'seller' ? SellerSidebar(
         user: _user,
         currentRoute: '/seller/settings',
         onNavigate: (route) {
@@ -174,7 +174,7 @@ class _SellerSettingsScreenState extends State<SellerSettingsScreen> with Single
           if (!mounted) return;
           Navigator.pushReplacementNamed(context, '/login');
         },
-      ),
+      ) : null,
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator(color: Color(0xFF9F1521)))
         : TabBarView(

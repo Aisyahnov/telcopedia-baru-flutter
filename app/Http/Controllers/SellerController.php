@@ -53,6 +53,14 @@ class SellerController extends Controller
         $order->status = 'processing';
         $order->save();
 
+        // Notify Buyer
+        $order->user->notify(new \App\Notifications\SystemNotification(
+            'Pembayaran Berhasil Diverifikasi',
+            "Pesanan Anda #{$order->id} telah diverifikasi dan sedang diproses oleh penjual.",
+            'order',
+            '/orders?filter=processing'
+        ));
+
         return back()->with('success', 'Pembayaran disetujui, order masuk tahap proses.');
     }
 

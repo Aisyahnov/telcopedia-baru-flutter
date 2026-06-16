@@ -28,9 +28,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/product/{id}', [HomeController::class, 'showProduct'])->name('product.show');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
-Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
-Route::get('/terms', [HomeController::class, 'terms'])->name('terms');
+Route::get('/help', [HomeController::class, 'help'])->name('help');
 Route::get('/seller/{id}/profile', [HomeController::class, 'sellerProfile'])->name('seller.profile');
 
 Route::post('/chatbot/send', [\App\Http\Controllers\ChatbotController::class, 'send'])->name('chatbot.send');
@@ -38,7 +36,6 @@ Route::post('/chatbot/send', [\App\Http\Controllers\ChatbotController::class, 's
 // Category Explorer
 Route::get('/categories', [CategoryController::class, 'index'])->name('category.index');
 Route::get('/categories/products/{id}', [CategoryController::class, 'getProductsAjax'])->name('category.products');
-Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('category.show');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -127,6 +124,8 @@ Route::middleware(['auth', \App\Http\Middleware\CheckRole::class.':admin'])->pre
     Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
     Route::get('/vouchers', [AdminController::class, 'vouchers'])->name('vouchers');
     Route::post('/vouchers', [AdminController::class, 'storeVoucher'])->name('vouchers.store');
+    Route::put('/vouchers/{id}', [AdminController::class, 'updateVoucher'])->name('vouchers.update');
+    Route::delete('/vouchers/{id}', [AdminController::class, 'destroyVoucher'])->name('vouchers.destroy');
 
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
     

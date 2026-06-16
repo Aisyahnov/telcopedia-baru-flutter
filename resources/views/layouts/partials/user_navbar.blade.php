@@ -16,24 +16,37 @@
 
     <div class="collapse navbar-collapse" id="mainNav">
       
-      <!-- KATEGORI DROPDOWN -->
-      <div class="nav-item dropdown me-3 d-none d-lg-block">
-          <a class="nav-link dropdown-toggle text-dark rounded px-3 py-2 bg-light" href="#" role="button" data-bs-toggle="dropdown" style="font-size: 0.95rem;">
-            Kategori
+      <!-- KATEGORI LINK -->
+      <div class="nav-item me-3 d-none d-lg-block">
+          <a class="nav-link text-dark rounded px-3 py-2 bg-light fw-bold hover-maroon" href="{{ route('category.index') }}" style="font-size: 0.95rem;">
+            Semua Kategori
           </a>
-          <ul class="dropdown-menu shadow-sm border-0">
-            @foreach(\App\Models\Category::whereNull('parent_id')->get() as $cat)
-              <li><a class="dropdown-item py-2" href="{{ route('category.show', $cat->slug) }}">{{ $cat->name }}</a></li>
-            @endforeach
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item fw-bold text-maroon" href="{{ route('category.index') }}">Semua Kategori <i class="fa fa-arrow-right ms-1 small"></i></a></li>
-          </ul>
       </div>
 
       <!-- SEARCH BAR WIDESCREEN -->
-      <form action="{{ route('home') }}" method="GET" class="d-flex flex-grow-1 me-4 my-3 my-lg-0">
+      @php
+          $searchAction = url('/');
+          $searchPlaceholder = 'Cari barang atau nama seller...';
+          $currentRoute = Route::currentRouteName();
+
+          if ($currentRoute === 'orders.index') {
+              $searchAction = url('/orders');
+              $searchPlaceholder = 'Cari ID pesanan atau nama barang...';
+          } elseif ($currentRoute === 'vouchers.index') {
+              $searchAction = url('/vouchers');
+              $searchPlaceholder = 'Cari kode voucher diskon...';
+          } elseif ($currentRoute === 'category.index') {
+              $searchAction = url('/categories');
+              $searchPlaceholder = 'Cari nama kategori...';
+          }
+      @endphp
+      <form action="{{ $searchAction }}" method="GET" class="d-flex flex-grow-1 me-4 my-3 my-lg-0">
+        <!-- Preserve filter query on order page if exists -->
+        @if(request()->has('filter') && $currentRoute === 'orders.index')
+            <input type="hidden" name="filter" value="{{ request('filter') }}">
+        @endif
         <div class="input-group">
-            <input name="keyword" value="{{ request('keyword') }}" class="form-control border-maroon border-opacity-25 shadow-none py-2 rounded-start-pill ps-4" type="search" placeholder="Cari barang atau nama seller..." style="font-size: 0.95rem;">
+            <input name="keyword" value="{{ request('keyword') }}" class="form-control border-maroon border-opacity-25 shadow-none py-2 rounded-start-pill ps-4" type="search" placeholder="{{ $searchPlaceholder }}" style="font-size: 0.95rem;">
             <button class="btn btn-maroon px-4 shadow-none rounded-end-pill" type="submit"><i class="fa fa-search"></i></button>
         </div>
       </form>

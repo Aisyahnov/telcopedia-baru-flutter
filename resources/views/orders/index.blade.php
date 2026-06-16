@@ -20,6 +20,36 @@
     .shopee-star:active {
         transform: scale(0.9);
     }
+    
+    .filter-scroll {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;  /* IE and Edge */
+        padding-bottom: 5px;
+    }
+    .filter-scroll::-webkit-scrollbar {
+        display: none; /* Chrome, Safari and Opera */
+    }
+    .btn-filter {
+        border: 1px solid #e0e0e0;
+        color: #555;
+        background: #fff;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+    .btn-filter:hover {
+        background: #f8f9fa;
+        color: var(--telco-maroon);
+        border-color: #d0d0d0;
+    }
+    .btn-filter.active {
+        background: var(--telco-maroon);
+        color: white;
+        border-color: var(--telco-maroon);
+        box-shadow: 0 4px 10px rgba(159, 21, 33, 0.2);
+    }
 </style>
 @endpush
 
@@ -29,6 +59,22 @@
     <div class="text-center mb-5">
         <h2 class="fw-900">Riwayat <span class="text-maroon">Pesanan Saya</span></h2>
         <p class="text-muted">Pantau status pesanan dan lihat riwayat belanjamu di sini.</p>
+    </div>
+
+    <!-- STATUS FILTERS -->
+    <div class="filter-scroll mb-4">
+        <div class="d-inline-flex gap-2">
+            @php $f = $filter ?? 'all'; @endphp
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'all']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'all' ? 'active' : '' }}">Semua</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'pending']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'pending' ? 'active' : '' }}">Belum Bayar</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'paid']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'paid' ? 'active' : '' }}">Menunggu Verifikasi</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'processing']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'processing' ? 'active' : '' }}">Diproses</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'shipped']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'shipped' ? 'active' : '' }}">Dikirim / COD</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'completed']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'completed' ? 'active' : '' }}">Selesai</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'cancelled']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'cancelled' ? 'active' : '' }}">Dibatalkan</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'returned']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'returned' ? 'active' : '' }}">Pengembalian</a>
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'reviewed']) }}" class="btn btn-sm btn-filter rounded-pill px-3 py-2 {{ $f == 'reviewed' ? 'active' : '' }}">Diulas</a>
+        </div>
     </div>
 
     @if($orders->isEmpty())

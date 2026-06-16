@@ -37,7 +37,14 @@
                             <label class="form-label text-muted fw-bold small uppercase-label">Potongan Belanja (Rp)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 fw-bold fw-mono">Rp</span>
-                                <input type="number" class="form-control border-start-0 ps-0 fw-bold" name="discount_amount" placeholder="50.000" min="1000" required>
+                                <input type="number" class="form-control border-start-0 ps-0 fw-bold" name="discount_amount" placeholder="50000" min="1000" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted fw-bold small uppercase-label">Minimal Belanja (Rp)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 fw-bold fw-mono">Rp</span>
+                                <input type="number" class="form-control border-start-0 ps-0 fw-bold" name="min_spend" placeholder="0" min="0" value="0" required>
                             </div>
                         </div>
                         <div class="mb-4">
@@ -62,6 +69,7 @@
                                 <th class="ps-4 py-3" style="font-size: 0.7rem; font-weight: 800; letter-spacing: 1px;">KODE VOUCHER</th>
                                 <th class="py-3 text-center" style="font-size: 0.7rem; font-weight: 800; letter-spacing: 1px;">DISCOUNT</th>
                                 <th class="py-3 text-center" style="font-size: 0.7rem; font-weight: 800; letter-spacing: 1px;">BERLAKU</th>
+                                <th class="py-3 text-center" style="font-size: 0.7rem; font-weight: 800; letter-spacing: 1px;">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,6 +81,7 @@
                                             {{ $v->code }}
                                         </div>
                                     </div>
+                                    <div class="small text-muted mt-1">Min: Rp {{ number_format($v->min_spend, 0, ',', '.') }}</div>
                                 </td>
                                 <td class="py-3 text-center">
                                     <span class="fw-bold text-danger">Rp {{ number_format($v->discount_amount, 0, ',', '.') }}</span>
@@ -84,11 +93,59 @@
                                         <span class="badge bg-light text-secondary border px-3 rounded-pill fw-bold" style="font-size: 0.6rem;">FOREVER</span>
                                     @endif
                                 </td>
+                                <td class="py-3 text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editVoucher{{ $v->id }}">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <form action="{{ route('admin.vouchers.destroy', $v->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus voucher ini?');">
+                                            @csrf @method('DELETE')
+                                            <button class="btn btn-sm btn-outline-danger"><i class="fa fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
+                            
+                            <!-- Modal Edit Voucher -->
+                            <div class="modal fade" id="editVoucher{{ $v->id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content border-0 rounded-4 shadow">
+                                        <div class="modal-header border-0 pb-0">
+                                            <h5 class="fw-bold mb-0">Edit Voucher</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form action="{{ route('admin.vouchers.update', $v->id) }}" method="POST">
+                                            @csrf @method('PUT')
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label text-muted fw-bold small uppercase-label">Kode Promo Eksklusif</label>
+                                                    <input type="text" class="form-control fw-bold" name="code" value="{{ $v->code }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label text-muted fw-bold small uppercase-label">Potongan Belanja (Rp)</label>
+                                                    <input type="number" class="form-control fw-bold" name="discount_amount" value="{{ $v->discount_amount }}" min="1000" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label text-muted fw-bold small uppercase-label">Minimal Belanja (Rp)</label>
+                                                    <input type="number" class="form-control fw-bold" name="min_spend" value="{{ $v->min_spend }}" min="0" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label text-muted fw-bold small uppercase-label">Batas Waktu (Expired)</label>
+                                                    <input type="date" class="form-control" name="valid_until" value="{{ $v->valid_until ? \Carbon\Carbon::parse($v->valid_until)->format('Y-m-d') : '' }}">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-0 pt-0">
+                                                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-maroon rounded-pill px-4">Simpan Perubahan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                             @endforeach
                             @if($vouchers->isEmpty())
                                 <tr>
-                                    <td colspan="3" class="text-center py-5">
+                                    <td colspan="4" class="text-center py-5">
                                         <div class="opacity-25 py-4">
                                             <i class="fa fa-ticket-simple fa-4x mb-3"></i>
                                             <p class="mb-0 fw-bold">Belum ada promo aktif.</p>
@@ -98,6 +155,12 @@
                             @endif
                         </tbody>
                     </table>
+                </div>
+                
+                <div class="card-footer bg-white border-0 py-3">
+                    <div class="d-flex justify-content-center">
+                        {{ $vouchers->links('pagination::bootstrap-5') }}
+                    </div>
                 </div>
             </div>
         </div>

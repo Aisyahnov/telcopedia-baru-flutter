@@ -77,6 +77,26 @@ class OrderService
         ]);
     }
 
+    public function updateTracking($orderId, $trackingNumber)
+    {
+        $order = Order::findOrFail($orderId);
+        $order->tracking_number = $trackingNumber;
+        $order->status = 'shipped';
+        $order->save();
+
+        // Notify Buyer
+        if ($order->user) {
+            $order->user->notify(new \App\Notifications\SystemNotification(
+                'Pesanan Sedang Dikirim',
+                "Hore! Pesanan Anda #{$order->id} sudah mulai dikirim. Resi: {$trackingNumber}",
+                'order',
+                '/orders?filter=shipped'
+            ));
+        }
+
+        return $order;
+    }
+
     public function cancelOrder($orderId, $userId)
     {
         $order = Order::where('id', $orderId)
@@ -100,6 +120,16 @@ class OrderService
 
         $order->status = 'cancelled';
         $order->save();
+
+        // Notify Buyer
+        if ($order->user) {
+            $order->user->notify(new \App\Notifications\SystemNotification(
+                'Pesanan Dibatalkan',
+                "Pesanan Anda #{$order->id} telah dibatalkan.",
+                'order',
+                '/orders?filter=cancelled'
+            ));
+        }
 
         return $order;
     }

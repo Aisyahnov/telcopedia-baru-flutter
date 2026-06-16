@@ -13,8 +13,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        // Ambil semua kategori utama (parent)
-        $categories = Category::whereNull('parent_id')
+        $query = Category::whereNull('parent_id')
             ->with(['subcategories' => function($q) {
                 $q->withCount(['products' => function($pq) {
                     $pq->where('status', 'approved');
@@ -22,8 +21,16 @@ class CategoryController extends Controller
             }])
             ->withCount(['products' => function($q) {
                 $q->where('status', 'approved');
-            }])
-            ->get()
+            }]);
+
+        if ($keyword = request('keyword')) {
+            $query->where('name', 'LIKE', "%{$keyword}%")
+                  ->orWhereHas('subcategories', function($q) use ($keyword) {
+                      $q->where('name', 'LIKE', "%{$keyword}%");
+                  });
+        }
+
+        $categories = $query->get()
             ->map(function ($category) {
                 $category->icon = $this->getIconForCategory($category->name);
                 return $category;

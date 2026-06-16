@@ -3,31 +3,6 @@
 
 @push('styles')
 <style>
-    .category-header { 
-        background: linear-gradient(135deg, #9F1521 0%, #4a0910 100%); 
-        border-radius: 24px; 
-        padding: 60px 40px; 
-        position: relative; 
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-    .category-header::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: url('https://www.transparenttextures.com/patterns/grid-me.png');
-        opacity: 0.1;
-    }
-    .category-icon-bg {
-        width: 80px; height: 80px;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 20px;
-        border: 1px solid rgba(255,255,255,0.2);
-    }
-    
     /* Product Card Improvements */
     .product-card-premium {
         background: white;
@@ -53,20 +28,7 @@
 
 @section('content')
 <div class="container my-4">
-    {{-- Category Banner --}}
-    <div class="category-header shadow-sm mb-5 text-center p-5">
-        <div class="text-white position-relative">
-            <div class="category-icon-bg shadow-sm">
-                <i class="fa-solid {{ $category->icon }} fa-2x text-white"></i>
-            </div>
-            <h1 class="fw-900 display-5 mb-2">{{ $category->name }}</h1>
-            @if($category->description)
-                <p class="category-description small opacity-90 mx-auto" style="max-width: 600px;">{{ $category->description }}</p>
-            @else
-                <p class="category-description small opacity-90 mx-auto" style="max-width: 600px;">Jelajahi koleksi barang preloved berkualitas dalam kategori {{ $category->name }} khusus untuk mahasiswa Telkom University.</p>
-            @endif
-        </div>
-    </div>
+
 
     {{-- Product Grid --}}
     <div class="d-flex justify-content-between align-items-center mb-4">

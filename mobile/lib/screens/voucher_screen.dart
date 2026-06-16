@@ -13,26 +13,67 @@ class VoucherScreen extends StatefulWidget {
 
 class _VoucherScreenState extends State<VoucherScreen> {
   final ApiService _apiService = ApiService();
+  final ScrollController _scrollController = ScrollController();
+  
   List<dynamic> _vouchers = [];
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  int _currentPage = 1;
+  bool _hasMore = true;
 
   @override
   void initState() {
     super.initState();
     _loadVouchers();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      if (_hasMore && !_isLoadingMore) {
+        _loadMoreVouchers();
+      }
+    }
   }
 
   Future<void> _loadVouchers() async {
+    setState(() { _isLoading = true; _currentPage = 1; _hasMore = true; _vouchers.clear(); });
     try {
-      final response = await _apiService.dio.get('vouchers');
+      final response = await _apiService.dio.get('vouchers?page=$_currentPage');
       if (mounted) {
         setState(() {
-          _vouchers = response.data['data'];
+          final List data = response.data['data'] ?? [];
+          _vouchers = data;
+          if (data.length < 10) _hasMore = false;
           _isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadMoreVouchers() async {
+    setState(() => _isLoadingMore = true);
+    _currentPage++;
+    try {
+      final response = await _apiService.dio.get('vouchers?page=$_currentPage');
+      if (mounted) {
+        setState(() {
+          final List data = response.data['data'] ?? [];
+          _vouchers.addAll(data);
+          if (data.length < 10) _hasMore = false;
+          _isLoadingMore = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingMore = false);
     }
   }
 
@@ -55,10 +96,21 @@ class _VoucherScreenState extends State<VoucherScreen> {
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF9F1521)))
           : _vouchers.isEmpty
               ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: _vouchers.length,
-                  itemBuilder: (context, index) => _buildVoucherCard(_vouchers[index], format),
+              : RefreshIndicator(
+                  onRefresh: _loadVouchers,
+                  color: const Color(0xFF9F1521),
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(20),
+                    itemCount: _vouchers.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _vouchers.length) {
+                        return const Center(child: Padding(padding: EdgeInsets.all(15.0), child: CircularProgressIndicator(color: Color(0xFF9F1521))));
+                      }
+                      return _buildVoucherCard(_vouchers[index], format);
+                    },
+                  ),
                 ),
     );
   }
@@ -77,9 +129,11 @@ class _VoucherScreenState extends State<VoucherScreen> {
   }
 
   Widget _buildVoucherCard(Map<String, dynamic> voucher, NumberFormat format) {
+    final minSpend = double.tryParse(voucher['min_spend']?.toString() ?? '0') ?? 0;
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
-      height: 120,
+      height: 130,
       child: Stack(
         children: [
           Container(
@@ -119,7 +173,12 @@ class _VoucherScreenState extends State<VoucherScreen> {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          'Berlaku hingga ${DateFormat('dd MMM yyyy').format(DateTime.parse(voucher['valid_until']))}',
+                          minSpend > 0 ? 'Min. Belanja: ${format.format(minSpend)}' : 'Tanpa Min. Belanja',
+                          style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          voucher['valid_until'] != null ? 'Berlaku hingga ${DateFormat('dd MMM yyyy').format(DateTime.parse(voucher['valid_until']))}' : 'Tanpa Batas Waktu',
                           style: GoogleFonts.plusJakartaSans(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
                         ),
                       ],
