@@ -46,6 +46,7 @@ class ProfileController extends Controller
             
             $path = $request->file('photo')->store('profiles', 'public');
             $validated['photo'] = $path;
+            $validated['is_verified'] = false; // Reset verifikasi
         }
 
         // Handle Base64 Foto Profil (dari webcam)
@@ -60,6 +61,7 @@ class ProfileController extends Controller
             
             \Storage::disk('public')->put($fileName, $image_base64);
             $validated['photo'] = $fileName;
+            $validated['is_verified'] = false; // Reset verifikasi
         }
 
         // Handle Upload KTM
@@ -70,6 +72,7 @@ class ProfileController extends Controller
             
             $path = $request->file('ktm')->store('ktm', 'public');
             $validated['ktm'] = $path;
+            $validated['is_verified'] = false; // Reset verifikasi
         }
 
         $user->update($validated);
