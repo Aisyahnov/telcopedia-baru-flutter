@@ -199,6 +199,9 @@
                                 </div>
                             </div>
                             
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-maroon rounded-pill px-5 py-2 shadow-sm fw-bold">Simpan Perubahan</button>
+                            </div>
                         </form>
                     </div>
                 </div>

@@ -43,19 +43,19 @@
                         <i class="fa-solid fa-location-dot text-maroon fs-5 me-2"></i>
                         <h6 class="fw-bold mb-0">Alamat Pengiriman</h6>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" id="btnChangeAddress">
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 {{ !$userAddress ? 'd-none' : '' }}" id="btnChangeAddress">
                         <i class="fa fa-pencil-alt me-1 small"></i> Ubah
                     </button>
                 </div>
                 
-                <div id="addressDisplay">
+                <div id="addressDisplay" class="{{ !$userAddress ? 'd-none' : '' }}">
                     <div class="fw-bold mb-1">{{ auth()->user()->name }} | {{ auth()->user()->phone ?? 'No. HP Belum Diatur' }}</div>
                     <div class="text-muted small mb-0" id="addressText">
-                        {{ $userAddress ?? 'Alamat belum disetting di profil. Klik ubah untuk memasukkan alamat.' }}
+                        {{ $userAddress ?? 'Alamat belum disetting di profil. Silakan isi alamat pengiriman di bawah.' }}
                     </div>
                 </div>
 
-                <div id="addressInput" class="d-none mt-3">
+                <div id="addressInput" class="{{ $userAddress ? 'd-none' : '' }} mt-3">
                     <label class="form-label small text-muted">Masukkan Alamat Baru / Detail Lokasi COD</label>
                     <textarea name="shipping_address" form="checkout-form" id="shipping_address_input" class="form-control border-0 bg-light p-3" rows="3" placeholder="Contoh: Gedung GKU Lt. 2, Depan Asrama, atau No. Kamar..." required>{{ old('shipping_address', $userAddress) }}</textarea>
                     <div class="mt-2 d-flex justify-content-end gap-2">
@@ -78,12 +78,12 @@
                 });
 
                 document.getElementById('btnSaveAddress').addEventListener('click', function() {
-                    const newAddress = document.getElementById('shipping_address_input').value;
-                    if(newAddress.trim() === '') {
-                        alert('Alamat tidak boleh kosong!');
+                    const addressInput = document.getElementById('shipping_address_input');
+                    if(addressInput.value.trim() === '') {
+                        addressInput.reportValidity();
                         return;
                     }
-                    document.getElementById('addressText').innerText = newAddress;
+                    document.getElementById('addressText').innerText = addressInput.value;
                     document.getElementById('addressDisplay').classList.remove('d-none');
                     document.getElementById('addressInput').classList.add('d-none');
                     document.getElementById('btnChangeAddress').classList.remove('d-none');
