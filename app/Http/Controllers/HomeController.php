@@ -81,8 +81,9 @@ class HomeController extends Controller
 
     public function favorites(Request $request)
     {
-        $favorites = $this->favoriteService->getUserFavorites($request->user()->id, true, 12);
-        return view('favorites.index', compact('favorites'));
+        $keyword = $request->query('keyword');
+        $favorites = $this->favoriteService->getUserFavorites($request->user()->id, true, 12, $keyword);
+        return view('favorites.index', compact('favorites', 'keyword'));
     }
 
     public function toggleFavorite(Request $request)

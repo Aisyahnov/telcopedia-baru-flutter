@@ -36,13 +36,52 @@ class CategoryController extends Controller
                 return $category;
             });
 
-        // Default: Tampilkan semua produk dari semua kategori
+        // Ambil produk berdasarkan filter
         $firstCategory = null;
-        $products = Product::where('status', 'approved')
+        $productQuery = Product::where('status', 'approved')
             ->with(['seller', 'category'])
-            ->latest()
-            ->take(12)
-            ->get();
+            ->latest();
+
+        if (request('category')) {
+            $selectedCategory = Category::where('slug', request('category'))->first();
+            if ($selectedCategory) {
+                $firstCategory = $selectedCategory;
+                
+                if (request('subcategory')) {
+                    $selectedSubCategory = Category::where('slug', request('subcategory'))->first();
+                    if ($selectedSubCategory) {
+                        $productQuery->where('category_id', $selectedSubCategory->id);
+                    }
+                } else {
+                    $categoryIds = Category::where('id', $selectedCategory->id)
+                        ->orWhere('parent_id', $selectedCategory->id)
+                        ->pluck('id');
+                    $productQuery->whereIn('category_id', $categoryIds);
+                }
+            }
+        }
+
+        // Filter produk berdasarkan keyword pencarian (word-boundary, agar 'meja' tidak cocok 'kemeja')
+        if ($keyword = request('keyword')) {
+            $productQuery->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', $keyword . ' %')
+                  ->orWhere('name', 'like', '% ' . $keyword . ' %')
+                  ->orWhere('name', 'like', '% ' . $keyword)
+                  ->orWhere('name', $keyword)
+                  ->orWhere('description', 'like', $keyword . ' %')
+                  ->orWhere('description', 'like', '% ' . $keyword . ' %')
+                  ->orWhere('description', 'like', '% ' . $keyword)
+                  ->orWhere('description', $keyword)
+                  ->orWhereHas('seller', function ($sq) use ($keyword) {
+                      $sq->where('name', 'like', $keyword . ' %')
+                         ->orWhere('name', 'like', '% ' . $keyword . ' %')
+                         ->orWhere('name', 'like', '% ' . $keyword)
+                         ->orWhere('name', $keyword);
+                  });
+            });
+        }
+
+        $products = $productQuery->paginate(12);
 
         return view('category.index', compact('categories', 'products', 'firstCategory'));
     }

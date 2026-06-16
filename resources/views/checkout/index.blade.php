@@ -117,6 +117,7 @@
                             </thead>
                             <tbody>
                                 @foreach($items as $item)
+                                @if($item->product)
                                 <tr>
                                     <td class="ps-4 py-3">
                                         <div class="d-flex align-items-center">
@@ -130,6 +131,7 @@
                                     <td class="text-center">{{ $item->quantity }}</td>
                                     <td class="text-end pe-4 fw-bold">Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</td>
                                 </tr>
+                                @endif
                                 @endforeach
                             </tbody>
                         </table>

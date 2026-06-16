@@ -125,7 +125,7 @@ class AdminController extends Controller
 
         $withdrawal->status = 'rejected';
         $withdrawal->save();
-        $withdrawal->user->increment('saldo', $withdrawal->amount);
+        $withdrawal->user->increment('balance', $withdrawal->amount);
         return response()->json(['message' => 'Withdrawal rejected']);
     }
 }

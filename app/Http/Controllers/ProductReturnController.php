@@ -95,13 +95,13 @@ class ProductReturnController extends Controller
                 $refundAmount = $orderItem->price * $orderItem->quantity;
                 
                 // Refund ke pembeli
-                $return->user->increment('saldo', $refundAmount);
+                $return->user->increment('balance', $refundAmount);
 
                 // Jika pesanan sudah selesai, saldo sudah masuk ke penjual, maka harus ditarik kembali
                 if ($return->order->status === 'completed') {
                     $seller = $return->product->seller;
                     if ($seller) {
-                        $seller->decrement('saldo', $refundAmount);
+                        $seller->decrement('balance', $refundAmount);
                     }
                 }
             }

@@ -11,6 +11,22 @@ class Product extends Model
     protected $guarded = ['id'];
     protected $appends = ['image_url'];
 
+    protected static function booted()
+    {
+        static::addGlobalScope('activeSeller', function ($builder) {
+            // Hanya tampilkan produk yang sellernya tidak di-banned (penalty_points < 3)
+            // Menggunakan subquery raw DB::table agar tidak memicu infinite recursion pada Eloquent
+            $subquery = \Illuminate\Support\Facades\DB::table('product_returns as pr')
+                ->select('p.seller_id')
+                ->join('products as p', 'p.id', '=', 'pr.product_id')
+                ->where('pr.status', 'approved')
+                ->groupBy('p.seller_id')
+                ->havingRaw('COUNT(pr.id) >= 3');
+
+            $builder->whereNotIn('products.seller_id', $subquery);
+        });
+    }
+
     public function images()
     {
         return $this->hasMany(ProductImage::class);

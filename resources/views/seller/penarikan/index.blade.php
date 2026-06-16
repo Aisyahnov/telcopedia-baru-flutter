@@ -48,8 +48,8 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted small fw-bold mb-1 text-uppercase">SALDO TERSEDIA</p>
-                        <h2 class="fw-bold text-dark mb-0">Rp {{ number_format(Auth::user()->saldo, 0, ',', '.') }}</h2>
-                        <p class="text-muted small mb-0 mt-2">Dapat dicairkan kapan saja.</p>
+                        <h2 class="fw-bold text-dark mb-0">Rp {{ number_format(Auth::user()->balance, 0, ',', '.') }}</h2>
+                        <p class="text-muted small mt-1 mb-0">Dapat dicairkan kapan saja.</p>
                     </div>
                     <div class="bg-maroon-soft p-3 rounded-circle text-maroon">
                         <i class="fa fa-wallet fa-2x"></i>
@@ -124,15 +124,16 @@
                         @csrf
                         
                         <div class="bg-maroon-soft rounded-20 p-4 mb-4 text-center border border-maroon border-opacity-10">
-                            <span class="x-small text-maroon fw-bold d-block mb-1">SALDO ANDA SAAT INI</span>
-                            <h3 class="fw-bold text-maroon mb-0">Rp {{ number_format(Auth::user()->saldo, 0, ',', '.') }}</h3>
+                            <p class="text-muted small mb-1">Saldo Tersedia</p>
+                            <h3 class="fw-bold text-maroon mb-0">Rp {{ number_format(Auth::user()->balance, 0, ',', '.') }}</h3>
                         </div>
 
                         <div class="mb-4">
                             <label class="x-small text-muted fw-bold mb-2">JUMLAH PENARIKAN (MIN RP 10.000)</label>
                             <div class="input-group">
-                                <span class="input-group-text border-0 bg-light fw-bold ps-4" style="border-radius: 30px 0 0 30px;">Rp</span>
-                                <input type="number" name="amount" class="form-control border-0 bg-light py-3 pe-4" style="border-radius: 0 30px 30px 0;" required min="10000" max="{{ Auth::user()->saldo }}" placeholder="0">
+                                <span class="input-group-text bg-light border-0" style="border-radius: 30px 0 0 30px;">Rp</span>
+                                <input type="text" id="amountDisplay" class="form-control border-0 bg-light py-3 pe-4" style="border-radius: 0 30px 30px 0;" required placeholder="0">
+                                <input type="hidden" name="amount" id="amountActual">
                             </div>
                         </div>
 
@@ -166,4 +167,35 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const displayInput = document.getElementById('amountDisplay');
+            const hiddenInput = document.getElementById('amountActual');
+            const form = displayInput.closest('form');
+
+            displayInput.addEventListener('input', function(e) {
+                let val = this.value.replace(/\D/g, ''); // Hapus semua karakter selain angka
+                if (val) {
+                    hiddenInput.value = val;
+                    this.value = parseInt(val, 10).toLocaleString('id-ID'); // Format titik ala Indonesia
+                } else {
+                    hiddenInput.value = '';
+                    this.value = '';
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                const val = parseInt(hiddenInput.value || 0, 10);
+                const max = {{ Auth::user()->balance }};
+                if (val < 10000) {
+                    e.preventDefault();
+                    alert('Minimal penarikan adalah Rp 10.000');
+                } else if (val > max) {
+                    e.preventDefault();
+                    alert('Saldo tidak mencukupi untuk penarikan sebesar itu.');
+                }
+            });
+        });
+    </script>
 @endsection

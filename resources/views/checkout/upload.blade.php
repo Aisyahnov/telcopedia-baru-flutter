@@ -78,7 +78,7 @@
                                     <i class="fa-solid fa-cloud-arrow-up text-muted fs-1 mb-3"></i>
                                     <h6 class="fw-bold mb-1">Klik untuk memilih file</h6>
                                     <p class="text-muted xsmall mb-0" style="font-size: 11px;">Maksimal ukuran file 10MB (JPG, PNG)</p>
-                                    <input type="file" name="payment_proof" id="file-input" class="d-none" required accept="image/*">
+                                    <input type="file" name="payment_proof" id="file-input" style="opacity: 0; position: absolute; z-index: -1;" required accept="image/*">
                                 </div>
                                 <div id="file-name" class="text-center mt-2 small text-success fw-bold d-none"></div>
                             </div>

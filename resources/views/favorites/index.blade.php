@@ -6,7 +6,11 @@
     
     <div class="text-center mb-5">
         <h2 class="fw-900">Produk <span class="text-maroon">Favorit Saya</span></h2>
-        <p class="text-muted">Daftar barang yang paling Anda incar untuk dibeli nanti.</p>
+        @if(isset($keyword) && $keyword)
+            <p class="text-muted">Hasil pencarian untuk: <strong class="text-maroon">"{{ $keyword }}"</strong> &mdash; <a href="{{ route('favorites.index') }}" class="text-muted text-decoration-none small">Lihat semua</a></p>
+        @else
+            <p class="text-muted">Daftar barang yang paling Anda incar untuk dibeli nanti.</p>
+        @endif
     </div>
 
     @push('styles')
@@ -109,7 +113,7 @@
         </div>
 
         <div class="d-flex justify-content-center mt-5">
-            {{ $favorites->links('pagination::bootstrap-5') }}
+            {{ $favorites->appends(['keyword' => $keyword ?? ''])->links() }}
         </div>
     @endif
 </div>

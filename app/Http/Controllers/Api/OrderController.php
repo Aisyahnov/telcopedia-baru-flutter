@@ -189,13 +189,13 @@ class OrderController extends Controller
                 $refundAmount = $orderItem->price * $orderItem->quantity;
                 
                 // Refund ke pembeli
-                $return->user->increment('saldo', $refundAmount);
+                $return->user->increment('balance', $refundAmount);
 
                 // Jika pesanan sudah selesai, tarik kembali saldo penjual
                 if ($return->order->status === 'completed') {
                     $seller = $orderItem->product->seller ?? \App\Models\User::find($orderItem->product->seller_id);
                     if ($seller) {
-                        $seller->decrement('saldo', $refundAmount);
+                        $seller->decrement('balance', $refundAmount);
                     }
                 }
             }

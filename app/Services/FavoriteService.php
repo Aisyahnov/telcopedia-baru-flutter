@@ -6,9 +6,25 @@ use App\Models\Favorite;
 
 class FavoriteService
 {
-    public function getUserFavorites($userId, $paginate = false, $perPage = 10)
+    public function getUserFavorites($userId, $paginate = false, $perPage = 10, $keyword = null)
     {
-        $query = Favorite::where('user_id', $userId)->with('product');
+        $query = Favorite::where('user_id', $userId)->with(['product.seller', 'product.category']);
+
+        if ($keyword) {
+            $query->whereHas('product', function ($q) use ($keyword) {
+                $q->where('name', 'like', $keyword . ' %')
+                  ->orWhere('name', 'like', '% ' . $keyword . ' %')
+                  ->orWhere('name', 'like', '% ' . $keyword)
+                  ->orWhere('name', $keyword)
+                  ->orWhereHas('seller', function ($sq) use ($keyword) {
+                      $sq->where('name', 'like', $keyword . ' %')
+                         ->orWhere('name', 'like', '% ' . $keyword . ' %')
+                         ->orWhere('name', 'like', '% ' . $keyword)
+                         ->orWhere('name', $keyword);
+                  });
+            });
+        }
+
         if ($paginate) {
             return $query->paginate($perPage);
         }

@@ -49,6 +49,7 @@
                     </thead>
                     <tbody>
                         @foreach($items->items as $item)
+                        @if($item->product)
                         <tr class="cart-row" data-id="{{ $item->id }}" data-price="{{ $item->product->price }}" data-qty="{{ $item->quantity }}">
                             <td class="ps-4 py-4">
                                 <input type="checkbox" class="form-check-input item-checkbox" name="selected_items[]" value="{{ $item->id }}">
@@ -85,6 +86,7 @@
                                 <span class="fw-bold text-dark">Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}</span>
                             </td>
                         </tr>
+                        @endif
                         @endforeach
                     </tbody>
                 </table>

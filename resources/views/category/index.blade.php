@@ -80,36 +80,30 @@
 
     <!-- Category Nav -->
     <div class="cat-nav-wrapper mb-3 pb-2">
-        <button class="cat-btn {{ !$firstCategory ? 'active' : '' }}" 
-                onclick="loadCategory('all', this)">
+        <a href="{{ route('category.index') }}" class="cat-btn text-decoration-none {{ !request('category') ? 'active' : '' }}">
             <i class="fa-solid fa-border-all"></i>
             Semua Kategori
-        </button>
+        </a>
         @foreach($categories as $index => $cat)
-            <button class="cat-btn {{ $firstCategory && $firstCategory->id == $cat->id ? 'active' : '' }}" 
-                    onclick="loadCategory({{ $cat->id }}, this)">
+            <a href="{{ route('category.index', ['category' => $cat->slug]) }}" class="cat-btn text-decoration-none {{ request('category') == $cat->slug ? 'active' : '' }}">
                 <i class="fa-solid {{ $cat->icon }}"></i>
                 {{ $cat->name }}
-            </button>
+            </a>
         @endforeach
     </div>
 
     <!-- Sub-Category Nav (Dynamic) -->
     <div id="subcat-container" class="d-flex flex-wrap gap-2 mb-5">
-        @if($firstCategory && $firstCategory->subcategories->count() > 0)
-            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 active" onclick="loadSubCategory({{ $firstCategory->id }}, this)">Semua</button>
+        @if(isset($firstCategory) && $firstCategory->subcategories->count() > 0)
+            <a href="{{ route('category.index', ['category' => $firstCategory->slug]) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 {{ !request('subcategory') ? 'active' : '' }}">Semua</a>
             @foreach($firstCategory->subcategories as $sub)
-                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="loadSubCategory({{ $sub->id }}, this)">{{ $sub->name }}</button>
+                <a href="{{ route('category.index', ['category' => $firstCategory->slug, 'subcategory' => $sub->slug]) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 {{ request('subcategory') == $sub->slug ? 'active' : '' }}">{{ $sub->name }}</a>
             @endforeach
         @endif
     </div>
 
     <!-- Product Grid Section -->
     <div class="position-relative">
-        <div id="loading" class="loading-overlay">
-            <div class="spinner-border text-maroon" role="status"></div>
-        </div>
-        
         <div class="row g-4" id="product-grid">
             @forelse($products as $p)
                 <div class="col-6 col-md-4 col-lg-3">
@@ -158,158 +152,17 @@
             @endforelse
         </div>
         
-        <!-- Show More Button -->
-        <div class="text-center mt-5 {{ $products->count() < 12 ? 'd-none' : '' }}" id="more-container">
-            <a href="{{ $firstCategory ? route('home', ['category_id' => $firstCategory->id]) : '#' }}" id="btn-show-more" class="btn btn-outline-maroon px-5 rounded-pill fw-bold">
-                Tampilkan Produk Lebih Banyak <i class="fa-solid fa-arrow-right ms-2"></i>
-            </a>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-5">
+            {{ $products->withQueryString()->links() }}
         </div>
     </div>
 </div>
 
 @push('scripts')
 <script>
-    async function loadCategory(catId, btn) {
-        // Toggle active class
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const grid = document.getElementById('product-grid');
-        const loading = document.getElementById('loading');
-        const moreContainer = document.getElementById('more-container');
-        const btnMore = document.getElementById('btn-show-more');
-        const subcatContainer = document.getElementById('subcat-container');
-
-        loading.style.display = 'flex';
-        
-        try {
-            // Kita ambil data kategori ini dari API
-            const response = await fetch(`/categories/products/${catId}`);
-            const data = await response.json();
-            
-            // Update Sub-kategori chips
-            const catData = @json($categories).find(c => c.id == catId);
-            if (catData && catData.subcategories.length > 0) {
-                subcatContainer.innerHTML = `<button class="btn btn-sm btn-outline-secondary rounded-pill px-3 active" onclick="loadSubCategory(${catId}, this)">Semua</button>`;
-                catData.subcategories.forEach(sub => {
-                    subcatContainer.innerHTML += `<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="loadSubCategory(${sub.id}, this)">${sub.name}</button>`;
-                });
-            } else {
-                subcatContainer.innerHTML = '';
-            }
-
-            grid.innerHTML = '';
-            
-            if (data.products.length === 0) {
-                grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Belum ada produk di kategori ini.</p></div>';
-                moreContainer.classList.add('d-none');
-            } else {
-                data.products.forEach(p => {
-                    const card = createProductCard(p);
-                    grid.appendChild(card);
-                });
-
-                if (data.has_more) {
-                    moreContainer.classList.remove('d-none');
-                    btnMore.href = `/?category_id=${catId}`;
-                } else {
-                    moreContainer.classList.add('d-none');
-                }
-            }
-        } catch (error) {
-            console.error('Error loading category:', error);
-        } finally {
-            loading.style.display = 'none';
-        }
-    }
-
-    async function loadSubCategory(subId, btn) {
-        // Toggle active class
-        document.querySelectorAll('#subcat-container button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const grid = document.getElementById('product-grid');
-        const loading = document.getElementById('loading');
-        const moreContainer = document.getElementById('more-container');
-        
-        loading.style.display = 'flex';
-        
-        try {
-            const response = await fetch(`/categories/products/${subId}`);
-            const data = await response.json();
-            
-            grid.innerHTML = '';
-            
-            if (data.products.length === 0) {
-                grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Belum ada produk di kategori ini.</p></div>';
-                moreContainer.classList.add('d-none');
-            } else {
-                data.products.forEach(p => {
-                    const card = createProductCard(p);
-                    grid.appendChild(card);
-                });
-
-                if (data.has_more) {
-                    moreContainer.classList.remove('d-none');
-                    document.getElementById('btn-show-more').href = `/?category_id=${subId}`;
-                } else {
-                    moreContainer.classList.add('d-none');
-                }
-            }
-        } catch (error) {
-            console.error('Error loading sub-category:', error);
-        } finally {
-            loading.style.display = 'none';
-        }
-    }
-
-    function createProductCard(p) {
-        const col = document.createElement('div');
-        col.className = 'col-6 col-md-4 col-lg-3';
-        
-        const price = new Intl.NumberFormat('id-ID').format(p.price);
-        const sellerName = p.seller ? p.seller.name.split(' ')[0] : 'Seller';
-        const ratingHtml = p.reviews && p.reviews.length > 0 
-            ? `<div class="text-warning" style="font-size: 0.7rem;"><i class="fa fa-star me-1"></i>5.0</div>` 
-            : '';
-
-        col.innerHTML = `
-            <div class="product-card-premium">
-                <div class="pc-img-wrapper">
-                    <img src="${p.image_url}" alt="${p.name}">
-                    <span class="pc-badge shadow-sm">${p.category ? p.category.name : 'Umum'}</span>
-                </div>
-                <div class="pc-body">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="badge bg-light text-muted" style="font-size: 0.6rem;">${p.condition.toUpperCase()}</span>
-                        ${ratingHtml}
-                    </div>
-                    <h6 class="pc-title">
-                        <a href="/product/${p.id}" class="text-decoration-none text-dark stretched-link">${p.name}</a>
-                    </h6>
-                    <div class="pc-price">Rp ${price}</div>
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                        <div class="d-flex align-items-center overflow-hidden" style="max-width: 60%;">
-                            <img src="${p.seller && p.seller.photo ? '/storage/' + p.seller.photo : 'https://ui-avatars.com/api/?name='+encodeURIComponent(sellerName)+'&background=F8F9FA&color=9F1521'}" class="rounded-circle me-1" style="object-fit: cover;" width="20" height="20">
-                            <span class="text-dark fw-bold text-truncate" style="font-size: 0.7rem;">${sellerName}</span>
-                        </div>
-                        <div class="d-flex gap-1" style="position: relative; z-index: 2;">
-                            <a href="/product/${p.id}" class="btn btn-light btn-sm rounded-circle border p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa fa-eye" style="font-size: 0.6rem;"></i>
-                            </a>
-                            <form action="{{ route('cart.add') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="product_id" value="${p.id}">
-                                <button class="btn btn-maroon btn-sm rounded-circle p-0" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fa fa-cart-plus" style="font-size: 0.6rem;"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        return col;
+    function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID').format(angka);
     }
 </script>
 @endpush

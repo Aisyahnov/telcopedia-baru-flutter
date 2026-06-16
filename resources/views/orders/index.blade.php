@@ -123,6 +123,7 @@
                             <div class="mb-3 mb-md-0">
                                 @foreach($order->items as $item)
                                     <div class="mb-3 border-bottom pb-3">
+                                        @if($item->product)
                                         <div class="d-flex align-items-center">
                                             <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" class="rounded me-3 border" width="50" height="50" style="object-fit: cover;">
                                             <div>
@@ -130,6 +131,15 @@
                                                 <small class="text-muted">{{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}</small>
                                             </div>
                                         </div>
+                                        @else
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded me-3 border bg-light d-flex align-items-center justify-content-center" style="width:50px;height:50px;"><i class="fa fa-box text-muted"></i></div>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 text-muted">[Produk tidak tersedia]</h6>
+                                                <small class="text-muted">{{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}</small>
+                                            </div>
+                                        </div>
+                                        @endif
                                         
                                         @if($order->status == 'completed' || $order->status == 'shipped')
                                             @php

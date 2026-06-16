@@ -24,7 +24,7 @@ class PenarikanController extends Controller
 
         $user = $request->user();
 
-        if ($user->saldo < $request->amount) {
+        if ($user->balance < $request->amount) {
             return back()->with('error', 'Saldo tidak mencukupi.');
         }
 
@@ -38,7 +38,7 @@ class PenarikanController extends Controller
 
         // Deduct balance immediately or on approval? 
         // Usually best to deduct immediately and put in "escrow" or just pending state.
-        $user->decrement('saldo', $request->amount);
+        $user->decrement('balance', $request->amount);
 
         // Notify Admins
         $admins = User::where('role', 'admin')->get();
@@ -86,7 +86,7 @@ class PenarikanController extends Controller
         $withdrawal->save();
 
         // Refund balance
-        $withdrawal->user->increment('saldo', $withdrawal->amount);
+        $withdrawal->user->increment('balance', $withdrawal->amount);
 
         // Notify Seller
         $withdrawal->user->notify(new \App\Notifications\SystemNotification(

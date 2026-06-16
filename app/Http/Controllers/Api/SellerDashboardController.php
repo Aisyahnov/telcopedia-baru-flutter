@@ -82,7 +82,7 @@ class SellerDashboardController extends Controller
 
         $user = $request->user();
 
-        if ($user->saldo < $request->amount) {
+        if ($user->balance < $request->amount) {
             return response()->json(['message' => 'Saldo tidak mencukupi'], 400);
         }
 
@@ -95,7 +95,7 @@ class SellerDashboardController extends Controller
             'status' => 'pending',
         ]);
 
-        $user->decrement('saldo', $request->amount);
+        $user->decrement('balance', $request->amount);
 
         return response()->json([
             'message' => 'Penarikan dana berhasil diajukan',

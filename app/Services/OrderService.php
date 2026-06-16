@@ -36,7 +36,7 @@ class OrderService
     {
         $order = Order::where('id', $orderId)->where('user_id', $buyerId)->firstOrFail();
         
-        if ($order->status !== 'processing' && $order->status !== 'delivered') {
+        if ($order->status !== 'processing' && $order->status !== 'delivered' && $order->status !== 'shipped') {
              throw new \Exception('Pesanan belum bisa diselesaikan');
         }
 
@@ -44,10 +44,24 @@ class OrderService
         $order->save();
 
         // Transfer dana pesanan ke saldo penjual
-        $firstItem = $order->items()->with('product')->first();
-        if ($firstItem && $firstItem->product) {
-            \App\Models\User::where('id', $firstItem->product->seller_id)
-                ->increment('saldo', $order->total_amount);
+        // Lakukan pengelompokan per seller karena 1 order bisa berisi item dari banyak seller
+        $sellerIncomes = [];
+        foreach ($order->items as $item) {
+            if ($item->product && $item->product->seller_id) {
+                $sellerId = $item->product->seller_id;
+                $subtotal = $item->price * $item->quantity;
+                
+                if (!isset($sellerIncomes[$sellerId])) {
+                    $sellerIncomes[$sellerId] = 0;
+                }
+                $sellerIncomes[$sellerId] += $subtotal;
+            }
+        }
+
+        foreach ($sellerIncomes as $sellerId => $subtotal) {
+            $adminFee = $subtotal * 0.05;
+            $sellerIncome = $subtotal - $adminFee;
+            \App\Models\User::where('id', $sellerId)->increment('balance', $sellerIncome);
         }
 
         return $order;

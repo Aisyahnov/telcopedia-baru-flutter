@@ -25,9 +25,10 @@
 
       <!-- SEARCH BAR WIDESCREEN -->
       @php
-          $searchAction = url('/');
+          $searchAction = route('home');
           $searchPlaceholder = 'Cari barang atau nama seller...';
           $currentRoute = Route::currentRouteName();
+          $searchHiddenInputs = [];
 
           if ($currentRoute === 'orders.index') {
               $searchAction = url('/orders');
@@ -35,9 +36,19 @@
           } elseif ($currentRoute === 'vouchers.index') {
               $searchAction = url('/vouchers');
               $searchPlaceholder = 'Cari kode voucher diskon...';
+          } elseif ($currentRoute === 'favorites.index') {
+              $searchAction = route('favorites.index');
+              $searchPlaceholder = 'Cari produk favorit kamu...';
           } elseif ($currentRoute === 'category.index') {
-              $searchAction = url('/categories');
-              $searchPlaceholder = 'Cari nama kategori...';
+              $searchAction = route('category.index');
+              $searchPlaceholder = 'Cari produk di kategori ini...';
+              // Pertahankan filter kategori yang sedang aktif
+              if (request('category')) {
+                  $searchHiddenInputs['category'] = request('category');
+              }
+              if (request('subcategory')) {
+                  $searchHiddenInputs['subcategory'] = request('subcategory');
+              }
           }
       @endphp
       <form action="{{ $searchAction }}" method="GET" class="d-flex flex-grow-1 me-4 my-3 my-lg-0">
@@ -45,6 +56,10 @@
         @if(request()->has('filter') && $currentRoute === 'orders.index')
             <input type="hidden" name="filter" value="{{ request('filter') }}">
         @endif
+        {{-- Preserve contextual filters (e.g. category/subcategory) --}}
+        @foreach($searchHiddenInputs as $hiddenName => $hiddenValue)
+            <input type="hidden" name="{{ $hiddenName }}" value="{{ $hiddenValue }}">
+        @endforeach
         <div class="input-group">
             <input name="keyword" value="{{ request('keyword') }}" class="form-control border-maroon border-opacity-25 shadow-none py-2 rounded-start-pill ps-4" type="search" placeholder="{{ $searchPlaceholder }}" style="font-size: 0.95rem;">
             <button class="btn btn-maroon px-4 shadow-none rounded-end-pill" type="submit"><i class="fa fa-search"></i></button>

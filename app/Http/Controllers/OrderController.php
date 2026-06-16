@@ -51,35 +51,28 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->orderBy('created_at', 'desc')
-                        ->paginate(5)
-                        ->appends(['filter' => $filter, 'keyword' => $request->query('keyword')]);
+        $orders = $query->with([
+                        'items.product' => function($q) {
+                            // Bypass global scope agar produk dari seller banned tetap muncul di riwayat pesanan
+                            $q->withoutGlobalScope('activeSeller');
+                        }
+                    ])
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(5)
+                    ->appends(['filter' => $filter, 'keyword' => $request->query('keyword')]);
 
         return view('orders.index', compact('orders', 'filter'));
     }
 
     public function complete(Request $request, $id)
     {
-        $order = Order::where('id', $id)->where('user_id', $request->user()->id)->firstOrFail();
-        
-        if ($order->status !== 'shipped' && $order->status !== 'processing') {
-            return back()->with('error', 'Status pesanan tidak dapat diselesaikan saat ini.');
+        try {
+            $service = app(\App\Services\OrderService::class);
+            $service->completeOrder($id, $request->user()->id);
+            return back()->with('success', 'Pesanan telah diterima. Terima kasih! Jangan lupa berikan ulasan produk.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $order->status = 'completed';
-        $order->save();
-
-        // Distribute funds to sellers
-        foreach ($order->items as $item) {
-            $seller = $item->product->seller;
-            if ($seller) {
-                // Seller gets the item subtotal (price * quantity)
-                $amount = $item->price * $item->quantity;
-                $seller->increment('balance', $amount);
-            }
-        }
-
-        return back()->with('success', 'Pesanan telah diterima. Terima kasih! Jangan lupa berikan ulasan produk.');
     }
     public function cancel(Request $request, $id)
     {
